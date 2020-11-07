@@ -1,0 +1,61 @@
+[package]
+name = "cargo-bashman"
+version = "0.1.0"
+license = "WTFPL"
+authors = ["Josh Stoik <josh@blobfolio.com>"]
+edition = "2018"
+description = "BashMan is a Cargo plugin that helps you generate BASH completions and/or MAN pages for your Rust project."
+publish = false
+
+[package.metadata.deb]
+maintainer = "Josh Stoik <hello@blobfolio.com>"
+copyright = "2020, Blobfolio, LLC <hello@blobfolio.com>"
+license-file = ["../LICENSE", "0"]
+revision = "1"
+depends = "$auto"
+section = "utility"
+assets = [
+    ["../target/x86_64-unknown-linux-gnu/release/cargo-bashman", "usr/bin/", "755"],
+    ["../release/bash_completion.d/cargo-bashman.bash", "etc/bash_completion.d/", "644"],
+    ["../release/man1/cargo-bashman.1.gz", "usr/share/man/man1/", "644"],
+]
+
+[package.metadata.bashman]
+name = "Cargo BashMan"
+bash-dir = "../release/bash_completion.d"
+man-dir = "../release/man1"
+
+[[package.metadata.bashman.switches]]
+short = "-h"
+long = "--help"
+description = "Print help information."
+subcommands = [ "", "sub" ]
+
+[[package.metadata.bashman.options]]
+short = "-m"
+long = "--manifest-path"
+description = "Path to the Cargo.toml file to use."
+label = "<Cargo.toml>"
+path = true
+
+[[package.metadata.bashman.switches]]
+short = "-V"
+long = "--version"
+description = "Print application version."
+
+[dependencies]
+chrono = "0.4.*"
+indexmap = "1.6.*"
+libdeflater = "0.5.*"
+
+[dependencies.toml]
+version = "0.5.*"
+features = [ "preserve_order" ]
+
+[dependencies.fyi_menu]
+git = "https://github.com/Blobfolio/fyi.git"
+branch = "master"
+
+[dependencies.fyi_msg]
+git = "https://github.com/Blobfolio/fyi.git"
+branch = "master"
