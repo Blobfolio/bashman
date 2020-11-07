@@ -35,7 +35,11 @@ Pre-built `.deb` packages are also added for each [release](https://github.com/B
 `BashMan` pulls all the data it needs to compile BASH completions and MAN pages straight from the specified `Cargo.toml` file. Once your manifest is set, all you need to do is run:
 
 ```bash
+# Generate the stuff for the thing:
 cargo bashman [-m/--manifest-path] /path/to/Cargo.toml
+
+# You can also pull up help via:
+cargo bashman [-h/--help]
 ```
 
 
