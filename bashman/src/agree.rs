@@ -1067,19 +1067,18 @@ fn write_to(file: &PathBuf, data: &[u8], compress: bool) -> Result<(), ()> {
 		let mut buf: Vec<u8> = Vec::with_capacity(data.len());
 		buf.resize(writer.gzip_compress_bound(data.len()), 0);
 
-		if let Ok(len) = writer.gzip_compress(data, &mut buf) {
-			// Trim any excess now that we know the final length.
-			buf.truncate(len);
+		// Trim any excess now that we know the final length.
+		let len = writer.gzip_compress(data, &mut buf).map_err(|_| ())?;
+		buf.truncate(len);
 
-			// Toss ".gz" onto the original file path.
-			let filegz: PathBuf = PathBuf::from(OsStr::from_bytes(&[
-				unsafe { &*(file.as_os_str() as *const OsStr as *const [u8]) },
-				b".gz",
-			].concat()));
+		// Toss ".gz" onto the original file path.
+		let filegz: PathBuf = PathBuf::from(OsStr::from_bytes(&[
+			unsafe { &*(file.as_os_str() as *const OsStr as *const [u8]) },
+			b".gz",
+		].concat()));
 
-			// Recurse to write it!
-			return write_to(&filegz, &buf, false);
-		}
+		// Recurse to write it!
+		return write_to(&filegz, &buf, false);
 	}
 
 	Ok(())
