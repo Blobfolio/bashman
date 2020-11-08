@@ -100,25 +100,9 @@ impl BashMan {
 			.ok_or_else(|| String::from("Missing [package.metadata.bashman] section."))?;
 
 		// Extract some basic metadata.
-		let cmd: String = main.get("name")
+		let cmd: &str = main.get("name")
 			.and_then(Value::as_str)
-			.unwrap_or_default()
-			.into();
-
-		let version: String = main.get("version")
-			.and_then(Value::as_str)
-			.unwrap_or_default()
-			.into();
-
-		let name: String = bm.get("name")
-			.and_then(Value::as_str)
-			.unwrap_or(&cmd)
-			.into();
-
-		let description: String = main.get("description")
-			.and_then(Value::as_str)
-			.unwrap_or_default()
-			.into();
+			.unwrap_or_default();
 
 		let dir = manifest.parent().unwrap().to_path_buf();
 
@@ -129,10 +113,21 @@ impl BashMan {
 			.map_err(|_| String::from("Invalid MAN directory."))?;
 
 		// We have enough to start an Agree!
-		let mut agree: Agree = Agree::new(name, description, cmd, version);
-		let mut subcmd: IndexMap<String, Agree> = IndexMap::new();
+		let mut agree: Agree = Agree::new(
+			bm.get("name")
+				.and_then(Value::as_str)
+				.unwrap_or(cmd),
+			main.get("description")
+				.and_then(Value::as_str)
+				.unwrap_or_default(),
+			cmd,
+			main.get("version")
+				.and_then(Value::as_str)
+				.unwrap_or_default(),
+		);
 
 		// Check for subcommands.
+		let mut subcmd: IndexMap<String, Agree> = IndexMap::new();
 		resolve_subcommands(bm.get("subcommands"), &mut subcmd, agree.version());
 
 		// Load up flags/options/args.
@@ -253,15 +248,16 @@ fn resolve_subcommands(
 				.into();
 
 			if ! cmd.is_empty() {
-				let name: &str = y.get("name")
-					.and_then(Value::as_str)
-					.unwrap_or(&cmd);
-
-				let description: &str = y.get("description")
-					.and_then(Value::as_str)
-					.unwrap_or_default();
-
-				let agree = Agree::new(name, description, &cmd, version);
+				let agree = Agree::new(
+					y.get("name")
+						.and_then(Value::as_str)
+						.unwrap_or(&cmd),
+					y.get("description")
+						.and_then(Value::as_str)
+						.unwrap_or_default(),
+					&cmd,
+					version,
+				);
 
 				subcmd.insert(cmd, agree);
 			}
