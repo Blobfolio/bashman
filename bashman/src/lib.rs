@@ -237,11 +237,8 @@ fn resolve_subcommands(
 	subcmd: &mut IndexMap<String, Agree>,
 	version: &str,
 ) {
-	subcommands.and_then(Value::as_array)
-		.unwrap_or(&Vec::new())
-		.iter()
-		.filter_map(Value::as_table)
-		.for_each(|y| {
+	if let Some(x) = subcommands.and_then(Value::as_array) {
+		x.iter().filter_map(Value::as_table).for_each(|y| {
 			let cmd: String = y.get("cmd")
 				.and_then(Value::as_str)
 				.unwrap_or_default()
@@ -262,6 +259,7 @@ fn resolve_subcommands(
 				subcmd.insert(cmd, agree);
 			}
 		});
+	}
 }
 
 /// # Resolve Switches.
@@ -273,11 +271,8 @@ fn resolve_switches(
 	cmd: &mut Agree,
 	subcmd: &mut IndexMap<String, Agree>
 ) {
-	switches.and_then(Value::as_array)
-		.unwrap_or(&Vec::new())
-		.iter()
-		.filter_map(Value::as_table)
-		.for_each(|y| {
+	if let Some(x) = switches.and_then(Value::as_array) {
+		x.iter().filter_map(Value::as_table).for_each(|y| {
 			let mut switch: AgreeKind = AgreeKind::switch(y.get("description")
 				.and_then(Value::as_str)
 				.unwrap_or_default()
@@ -286,6 +281,7 @@ fn resolve_switches(
 			switch = resolve_short_long(switch, y);
 			clone_args(y.get("subcommands"), switch, cmd, subcmd);
 		});
+	}
 }
 
 /// # Resolve Options.
@@ -297,11 +293,8 @@ fn resolve_options(
 	cmd: &mut Agree,
 	subcmd: &mut IndexMap<String, Agree>
 ) {
-	options.and_then(Value::as_array)
-		.unwrap_or(&Vec::new())
-		.iter()
-		.filter_map(Value::as_table)
-		.for_each(|y| {
+	if let Some(x) = options.and_then(Value::as_array) {
+		x.iter().filter_map(Value::as_table).for_each(|y| {
 			let mut option: AgreeKind = AgreeKind::option(
 				y.get("label")
 					.and_then(Value::as_str)
@@ -317,6 +310,7 @@ fn resolve_options(
 			option = resolve_short_long(option, y);
 			clone_args(y.get("subcommands"), option, cmd, subcmd);
 		});
+	}
 }
 
 /// # Resolve Args.
@@ -328,11 +322,8 @@ fn resolve_args(
 	cmd: &mut Agree,
 	subcmd: &mut IndexMap<String, Agree>
 ) {
-	args.and_then(Value::as_array)
-		.unwrap_or(&Vec::new())
-		.iter()
-		.filter_map(Value::as_table)
-		.for_each(|y| {
+	if let Some(x) = args.and_then(Value::as_array) {
+		x.iter().filter_map(Value::as_table).for_each(|y| {
 			let arg: AgreeKind = AgreeKind::arg(
 				y.get("label")
 					.and_then(Value::as_str)
@@ -344,6 +335,7 @@ fn resolve_args(
 
 			clone_args(y.get("subcommands"), arg, cmd, subcmd);
 		});
+	}
 }
 
 /// # Resolve Short/Long.
@@ -373,11 +365,8 @@ fn resolve_sections(
 	sections: Option<&Value>,
 	agree: &mut Agree,
 ) {
-	sections.and_then(Value::as_array)
-		.unwrap_or(&Vec::new())
-		.iter()
-		.filter_map(Value::as_table)
-		.for_each(|y| {
+	if let Some(x) = sections.and_then(Value::as_array) {
+		x.iter().filter_map(Value::as_table).for_each(|y| {
 			let mut section = AgreeSection::new(
 				y.get("name")
 					.and_then(Value::as_str)
@@ -416,6 +405,7 @@ fn resolve_sections(
 				agree.push_section(section);
 			}
 		});
+	}
 }
 
 /// # Copy Agree Kinds.
