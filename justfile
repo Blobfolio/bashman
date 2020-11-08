@@ -21,7 +21,6 @@ pkg_dir1    := justfile_directory() + "/bashman"
 
 cargo_dir   := "/tmp/" + pkg_id + "-cargo"
 cargo_bin   := cargo_dir + "/x86_64-unknown-linux-gnu/release/" + pkg_id
-data_dir    := "/tmp/bench-data"
 doc_dir     := justfile_directory() + "/doc"
 release_dir := justfile_directory() + "/release"
 
