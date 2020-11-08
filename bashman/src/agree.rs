@@ -2,9 +2,18 @@
 # FYI Menu: Agree
 */
 
-use std::path::{
-	Path,
-	PathBuf,
+use libdeflater::{
+	CompressionLvl,
+	Compressor,
+};
+use std::{
+	ffi::OsStr,
+	io::Write,
+	os::unix::ffi::OsStrExt,
+	path::{
+		Path,
+		PathBuf,
+	},
 };
 
 
@@ -1047,16 +1056,6 @@ fn man_tagline(short: Option<&str>, long: Option<&str>, value: Option<&str>) -> 
 /// This writes data to a file, optionally recursing to save a `GZipped`
 /// version (for MAN pages).
 fn write_to(file: &PathBuf, data: &[u8], compress: bool) -> Result<(), ()> {
-	use libdeflater::{
-		CompressionLvl,
-		Compressor,
-	};
-	use std::{
-		ffi::OsStr,
-		os::unix::ffi::OsStrExt,
-		io::Write,
-	};
-
 	let mut out = std::fs::File::create(file).map_err(|_| ())?;
 	out.write_all(data).map_err(|_| ())?;
 	out.flush().map_err(|_| ())?;
