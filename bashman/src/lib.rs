@@ -407,10 +407,10 @@ fn resolve_sections(
 				.and_then(Value::as_array)
 				.unwrap_or(&Vec::new())
 				.iter()
-				.filter_map(Value::as_array)
-				.filter(|z| z.len() == 2)
 				.filter_map(|z|
-					Value::as_str(&z[0]).zip(Value::as_str(&z[1]))
+					Value::as_array(z)
+						.filter(|z| z.len() == 2)
+						.and_then(|z| Value::as_str(&z[0]).zip(Value::as_str(&z[1])))
 						.map(|(k, v)| AgreeKind::item(k, v))
 				)
 				.fold(section, AgreeSection::with_item);
