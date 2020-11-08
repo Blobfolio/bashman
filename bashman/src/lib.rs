@@ -31,8 +31,10 @@ pub mod agree;
 
 use fyi_msg::MsgKind;
 use indexmap::IndexMap;
-use std::path::Path;
-use std::path::PathBuf;
+use std::path::{
+	Path,
+	PathBuf,
+};
 use toml::Value;
 
 pub use agree::{
