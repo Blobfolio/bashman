@@ -668,12 +668,12 @@ impl Agree {
 
 		// If this is empty, just add our app and call it quits.
 		if out.is_empty() {
-			return [
+			return format!(
+				"{}complete -F {} -o bashdefault -o default {}\n",
 				self.bash_completions(""),
-				include_str!("../skel/basher.end.txt")
-					.replace("%BNAME%", &self.bin)
-					.replace("%FNAME%", &self.bash_fname("")),
-			].concat();
+				&self.bash_fname(""),
+				&self.bin
+			);
 		}
 
 		// Add the app method.
@@ -810,21 +810,37 @@ impl Agree {
 	/// output is combined with other code to produce the final script returned
 	/// by the main [`Agree::bash`] method.
 	fn bash_completions(&self, parent: &str) -> String {
-		// Hold the string we're building.
-		include_str!("../skel/basher.txt")
-			.replace("%FNAME%", &self.bash_fname(parent))
-			.replace(
-				"%CONDS%",
-				&self.args.iter()
-					.filter_map(|x| {
-						let txt: String = x.bash();
-						if txt.is_empty() { None }
-						else { Some(txt) }
-					})
-					.collect::<Vec<String>>()
-					.join("")
-			)
-			.replace("%PATHS%", &self.bash_paths())
+		format!(
+			r#"{}() {{
+	local cur prev opts
+	COMPREPLY=()
+	cur="${{COMP_WORDS[COMP_CWORD]}}"
+	prev="${{COMP_WORDS[COMP_CWORD-1]}}"
+	opts=()
+
+{}
+	opts=" ${{opts[@]}} "
+	if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq 1 ]] ; then
+		COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
+		return 0
+	fi
+
+{}
+	COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
+	return 0
+}}
+"#,
+			&self.bash_fname(parent),
+			&self.args.iter()
+				.filter_map(|x| {
+					let txt: String = x.bash();
+					if txt.is_empty() { None }
+					else { Some(txt) }
+				})
+				.collect::<Vec<String>>()
+				.join(""),
+			&self.bash_paths(),
+		)
 	}
 
 	/// # BASH Helper (Path Options).
@@ -843,8 +859,19 @@ impl Agree {
 
 		if keys.is_empty() { String::new() }
 		else {
-			include_str!("../skel/basher.paths.txt")
-				.replace("%KEYS%", &keys.join("|"))
+			format!(
+				r#"	case "${{prev}}" in
+		{})
+			COMPREPLY=( $( compgen -f "${{cur}}" ) )
+			return 0
+			;;
+		*)
+			COMPREPLY=()
+			;;
+	esac
+"#,
+				&keys.join("|")
+			)
 		}
 	}
 
@@ -864,25 +891,60 @@ impl Agree {
 			.fold(
 				(String::new(), String::new()),
 				|(mut a, mut b), (c, d)| {
-					a.push_str(
-						&include_str!("../skel/basher.subcmd.1.txt")
-							.replace("%BNAME%", &c)
-					);
-					b.push_str(
-						&include_str!("../skel/basher.subcmd.2.txt")
-							.replace("%BNAME%", &c)
-							.replace("%FNAME%", &d)
-					);
+					a.push_str(&format!("\
+						\t\t\t{})\n\
+						\t\t\t\tcmd=\"{}\"\n\
+						\t\t\t\t;;\n",
+						&c, &c
+					));
+					b.push_str(&format!("\
+						\t\t{})\n\
+						\t\t\t{}\n\
+						\t\t\t;;\n",
+						&c,
+						&d
+					));
 
 					(a, b)
 				}
 			);
 
-		include_str!("../skel/basher.subcmd.txt")
-			.replace("%BNAME%", &self.bin)
-			.replace("%FNAME%", &self.bash_fname(""))
-			.replace("%SUBCMD1%", &cmd)
-			.replace("%SUBCMD2%", &chooser)
+		format!(
+			r#"subcmd_{fname}() {{
+	local i cmd
+	COMPREPLY=()
+	cmd=""
+
+	for i in ${{COMP_WORDS[@]}}; do
+		case "${{i}}" in
+{sub1}
+			*)
+				;;
+		esac
+	done
+
+	echo "$cmd"
+}}
+
+chooser_{fname}() {{
+	local i cmd
+	COMPREPLY=()
+	cmd="$( subcmd_{fname} )"
+
+	case "${{cmd}}" in
+{sub2}
+		*)
+			;;
+	esac
+}}
+
+complete -F chooser_{fname} -o bashdefault -o default {bname}
+"#,
+			fname=self.bash_fname(""),
+			bname=self.bin,
+			sub1=cmd,
+			sub2=chooser
+		)
 	}
 
 	/// # MAN Helper (Usage).
@@ -1014,11 +1076,19 @@ impl Agree {
 /// # Bash Helper (Long/Short Conds)
 fn bash_long_short_conds(short: Option<&str>, long: Option<&str>) -> String {
 	match (short, long) {
-		(Some(s), Some(l)) => include_str!("../skel/basher.cond2.txt")
-			.replace("%SHORT%", s)
-			.replace("%LONG%", l),
-		(None, Some(k)) | (Some(k), None) => include_str!("../skel/basher.cond1.txt")
-			.replace("%KEY%", k),
+		(Some(s), Some(l)) => format!(
+			r#"	if [[ ! " ${{COMP_LINE}} " =~ " {short} " ]] && [[ ! " ${{COMP_LINE}} " =~ " {long} " ]]; then
+		opts+=("{short}")
+		opts+=("{long}")
+	fi
+"#,
+			short=s,
+			long=l
+		),
+		(None, Some(k)) | (Some(k), None) => format!(
+			"\t[[ \" ${{COMP_LINE}} \" =~ \" {key} \" ]] || opts+=(\"{key}\")\n",
+			key=k
+		),
 		(None, None) => String::new(),
 	}
 }
