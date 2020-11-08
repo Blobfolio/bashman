@@ -229,7 +229,7 @@ impl AgreeKind {
 			Self::Switch(i) => {
 				let mut out: String = self.man_tagline();
 				if out.is_empty() {
-					format!(".TP\n{}", &i.description)
+					[".TP\n", &i.description].concat()
 				}
 				else {
 					out.push('\n');
@@ -240,7 +240,7 @@ impl AgreeKind {
 			Self::Option(i) => {
 				let mut out: String = self.man_tagline();
 				if out.is_empty() {
-					format!(".TP\n{}", &i.description)
+					[".TP\n", &i.description].concat()
 				}
 				else {
 					out.push('\n');
@@ -251,7 +251,7 @@ impl AgreeKind {
 			Self::Arg(i) | Self::Item(i) => {
 				let mut out: String = self.man_tagline();
 				if out.is_empty() {
-					format!(".TP\n{}", &i.description)
+					[".TP\n", &i.description].concat()
 				}
 				else {
 					out.push('\n');
@@ -261,17 +261,20 @@ impl AgreeKind {
 			},
 			Self::Paragraph(i) => {
 				if indent {
-					format!(".TP\n{}", i.p.join("\n.RE\n"))
+					[
+						".TP\n",
+						&i.p.join("\n.RE\n"),
+					].concat()
 				}
 				else {
 					i.p.join("\n.RE\n")
 				}
 			},
-			Self::SubCommand(s) => format!(
-				"{}\n{}",
-				self.man_tagline(),
+			Self::SubCommand(s) => [
+				&self.man_tagline(),
+				"\n",
 				&s.description,
-			),
+			].concat(),
 		}
 	}
 
@@ -534,11 +537,11 @@ impl AgreeSection {
 	/// [`Agree::man`] to produce the full document.
 	fn man(&self) -> String {
 		// Start with the header.
-		let mut out: String = format!(
-			"{} {}",
+		let mut out: String = [
 			if self.indent { ".SS" } else { ".SH" },
+			" ",
 			&self.name,
-		);
+		].concat();
 
 		// Add the items one at a time.
 		self.items.iter()
@@ -724,7 +727,7 @@ impl Agree {
 		))?;
 
 		if path.is_dir() {
-			path.push(&format!("{}.bash", &self.bin));
+			path.push([&self.bin, ".bash"].concat());
 			write_to(&path, self.bash().as_bytes(), false)
 				.map_err(|_| format!(
 					"Unable to write BASH completions: {:?}",
@@ -757,7 +760,7 @@ impl Agree {
 
 		// The main file.
 		if path.is_dir() {
-			path.push(&format!("{}.1", &self.bin));
+			path.push([&self.bin, ".1"].concat());
 			write_to(&path, self.man().as_bytes(), true)
 				.map_err(|_| format!(
 					"Unable to write MAN page: {:?}",
@@ -775,7 +778,7 @@ impl Agree {
 			)
 		{
 			path.pop();
-			path.push(&format!("{}-{}.1", &self.bin, bin));
+			path.push([&self.bin, "-", &bin, ".1"].concat());
 			write_to(&path, man.as_bytes(), true)
 				.map_err(|_| format!(
 					"Unable to write MAN page: {:?}",
@@ -797,10 +800,13 @@ impl Agree {
 			"_",
 			&self.bin,
 		].concat()
-			.replace('-', "_")
-			.to_lowercase()
 			.chars()
-			.filter(|&x| x.is_alphanumeric() || x == '_')
+			.filter_map(|x| match x {
+				'a'..='z' | '0'..='9' => Some(x),
+				'A'..='Z' => Some(x.to_ascii_lowercase()),
+				'-' | '_' | ' ' => Some('_'),
+				_ => None,
+			})
 			.collect::<String>()
 	}
 
@@ -951,7 +957,7 @@ complete -F chooser_{fname} -o bashdefault -o default {bname}
 	///
 	/// This generates an example command for the `USAGE` section, if any.
 	fn man_usage(&self, parent: &str) -> String {
-		let mut out: String = format!("{} {}", parent, &self.bin)
+		let mut out: String = [parent, " ", &self.bin].concat()
 			.trim()
 			.to_string();
 
@@ -984,7 +990,7 @@ complete -F chooser_{fname} -o bashdefault -o default {bname}
 		// Start with the header.
 		let mut out: String = format!(
 			r#".TH "{}" "1" "{}" "{} v{}" "User Commands""#,
-			format!("{} {}", parent.to_uppercase(), self.name.to_uppercase()).trim(),
+			[&parent.to_uppercase(), " ", &self.name.to_uppercase()].concat().trim(),
 			chrono::Local::now().format("%B %Y"),
 			&self.name,
 			&self.version,
@@ -1039,7 +1045,7 @@ complete -F chooser_{fname} -o bashdefault -o default {bname}
 				.filter_map(AgreeKind::if_arg)
 				.for_each(|x| {
 					pre.push(
-						AgreeSection::new(&format!("{}:", &x.name), true)
+						AgreeSection::new(&[&x.name, ":"].concat(), true)
 							.with_item(AgreeKind::paragraph(&x.description))
 					);
 				});
