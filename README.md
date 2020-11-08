@@ -2,6 +2,8 @@
 
 `BashMan` is a Cargo plugin that helps you generate BASH completions and/or MAN pages for your Rust apps using metadata from your projects' `Cargo.toml` manifests. It pairs well with the (unaffiliated) [cargo-deb](https://github.com/mmstick/cargo-deb).
 
+(This can technically be used for non-Rust apps. It just parses the data out of a [TOML](https://en.wikipedia.org/wiki/TOML) file. Any TOML'll do.)
+
 BASH completions are sub-command aware — one level deep — and avoid making duplicate suggestions. For example, if the line already has `-h`, it will not suggest `-h` or its long variant `--help`.
 
 MAN pages are automatically populated with the primary sections — `NAME`, `DESCRIPTION`, `USAGE`, `SUBCOMMANDS`, `FLAGS`, `OPTIONS`, `ARGUMENTS` — and the top level page can be extended with additional arbitrary sections as needed. If subcommands are defined, additional pages for each are generated, showing their particular usage, flags, etc.
@@ -52,8 +54,8 @@ For everything else, start by adding a section to your `Cargo.toml` manifest lik
 ```toml
 [package.metadata.bashman]
 name = "Cargo BashMan"
-bash-dir = "../release/bash_completion.d"
-man-dir = "../release/man1"
+bash-dir = "../release/completions"
+man-dir = "../release/man"
 ```
 
 | Key | Type | Description | Default |
@@ -207,10 +209,17 @@ items = [
 
 Taking `BashMan` as an example, the `Cargo.toml` will end up containing something like:
 ```toml
+[package]
+name = "cargo-bashman"
+version = "0.1.0"
+description = "BashMan is a Cargo plugin that helps you generate BASH completions and/or MAN pages for your Rust project."
+
+...
+
 [package.metadata.bashman]
 name = "Cargo BashMan"
-bash-dir = "../release/bash_completion.d"
-man-dir = "../release/man1"
+bash-dir = "../release/completions"
+man-dir = "../release/man"
 
 [[package.metadata.bashman.switches]]
 short = "-h"

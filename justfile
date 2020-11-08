@@ -41,7 +41,7 @@ rustflags   := "-C link-arg=-s"
 
 # Build Debian package!
 @build-deb: build
-	# Do completions.
+	# Do completions/man.
 	{{ cargo_bin }} -m "{{ pkg_dir1 }}/Cargo.toml"
 
 	# cargo-deb doesn't support target_dir flags yet.

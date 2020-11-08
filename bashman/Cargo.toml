@@ -1,6 +1,6 @@
 [package]
 name = "cargo-bashman"
-version = "0.1.0"
+version = "0.1.1"
 license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
 edition = "2018"
@@ -16,14 +16,14 @@ depends = "$auto"
 section = "utility"
 assets = [
     ["../target/x86_64-unknown-linux-gnu/release/cargo-bashman", "usr/bin/", "755"],
-    ["../release/bash_completion.d/cargo-bashman.bash", "etc/bash_completion.d/", "644"],
-    ["../release/man1/cargo-bashman.1.gz", "usr/share/man/man1/", "644"],
+    ["../release/completions/cargo-bashman.bash", "etc/bash_completion.d/", "644"],
+    ["../release/man/cargo-bashman.1.gz", "usr/share/man/man1/", "644"],
 ]
 
 [package.metadata.bashman]
 name = "Cargo BashMan"
-bash-dir = "../release/bash_completion.d"
-man-dir = "../release/man1"
+bash-dir = "../release/completions"
+man-dir = "../release/man"
 
 [[package.metadata.bashman.switches]]
 short = "-h"
@@ -31,17 +31,17 @@ long = "--help"
 description = "Print help information."
 subcommands = [ "", "sub" ]
 
+[[package.metadata.bashman.switches]]
+short = "-V"
+long = "--version"
+description = "Print application version."
+
 [[package.metadata.bashman.options]]
 short = "-m"
 long = "--manifest-path"
 description = "Path to the Cargo.toml file to use."
 label = "<Cargo.toml>"
 path = true
-
-[[package.metadata.bashman.switches]]
-short = "-V"
-long = "--version"
-description = "Print application version."
 
 [dependencies]
 chrono = "0.4.*"

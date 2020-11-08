@@ -310,11 +310,19 @@ fn helper(_: Option<&str>) {
    \_/;-.,____,.-;\_/
 ======(_(_(==)_)_)======
 
-{}
+USAGE:
+    cargo bashman [FLAGS] [OPTIONS]
+
+FLAGS:
+    -h, --help                  Prints help information.
+    -V, --version               Prints version information.
+
+OPTIONS:
+    -m, --manifest-path <FILE>  Read file paths from this list.
+
 ",
         "\x1b[38;5;199mCargo BashMan\x1b[0;38;5;69m v",
         env!("CARGO_PKG_VERSION"),
         "\x1b[0m",
-        include_str!("../help.txt")
     )).print();
 }
