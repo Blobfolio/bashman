@@ -1,9 +1,0 @@
-USAGE:
-    cargo bashman [FLAGS] [OPTIONS]
-
-FLAGS:
-    -h, --help                  Prints help information.
-    -V, --version               Prints version information.
-
-OPTIONS:
-    -m, --manifest-path <FILE>  Read file paths from this list.
