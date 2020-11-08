@@ -186,22 +186,14 @@ impl AgreeKind {
 	/// output produced by [`Agree::bash`].
 	fn bash(&self) -> String {
 		match self {
-			Self::Switch(s) => match (s.short.as_deref(), s.long.as_deref()) {
-				(Some(s), Some(l)) => include_str!("../skel/basher.cond2.txt")
-					.replace("%SHORT%", s)
-					.replace("%LONG%", l),
-				(None, Some(k)) | (Some(k), None) => include_str!("../skel/basher.cond1.txt")
-					.replace("%KEY%", k),
-				(None, None) => String::new(),
-			},
-			Self::Option(o) => match (o.short.as_deref(), o.long.as_deref()) {
-				(Some(s), Some(l)) => include_str!("../skel/basher.cond2.txt")
-					.replace("%SHORT%", s)
-					.replace("%LONG%", l),
-				(None, Some(k)) | (Some(k), None) => include_str!("../skel/basher.cond1.txt")
-					.replace("%KEY%", k),
-				(None, None) => String::new(),
-			},
+			Self::Switch(s) => bash_long_short_conds(
+				s.short.as_deref(),
+				s.long.as_deref(),
+			),
+			Self::Option(s) => bash_long_short_conds(
+				s.short.as_deref(),
+				s.long.as_deref(),
+			),
 			Self::SubCommand(s) => format!("\topts+=(\"{}\")\n", &s.bin),
 			_ => String::new(),
 		}
@@ -1018,6 +1010,18 @@ impl Agree {
 }
 
 
+
+/// # Bash Helper (Long/Short Conds)
+fn bash_long_short_conds(short: Option<&str>, long: Option<&str>) -> String {
+	match (short, long) {
+		(Some(s), Some(l)) => include_str!("../skel/basher.cond2.txt")
+			.replace("%SHORT%", s)
+			.replace("%LONG%", l),
+		(None, Some(k)) | (Some(k), None) => include_str!("../skel/basher.cond1.txt")
+			.replace("%KEY%", k),
+		(None, None) => String::new(),
+	}
+}
 
 /// # Man Tagline.
 ///
