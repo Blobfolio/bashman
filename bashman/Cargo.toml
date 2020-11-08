@@ -1,6 +1,6 @@
 [package]
 name = "cargo-bashman"
-version = "0.1.0"
+version = "0.1.1"
 license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
 edition = "2018"
@@ -31,17 +31,17 @@ long = "--help"
 description = "Print help information."
 subcommands = [ "", "sub" ]
 
+[[package.metadata.bashman.switches]]
+short = "-V"
+long = "--version"
+description = "Print application version."
+
 [[package.metadata.bashman.options]]
 short = "-m"
 long = "--manifest-path"
 description = "Path to the Cargo.toml file to use."
 label = "<Cargo.toml>"
 path = true
-
-[[package.metadata.bashman.switches]]
-short = "-V"
-long = "--version"
-description = "Print application version."
 
 [dependencies]
 chrono = "0.4.*"
