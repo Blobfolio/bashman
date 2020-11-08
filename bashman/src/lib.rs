@@ -425,7 +425,7 @@ fn clone_args(
 	cmd: &mut Agree,
 	subcmd: &mut IndexMap<String, Agree>
 ) {
-	if let Some(z) = set.and_then(Value::as_array) {
+	if let Some(z) = set.and_then(Value::as_array).filter(|z| ! z.is_empty()) {
 		z.iter().filter_map(Value::as_str).for_each(|sub| {
 			if sub.is_empty() {
 				cmd.push_arg(arg.clone());
