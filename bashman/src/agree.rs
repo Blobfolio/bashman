@@ -2,9 +2,18 @@
 # FYI Menu: Agree
 */
 
-use std::path::{
-	Path,
-	PathBuf,
+use libdeflater::{
+	CompressionLvl,
+	Compressor,
+};
+use std::{
+	ffi::OsStr,
+	io::Write,
+	os::unix::ffi::OsStrExt,
+	path::{
+		Path,
+		PathBuf,
+	},
 };
 
 
@@ -177,22 +186,14 @@ impl AgreeKind {
 	/// output produced by [`Agree::bash`].
 	fn bash(&self) -> String {
 		match self {
-			Self::Switch(s) => match (s.short.as_deref(), s.long.as_deref()) {
-				(Some(s), Some(l)) => include_str!("../skel/basher.cond2.txt")
-					.replace("%SHORT%", s)
-					.replace("%LONG%", l),
-				(None, Some(k)) | (Some(k), None) => include_str!("../skel/basher.cond1.txt")
-					.replace("%KEY%", k),
-				(None, None) => String::new(),
-			},
-			Self::Option(o) => match (o.short.as_deref(), o.long.as_deref()) {
-				(Some(s), Some(l)) => include_str!("../skel/basher.cond2.txt")
-					.replace("%SHORT%", s)
-					.replace("%LONG%", l),
-				(None, Some(k)) | (Some(k), None) => include_str!("../skel/basher.cond1.txt")
-					.replace("%KEY%", k),
-				(None, None) => String::new(),
-			},
+			Self::Switch(s) => bash_long_short_conds(
+				s.short.as_deref(),
+				s.long.as_deref(),
+			),
+			Self::Option(s) => bash_long_short_conds(
+				s.short.as_deref(),
+				s.long.as_deref(),
+			),
 			Self::SubCommand(s) => format!("\topts+=(\"{}\")\n", &s.bin),
 			_ => String::new(),
 		}
@@ -228,7 +229,7 @@ impl AgreeKind {
 			Self::Switch(i) => {
 				let mut out: String = self.man_tagline();
 				if out.is_empty() {
-					format!(".TP\n{}", &i.description)
+					[".TP\n", &i.description].concat()
 				}
 				else {
 					out.push('\n');
@@ -239,7 +240,7 @@ impl AgreeKind {
 			Self::Option(i) => {
 				let mut out: String = self.man_tagline();
 				if out.is_empty() {
-					format!(".TP\n{}", &i.description)
+					[".TP\n", &i.description].concat()
 				}
 				else {
 					out.push('\n');
@@ -250,7 +251,7 @@ impl AgreeKind {
 			Self::Arg(i) | Self::Item(i) => {
 				let mut out: String = self.man_tagline();
 				if out.is_empty() {
-					format!(".TP\n{}", &i.description)
+					[".TP\n", &i.description].concat()
 				}
 				else {
 					out.push('\n');
@@ -260,17 +261,20 @@ impl AgreeKind {
 			},
 			Self::Paragraph(i) => {
 				if indent {
-					format!(".TP\n{}", i.p.join("\n.RE\n"))
+					[
+						".TP\n",
+						&i.p.join("\n.RE\n"),
+					].concat()
 				}
 				else {
 					i.p.join("\n.RE\n")
 				}
 			},
-			Self::SubCommand(s) => format!(
-				"{}\n{}",
-				self.man_tagline(),
+			Self::SubCommand(s) => [
+				&self.man_tagline(),
+				"\n",
 				&s.description,
-			),
+			].concat(),
 		}
 	}
 
@@ -533,11 +537,11 @@ impl AgreeSection {
 	/// [`Agree::man`] to produce the full document.
 	fn man(&self) -> String {
 		// Start with the header.
-		let mut out: String = format!(
-			"{} {}",
+		let mut out: String = [
 			if self.indent { ".SS" } else { ".SH" },
+			" ",
 			&self.name,
-		);
+		].concat();
 
 		// Add the items one at a time.
 		self.items.iter()
@@ -667,12 +671,12 @@ impl Agree {
 
 		// If this is empty, just add our app and call it quits.
 		if out.is_empty() {
-			return [
+			return format!(
+				"{}complete -F {} -o bashdefault -o default {}\n",
 				self.bash_completions(""),
-				include_str!("../skel/basher.end.txt")
-					.replace("%BNAME%", &self.bin)
-					.replace("%FNAME%", &self.bash_fname("")),
-			].concat();
+				&self.bash_fname(""),
+				&self.bin
+			);
 		}
 
 		// Add the app method.
@@ -723,7 +727,7 @@ impl Agree {
 		))?;
 
 		if path.is_dir() {
-			path.push(&format!("{}.bash", &self.bin));
+			path.push([&self.bin, ".bash"].concat());
 			write_to(&path, self.bash().as_bytes(), false)
 				.map_err(|_| format!(
 					"Unable to write BASH completions: {:?}",
@@ -756,7 +760,7 @@ impl Agree {
 
 		// The main file.
 		if path.is_dir() {
-			path.push(&format!("{}.1", &self.bin));
+			path.push([&self.bin, ".1"].concat());
 			write_to(&path, self.man().as_bytes(), true)
 				.map_err(|_| format!(
 					"Unable to write MAN page: {:?}",
@@ -774,7 +778,7 @@ impl Agree {
 			)
 		{
 			path.pop();
-			path.push(&format!("{}-{}.1", &self.bin, bin));
+			path.push([&self.bin, "-", &bin, ".1"].concat());
 			write_to(&path, man.as_bytes(), true)
 				.map_err(|_| format!(
 					"Unable to write MAN page: {:?}",
@@ -796,10 +800,13 @@ impl Agree {
 			"_",
 			&self.bin,
 		].concat()
-			.replace('-', "_")
-			.to_lowercase()
 			.chars()
-			.filter(|&x| x.is_alphanumeric() || x == '_')
+			.filter_map(|x| match x {
+				'a'..='z' | '0'..='9' => Some(x),
+				'A'..='Z' => Some(x.to_ascii_lowercase()),
+				'-' | '_' | ' ' => Some('_'),
+				_ => None,
+			})
 			.collect::<String>()
 	}
 
@@ -809,21 +816,37 @@ impl Agree {
 	/// output is combined with other code to produce the final script returned
 	/// by the main [`Agree::bash`] method.
 	fn bash_completions(&self, parent: &str) -> String {
-		// Hold the string we're building.
-		include_str!("../skel/basher.txt")
-			.replace("%FNAME%", &self.bash_fname(parent))
-			.replace(
-				"%CONDS%",
-				&self.args.iter()
-					.filter_map(|x| {
-						let txt: String = x.bash();
-						if txt.is_empty() { None }
-						else { Some(txt) }
-					})
-					.collect::<Vec<String>>()
-					.join("")
-			)
-			.replace("%PATHS%", &self.bash_paths())
+		format!(
+			r#"{}() {{
+	local cur prev opts
+	COMPREPLY=()
+	cur="${{COMP_WORDS[COMP_CWORD]}}"
+	prev="${{COMP_WORDS[COMP_CWORD-1]}}"
+	opts=()
+
+{}
+	opts=" ${{opts[@]}} "
+	if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq 1 ]] ; then
+		COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
+		return 0
+	fi
+
+{}
+	COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
+	return 0
+}}
+"#,
+			&self.bash_fname(parent),
+			&self.args.iter()
+				.filter_map(|x| {
+					let txt: String = x.bash();
+					if txt.is_empty() { None }
+					else { Some(txt) }
+				})
+				.collect::<Vec<String>>()
+				.join(""),
+			&self.bash_paths(),
+		)
 	}
 
 	/// # BASH Helper (Path Options).
@@ -842,8 +865,19 @@ impl Agree {
 
 		if keys.is_empty() { String::new() }
 		else {
-			include_str!("../skel/basher.paths.txt")
-				.replace("%KEYS%", &keys.join("|"))
+			format!(
+				r#"	case "${{prev}}" in
+		{})
+			COMPREPLY=( $( compgen -f "${{cur}}" ) )
+			return 0
+			;;
+		*)
+			COMPREPLY=()
+			;;
+	esac
+"#,
+				&keys.join("|")
+			)
 		}
 	}
 
@@ -863,32 +897,67 @@ impl Agree {
 			.fold(
 				(String::new(), String::new()),
 				|(mut a, mut b), (c, d)| {
-					a.push_str(
-						&include_str!("../skel/basher.subcmd.1.txt")
-							.replace("%BNAME%", &c)
-					);
-					b.push_str(
-						&include_str!("../skel/basher.subcmd.2.txt")
-							.replace("%BNAME%", &c)
-							.replace("%FNAME%", &d)
-					);
+					a.push_str(&format!("\
+						\t\t\t{})\n\
+						\t\t\t\tcmd=\"{}\"\n\
+						\t\t\t\t;;\n",
+						&c, &c
+					));
+					b.push_str(&format!("\
+						\t\t{})\n\
+						\t\t\t{}\n\
+						\t\t\t;;\n",
+						&c,
+						&d
+					));
 
 					(a, b)
 				}
 			);
 
-		include_str!("../skel/basher.subcmd.txt")
-			.replace("%BNAME%", &self.bin)
-			.replace("%FNAME%", &self.bash_fname(""))
-			.replace("%SUBCMD1%", &cmd)
-			.replace("%SUBCMD2%", &chooser)
+		format!(
+			r#"subcmd_{fname}() {{
+	local i cmd
+	COMPREPLY=()
+	cmd=""
+
+	for i in ${{COMP_WORDS[@]}}; do
+		case "${{i}}" in
+{sub1}
+			*)
+				;;
+		esac
+	done
+
+	echo "$cmd"
+}}
+
+chooser_{fname}() {{
+	local i cmd
+	COMPREPLY=()
+	cmd="$( subcmd_{fname} )"
+
+	case "${{cmd}}" in
+{sub2}
+		*)
+			;;
+	esac
+}}
+
+complete -F chooser_{fname} -o bashdefault -o default {bname}
+"#,
+			fname=self.bash_fname(""),
+			bname=self.bin,
+			sub1=cmd,
+			sub2=chooser
+		)
 	}
 
 	/// # MAN Helper (Usage).
 	///
 	/// This generates an example command for the `USAGE` section, if any.
 	fn man_usage(&self, parent: &str) -> String {
-		let mut out: String = format!("{} {}", parent, &self.bin)
+		let mut out: String = [parent, " ", &self.bin].concat()
 			.trim()
 			.to_string();
 
@@ -921,7 +990,7 @@ impl Agree {
 		// Start with the header.
 		let mut out: String = format!(
 			r#".TH "{}" "1" "{}" "{} v{}" "User Commands""#,
-			format!("{} {}", parent.to_uppercase(), self.name.to_uppercase()).trim(),
+			[&parent.to_uppercase(), " ", &self.name.to_uppercase()].concat().trim(),
 			chrono::Local::now().format("%B %Y"),
 			&self.name,
 			&self.version,
@@ -976,7 +1045,7 @@ impl Agree {
 				.filter_map(AgreeKind::if_arg)
 				.for_each(|x| {
 					pre.push(
-						AgreeSection::new(&format!("{}:", &x.name), true)
+						AgreeSection::new(&[&x.name, ":"].concat(), true)
 							.with_item(AgreeKind::paragraph(&x.description))
 					);
 				});
@@ -1009,6 +1078,26 @@ impl Agree {
 }
 
 
+
+/// # Bash Helper (Long/Short Conds)
+fn bash_long_short_conds(short: Option<&str>, long: Option<&str>) -> String {
+	match (short, long) {
+		(Some(s), Some(l)) => format!(
+			r#"	if [[ ! " ${{COMP_LINE}} " =~ " {short} " ]] && [[ ! " ${{COMP_LINE}} " =~ " {long} " ]]; then
+		opts+=("{short}")
+		opts+=("{long}")
+	fi
+"#,
+			short=s,
+			long=l
+		),
+		(None, Some(k)) | (Some(k), None) => format!(
+			"\t[[ \" ${{COMP_LINE}} \" =~ \" {key} \" ]] || opts+=(\"{key}\")\n",
+			key=k
+		),
+		(None, None) => String::new(),
+	}
+}
 
 /// # Man Tagline.
 ///
@@ -1047,16 +1136,6 @@ fn man_tagline(short: Option<&str>, long: Option<&str>, value: Option<&str>) -> 
 /// This writes data to a file, optionally recursing to save a `GZipped`
 /// version (for MAN pages).
 fn write_to(file: &PathBuf, data: &[u8], compress: bool) -> Result<(), ()> {
-	use libdeflater::{
-		CompressionLvl,
-		Compressor,
-	};
-	use std::{
-		ffi::OsStr,
-		os::unix::ffi::OsStrExt,
-		io::Write,
-	};
-
 	let mut out = std::fs::File::create(file).map_err(|_| ())?;
 	out.write_all(data).map_err(|_| ())?;
 	out.flush().map_err(|_| ())?;
@@ -1067,19 +1146,18 @@ fn write_to(file: &PathBuf, data: &[u8], compress: bool) -> Result<(), ()> {
 		let mut buf: Vec<u8> = Vec::with_capacity(data.len());
 		buf.resize(writer.gzip_compress_bound(data.len()), 0);
 
-		if let Ok(len) = writer.gzip_compress(data, &mut buf) {
-			// Trim any excess now that we know the final length.
-			buf.truncate(len);
+		// Trim any excess now that we know the final length.
+		let len = writer.gzip_compress(data, &mut buf).map_err(|_| ())?;
+		buf.truncate(len);
 
-			// Toss ".gz" onto the original file path.
-			let filegz: PathBuf = PathBuf::from(OsStr::from_bytes(&[
-				unsafe { &*(file.as_os_str() as *const OsStr as *const [u8]) },
-				b".gz",
-			].concat()));
+		// Toss ".gz" onto the original file path.
+		let filegz: PathBuf = PathBuf::from(OsStr::from_bytes(&[
+			unsafe { &*(file.as_os_str() as *const OsStr as *const [u8]) },
+			b".gz",
+		].concat()));
 
-			// Recurse to write it!
-			return write_to(&filegz, &buf, false);
-		}
+		// Recurse to write it!
+		return write_to(&filegz, &buf, false);
 	}
 
 	Ok(())
