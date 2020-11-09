@@ -5,6 +5,7 @@ license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
 edition = "2018"
 description = "BashMan is a Cargo plugin that helps you generate BASH completions and/or MAN pages for your Rust project."
+repository = "https://github.com/Blobfolio/bashman"
 publish = false
 
 [package.metadata.deb]
