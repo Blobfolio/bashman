@@ -24,6 +24,7 @@
 #![allow(clippy::cast_possible_truncation)]
 #![allow(clippy::cast_precision_loss)]
 #![allow(clippy::cast_sign_loss)]
+#![allow(clippy::map_err_ignore)]
 #![allow(clippy::missing_errors_doc)]
 #![allow(clippy::module_name_repetitions)]
 
@@ -215,17 +216,15 @@ where P: AsRef<Path> {
 /// absolute, they are realigned to be relative to the manifest directory.
 fn resolve_path(path: Option<&Value>, dir: &PathBuf) -> Result<PathBuf, String> {
 	path.and_then(Value::as_str)
-		.map_or(
-			Ok(dir.clone()),
+		.map_or_else(
+			|| Ok(dir.clone()),
 			|path|
-				if path.starts_with('/') {
-					std::fs::canonicalize(path).map_err(|e| e.to_string())
-				}
+				if path.starts_with('/') { std::fs::canonicalize(path) }
 				else {
 					let mut tmp: PathBuf = dir.clone();
 					tmp.push(path);
-					std::fs::canonicalize(tmp).map_err(|e| e.to_string())
-				}
+					std::fs::canonicalize(tmp)
+				}.map_err(|e| e.to_string())
 		)
 }
 

@@ -721,22 +721,14 @@ impl Agree {
 	/// choosing, using the file name "{bin}.bash".
 	pub fn write_bash<P>(&self, dir: P) -> Result<(), String>
 	where P: AsRef<Path> {
-		let mut path = std::fs::canonicalize(dir.as_ref()).map_err(|_| format!(
-			"Missing BASH completion directory: {:?}",
-			dir.as_ref()
-		))?;
+		let mut path = std::fs::canonicalize(dir.as_ref())
+			.ok()
+			.filter(|x| x.is_dir())
+			.ok_or_else(|| format!("Invalid BASH completion directory: {:?}", dir.as_ref()))?;
 
-		if path.is_dir() {
-			path.push([&self.bin, ".bash"].concat());
-			write_to(&path, self.bash().as_bytes(), false)
-				.map_err(|_| format!(
-					"Unable to write BASH completions: {:?}",
-					path
-				))
-		}
-		else {
-			Err(format!("Invalid BASH completion directory: {:?}", dir.as_ref()))
-		}
+		path.push([&self.bin, ".bash"].concat());
+		write_to(&path, self.bash().as_bytes(), false)
+			.map_err(|_| format!("Unable to write BASH completions: {:?}", path))
 	}
 
 	/// # Write MAN Page!
@@ -753,23 +745,15 @@ impl Agree {
 	/// either the "{bin}.1" or "{bin}.1.gz" version, not both. ;)
 	pub fn write_man<P>(&self, dir: P) -> Result<(), String>
 	where P: AsRef<Path> {
-		let mut path = std::fs::canonicalize(dir.as_ref()).map_err(|_| format!(
-			"Missing MAN directory: {:?}",
-			dir.as_ref()
-		))?;
+		let mut path = std::fs::canonicalize(dir.as_ref())
+			.ok()
+			.filter(|x| x.is_dir())
+			.ok_or_else(|| format!("Invalid MAN directory: {:?}", dir.as_ref()))?;
 
 		// The main file.
-		if path.is_dir() {
-			path.push([&self.bin, ".1"].concat());
-			write_to(&path, self.man().as_bytes(), true)
-				.map_err(|_| format!(
-					"Unable to write MAN page: {:?}",
-					path
-				))?;
-		}
-		else {
-			return Err(format!("Invalid MAN directory: {:?}", dir.as_ref()))
-		}
+		path.push([&self.bin, ".1"].concat());
+		write_to(&path, self.man().as_bytes(), true)
+			.map_err(|_| format!("Unable to write MAN page: {:?}", path))?;
 
 		// Write subcommand pages.
 		for (bin, man) in self.args.iter()
@@ -780,10 +764,7 @@ impl Agree {
 			path.pop();
 			path.push([&self.bin, "-", &bin, ".1"].concat());
 			write_to(&path, man.as_bytes(), true)
-				.map_err(|_| format!(
-					"Unable to write MAN page: {:?}",
-					path
-				))?;
+				.map_err(|_| format!("Unable to write SUB-MAN page: {:?}", path))?;
 		}
 
 		Ok(())
@@ -1040,16 +1021,14 @@ complete -F chooser_{fname} -o bashdefault -o default {bname}
 		}
 
 		// Generated ARGUMENTS Section.
-		{
-			self.args.iter()
-				.filter_map(AgreeKind::if_arg)
-				.for_each(|x| {
-					pre.push(
-						AgreeSection::new(&[&x.name, ":"].concat(), true)
-							.with_item(AgreeKind::paragraph(&x.description))
-					);
-				});
-		}
+		self.args.iter()
+			.filter_map(AgreeKind::if_arg)
+			.for_each(|x| {
+				pre.push(
+					AgreeSection::new(&[&x.name, ":"].concat(), true)
+						.with_item(AgreeKind::paragraph(&x.description))
+				);
+			});
 
 		// Generated SUBCOMMANDS Section.
 		{
@@ -1136,9 +1115,9 @@ fn man_tagline(short: Option<&str>, long: Option<&str>, value: Option<&str>) -> 
 /// This writes data to a file, optionally recursing to save a `GZipped`
 /// version (for MAN pages).
 fn write_to(file: &PathBuf, data: &[u8], compress: bool) -> Result<(), ()> {
-	let mut out = std::fs::File::create(file).map_err(|_| ())?;
-	out.write_all(data).map_err(|_| ())?;
-	out.flush().map_err(|_| ())?;
+	std::fs::File::create(file)
+		.and_then(|mut out| out.write_all(data).and_then(|_| out.flush()))
+		.map_err(|_| ())?;
 
 	// Save a compressed copy?
 	if compress {
