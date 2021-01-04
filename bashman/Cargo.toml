@@ -55,8 +55,8 @@ features = [ "preserve_order" ]
 
 [dependencies.fyi_menu]
 git = "https://github.com/Blobfolio/fyi.git"
-branch = "master"
+tag = "v0.4.2"
 
 [dependencies.fyi_msg]
 git = "https://github.com/Blobfolio/fyi.git"
-branch = "master"
+tag = "v0.4.2"
