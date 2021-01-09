@@ -19,12 +19,11 @@ License details for project dependencies are listed below.
 * [hashbrown 0.9.1](https://github.com/rust-lang/hashbrown)
 * [indexmap 1.6.1](https://github.com/bluss/indexmap)
 * [lazy_static 1.4.0](https://github.com/rust-lang-nursery/lazy-static.rs)
-* [libc 0.2.81](https://github.com/rust-lang/libc)
+* [libc 0.2.82](https://github.com/rust-lang/libc)
 * [libdeflater 0.7.1](https://github.com/adamkewley/libdeflater)
 * [num-integer 0.1.44](https://github.com/rust-num/num-integer)
 * [num-traits 0.2.14](https://github.com/rust-num/num-traits)
 * [serde 1.0.118](https://github.com/serde-rs/serde)
-* [time 0.1.44](https://github.com/time-rs/time)
 * [toml 0.5.8](https://github.com/alexcrichton/toml-rs)
 
 
@@ -784,7 +783,9 @@ limitations under the License.
 
 **Used By:**
 
-* [cargo-bashman 0.1.5](https://github.com/Blobfolio/bashman)
+* [cargo-bashman 0.1.6](https://github.com/Blobfolio/bashman)
+* [fyi_menu 0.5.0](https://github.com/Blobfolio/fyi)
+* [fyi_msg 0.5.0](https://github.com/Blobfolio/fyi)
 
 
 ```
