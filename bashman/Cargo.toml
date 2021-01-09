@@ -45,18 +45,22 @@ label = "<Cargo.toml>"
 path = true
 
 [dependencies]
-chrono = "0.4.*"
 indexmap = "1.6.*"
 libdeflater = "0.7.*"
+
+[dependencies.chrono]
+version = "0.4.*"
+default-features = false
+features = [ "clock", "std" ]
+
+[dependencies.fyi_menu]
+git = "https://github.com/Blobfolio/fyi.git"
+tag = "v0.5.0"
+
+[dependencies.fyi_msg]
+git = "https://github.com/Blobfolio/fyi.git"
+tag = "v0.5.0"
 
 [dependencies.toml]
 version = "0.5.*"
 features = [ "preserve_order" ]
-
-[dependencies.fyi_menu]
-git = "https://github.com/Blobfolio/fyi.git"
-tag = "v0.4.2"
-
-[dependencies.fyi_msg]
-git = "https://github.com/Blobfolio/fyi.git"
-tag = "v0.4.2"
