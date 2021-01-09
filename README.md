@@ -241,17 +241,9 @@ path = true
 
 
 
-## Credits
-| Library | License | Author |
-| ---- | ---- | ---- |
-| [chrono](https://crates.io/crates/chrono) | Apache-2.0 OR MIT | Kang Seonghoon, Brandon W Maister |
-| [indexmap](https://crates.io/crates/indexmap) | Apache-2.0 OR MIT | bluss, Josh Stone |
-| [libdeflater](https://crates.io/crates/libdeflater) | Apache-2.0 | Adam Kewley |
-| [toml](https://crates.io/crates/toml) | Apache-2.0 OR MIT | Alex Crichton |
-
-
-
 ## License
+
+See also: [CREDITS.md](CREDITS.md)
 
 Copyright © 2021 [Blobfolio, LLC](https://blobfolio.com) &lt;hello@blobfolio.com&gt;
 
