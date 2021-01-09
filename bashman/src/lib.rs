@@ -30,7 +30,10 @@
 
 pub mod agree;
 
-use fyi_msg::MsgKind;
+use fyi_msg::{
+	Msg,
+	MsgKind,
+};
 use indexmap::IndexMap;
 use std::path::{
 	Path,
@@ -158,14 +161,21 @@ impl BashMan {
 	/// arise with either, the program will print an error and exit with a
 	/// status code of `1`.
 	pub fn write(&self) {
-		if let Err(e) = self._write() { die(&e); }
+		if let Err(e) = self._write() { Msg::error(e).die(1); }
 		else {
-			MsgKind::Success
-				.into_msg(&format!("BASH completions written to: {:?}", &self.bash))
-				.println();
-			MsgKind::Success
-				.into_msg(&format!("MAN page(s) written to: {:?}", &self.man))
-				.println();
+			Msg::new(
+				MsgKind::Success,
+				format!("BASH completions written to: {:?}", &self.bash),
+			)
+				.with_newline(true)
+				.print();
+
+			Msg::new(
+				MsgKind::Success,
+				format!("MAN page(s) written to: {:?}", &self.man),
+			)
+				.with_newline(true)
+				.print();
 		}
 	}
 
@@ -197,14 +207,14 @@ where P: AsRef<Path> {
 		.or_else(|| Some(PathBuf::from("./Cargo.toml")))
 		.and_then(|s| std::fs::canonicalize(s).ok())
 		.unwrap_or_else(|| {
-			die("Missing manifest.");
+			Msg::error("Missing manifest.").die(1);
 			unreachable!();
 		});
 
 	match BashMan::new(src) {
 		Ok(bm) => bm,
 		Err(e) => {
-			die(&e);
+			Msg::error(e).die(1);
 			unreachable!();
 		}
 	}
@@ -431,14 +441,4 @@ fn clone_args(
 	else {
 		cmd.push_arg(arg);
 	}
-}
-
-/// # Error and Exit.
-///
-/// This prints a formatted error message and exists the program with a status
-/// code of `1`.
-pub fn die<S>(error: S)
-where S: AsRef<str> {
-	MsgKind::Error.into_msg(error.as_ref()).eprintln();
-	std::process::exit(1);
 }

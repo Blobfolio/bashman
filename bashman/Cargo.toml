@@ -1,6 +1,6 @@
 [package]
 name = "cargo-bashman"
-version = "0.1.5"
+version = "0.1.6"
 license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
 edition = "2018"
@@ -10,7 +10,7 @@ publish = false
 
 [package.metadata.deb]
 maintainer = "Josh Stoik <hello@blobfolio.com>"
-copyright = "2020, Blobfolio, LLC <hello@blobfolio.com>"
+copyright = "2021, Blobfolio, LLC <hello@blobfolio.com>"
 license-file = ["../LICENSE", "0"]
 revision = "1"
 depends = "$auto"
@@ -45,18 +45,22 @@ label = "<Cargo.toml>"
 path = true
 
 [dependencies]
-chrono = "0.4.*"
 indexmap = "1.6.*"
 libdeflater = "0.7.*"
+
+[dependencies.chrono]
+version = "0.4.*"
+default-features = false
+features = [ "clock", "std" ]
+
+[dependencies.fyi_menu]
+git = "https://github.com/Blobfolio/fyi.git"
+tag = "v0.5.0"
+
+[dependencies.fyi_msg]
+git = "https://github.com/Blobfolio/fyi.git"
+tag = "v0.5.0"
 
 [dependencies.toml]
 version = "0.5.*"
 features = [ "preserve_order" ]
-
-[dependencies.fyi_menu]
-git = "https://github.com/Blobfolio/fyi.git"
-branch = "master"
-
-[dependencies.fyi_msg]
-git = "https://github.com/Blobfolio/fyi.git"
-branch = "master"

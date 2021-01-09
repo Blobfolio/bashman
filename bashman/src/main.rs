@@ -282,8 +282,8 @@ This work is free. You can redistribute it and/or modify it under the terms of t
 /// Main.
 fn main() {
 	// Parse CLI arguments.
-	let mut args = fyi_menu::Argue::new(0)
-		.with_version(b"Cargo BashMan", env!("CARGO_PKG_VERSION").as_bytes())
+	let args = fyi_menu::Argue::new(0)
+		.with_version("Cargo BashMan", env!("CARGO_PKG_VERSION"))
 		.with_help(helper);
 
 	let bm = cargo_bashman::load(args.option2("-m", "--manifest-path"));
@@ -294,7 +294,7 @@ fn main() {
 /// Print Help.
 fn helper(_: Option<&str>) {
     use fyi_msg::Msg;
-    Msg::from(format!(
+    Msg::plain(format!(
         r"
    __              __
    \ `-._......_.-` /
