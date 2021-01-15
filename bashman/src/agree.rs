@@ -2,6 +2,7 @@
 # FYI Menu: Agree
 */
 
+use crate::BashManError;
 use libdeflater::{
 	CompressionLvl,
 	Compressor,
@@ -719,16 +720,16 @@ impl Agree {
 	///
 	/// This will write the BASH completion script to the directory of your
 	/// choosing, using the file name "{bin}.bash".
-	pub fn write_bash<P>(&self, dir: P) -> Result<(), String>
+	pub fn write_bash<P>(&self, dir: P) -> Result<(), BashManError>
 	where P: AsRef<Path> {
 		let mut path = std::fs::canonicalize(dir.as_ref())
 			.ok()
 			.filter(|x| x.is_dir())
-			.ok_or_else(|| format!("Invalid BASH completion directory: {:?}", dir.as_ref()))?;
+			.ok_or(BashManError::InvalidBashDir)?;
 
 		path.push([&self.bin, ".bash"].concat());
 		write_to(&path, self.bash().as_bytes(), false)
-			.map_err(|_| format!("Unable to write BASH completions: {:?}", path))
+			.map_err(|_| BashManError::WriteBash(path))
 	}
 
 	/// # Write MAN Page!
@@ -743,17 +744,17 @@ impl Agree {
 	///
 	/// You should only push one copy of each manual to `/usr/share/man/man1`,
 	/// either the "{bin}.1" or "{bin}.1.gz" version, not both. ;)
-	pub fn write_man<P>(&self, dir: P) -> Result<(), String>
+	pub fn write_man<P>(&self, dir: P) -> Result<(), BashManError>
 	where P: AsRef<Path> {
 		let mut path = std::fs::canonicalize(dir.as_ref())
 			.ok()
 			.filter(|x| x.is_dir())
-			.ok_or_else(|| format!("Invalid MAN directory: {:?}", dir.as_ref()))?;
+			.ok_or(BashManError::InvalidManDir)?;
 
 		// The main file.
 		path.push([&self.bin, ".1"].concat());
 		write_to(&path, self.man().as_bytes(), true)
-			.map_err(|_| format!("Unable to write MAN page: {:?}", path))?;
+			.map_err(|_| BashManError::WriteMan(path.clone()))?;
 
 		// Write subcommand pages.
 		for (bin, man) in self.args.iter()
@@ -764,7 +765,7 @@ impl Agree {
 			path.pop();
 			path.push([&self.bin, "-", &bin, ".1"].concat());
 			write_to(&path, man.as_bytes(), true)
-				.map_err(|_| format!("Unable to write SUB-MAN page: {:?}", path))?;
+				.map_err(|_| BashManError::WriteMan(path.clone()))?;
 		}
 
 		Ok(())
