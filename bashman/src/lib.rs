@@ -29,6 +29,7 @@
 #![allow(clippy::module_name_repetitions)]
 
 pub mod agree;
+mod error;
 
 use fyi_msg::{
 	Msg,
@@ -50,6 +51,7 @@ pub use agree::{
 	AgreeParagraph,
 	AgreeSection,
 };
+pub use error::BashManError;
 
 
 
@@ -80,30 +82,30 @@ impl BashMan {
 	///
 	/// If it works, an instance is returned, otherwise an error message is
 	/// returned as a string.
-	pub fn new<P>(manifest: P) -> Result<Self, String>
+	pub fn new<P>(manifest: P) -> Result<Self, BashManError>
 	where P: AsRef<Path> {
 		// Clean up the manifest path.
 		let manifest = std::fs::canonicalize(manifest)
-			.map_err(|_| "Invalid Manifest".to_string())?;
+			.map_err(|_| BashManError::InvalidManifest)?;
 
 		// Parse the raw TOML.
 		let raw = {
 			let content = std::fs::read_to_string(&manifest)
-				.map_err(|_| "Invalid manifest.".to_string())?;
+				.map_err(|_| BashManError::InvalidManifest)?;
 
 			content.parse::<Value>()
-				.map_err(|_| "Unable to parse manifest.".to_string())?
+				.map_err(|_| BashManError::ParseManifest)?
 		};
 
 		// The main app section.
 		let main = raw
 			.get("package")
-			.ok_or_else(|| String::from("Missing [package] section."))?;
+			.ok_or(BashManError::MissingPackage)?;
 
 		// BashMan-specific data.
 		let bm = main.get("metadata")
 			.and_then(|s| s.get("bashman"))
-			.ok_or_else(|| String::from("Missing [package.metadata.bashman] section."))?;
+			.ok_or(BashManError::MissingPackageMeta)?;
 
 		// Extract some basic metadata.
 		let cmd: &str = main.get("name")
@@ -113,10 +115,10 @@ impl BashMan {
 		let dir = manifest.parent().unwrap().to_path_buf();
 
 		let bash: PathBuf = resolve_path(bm.get("bash-dir"), &dir)
-			.map_err(|_| String::from("Invalid BASH directory."))?;
+			.map_err(|_| BashManError::InvalidBashDir)?;
 
 		let man: PathBuf = resolve_path(bm.get("man-dir"), &dir)
-			.map_err(|_| String::from("Invalid MAN directory."))?;
+			.map_err(|_| BashManError::InvalidManDir)?;
 
 		// We have enough to start an Agree!
 		let mut agree: Agree = Agree::new(
@@ -161,7 +163,7 @@ impl BashMan {
 	/// arise with either, the program will print an error and exit with a
 	/// status code of `1`.
 	pub fn write(&self) {
-		if let Err(e) = self._write() { Msg::error(e).die(1); }
+		if let Err(e) = self._write() { Msg::error(e.to_string()).die(1); }
 		else {
 			Msg::new(
 				MsgKind::Success,
@@ -184,7 +186,7 @@ impl BashMan {
 	/// This does the actual writing, or rather, calls [`Agree::write_bash`]
 	/// and [`Agree::write_man`] with the appropriate paths. Errors are bubbled
 	/// up as applicable.
-	fn _write(&self) -> Result<(), String> {
+	fn _write(&self) -> Result<(), BashManError> {
 		self.agree.write_bash(&self.bash)?;
 		self.agree.write_man(&self.man)?;
 		Ok(())
@@ -214,7 +216,7 @@ where P: AsRef<Path> {
 	match BashMan::new(src) {
 		Ok(bm) => bm,
 		Err(e) => {
-			Msg::error(e).die(1);
+			Msg::error(e.to_string()).die(1);
 			unreachable!();
 		}
 	}
@@ -224,7 +226,7 @@ where P: AsRef<Path> {
 ///
 /// This helper method interprets raw TOML values as paths. If they're not
 /// absolute, they are realigned to be relative to the manifest directory.
-fn resolve_path(path: Option<&Value>, dir: &PathBuf) -> Result<PathBuf, String> {
+fn resolve_path(path: Option<&Value>, dir: &PathBuf) -> Result<PathBuf, BashManError> {
 	path.and_then(Value::as_str)
 		.map_or_else(
 			|| Ok(dir.clone()),
@@ -234,7 +236,7 @@ fn resolve_path(path: Option<&Value>, dir: &PathBuf) -> Result<PathBuf, String> 
 					let mut tmp: PathBuf = dir.clone();
 					tmp.push(path);
 					std::fs::canonicalize(tmp)
-				}.map_err(|e| e.to_string())
+				}.map_err(|_| BashManError::InvalidPath(PathBuf::from(path)))
 		)
 }
 
