@@ -1,6 +1,6 @@
 [package]
 name = "cargo-bashman"
-version = "0.1.7"
+version = "0.1.8"
 license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
 edition = "2018"
@@ -55,11 +55,11 @@ features = [ "clock", "std" ]
 
 [dependencies.fyi_menu]
 git = "https://github.com/Blobfolio/fyi.git"
-tag = "v0.5.1"
+tag = "v0.5.2"
 
 [dependencies.fyi_msg]
 git = "https://github.com/Blobfolio/fyi.git"
-tag = "v0.5.1"
+tag = "v0.5.2"
 
 [dependencies.toml]
 version = "0.5.*"
