@@ -226,29 +226,6 @@ description = "Path to the Cargo.toml file to use."
 label = "<Cargo.toml>"
 path = true
 ```
-
-
-
-## License
-
-Copyright © 2020 [Blobfolio, LLC](https://blobfolio.com) &lt;hello@blobfolio.com&gt;
-
-This work is free. You can redistribute it and/or modify it under the terms of the Do What The Fuck You Want To Public License, Version 2.
-
-    DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-    Version 2, December 2004
-
-    Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
-
-    Everyone is permitted to copy and distribute verbatim or modified
-    copies of this license document, and changing it is allowed as long
-    as the name is changed.
-
-    DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-
-    0. You just DO WHAT THE FUCK YOU WANT TO.
-
 */
 
 #![warn(clippy::filetype_is_file)]
@@ -292,9 +269,8 @@ fn main() {
 
 #[cold]
 /// Print Help.
-fn helper(_: Option<&str>) {
-    use fyi_msg::Msg;
-    Msg::plain(format!(
+const fn helper() -> &'static str {
+    concat!(
         r"
    __              __
    \ `-._......_.-` /
@@ -304,7 +280,7 @@ fn helper(_: Option<&str>) {
     |\  \_/||\_/  /|
     \ '.   \/   .' /
     / ^ `'~  ~'`   \
-   /  _-^_~ -^_ ~-  |    {}{}{}
+   /  _-^_~ -^_ ~-  |    ", "\x1b[38;5;199mCargo BashMan\x1b[0;38;5;69m v", env!("CARGO_PKG_VERSION"), "\x1b[0m", r"
    | / ^_ -^_- ~_^\ |    A BASH completion script and MAN
    | |~_ ^- _-^_ -| |    page generator for Rust projects.
    | \  ^-~_ ~-_^ / |
@@ -320,10 +296,6 @@ FLAGS:
 
 OPTIONS:
     -m, --manifest-path <FILE>  Read file paths from this list.
-
-",
-        "\x1b[38;5;199mCargo BashMan\x1b[0;38;5;69m v",
-        env!("CARGO_PKG_VERSION"),
-        "\x1b[0m",
-    )).print();
+"
+    )
 }
