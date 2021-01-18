@@ -568,10 +568,10 @@ limitations under the License.
 
 **Used By:**
 
-* [cargo-bashman 0.1.8](https://github.com/Blobfolio/bashman)
-* [fyi_menu 0.5.2](https://github.com/Blobfolio/fyi)
-* [fyi_msg 0.5.2](https://github.com/Blobfolio/fyi)
-* [fyi_num 0.5.2](https://github.com/Blobfolio/fyi)
+* [cargo-bashman 0.1.9](https://github.com/Blobfolio/bashman)
+* [fyi_menu 0.5.4](https://github.com/Blobfolio/fyi)
+* [fyi_msg 0.5.4](https://github.com/Blobfolio/fyi)
+* [fyi_num 0.5.4](https://github.com/Blobfolio/fyi)
 
 
 ```
