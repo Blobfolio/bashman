@@ -31,10 +31,7 @@
 pub mod agree;
 mod error;
 
-use fyi_msg::{
-	Msg,
-	MsgKind,
-};
+use fyi_msg::Msg;
 use indexmap::IndexMap;
 use std::path::{
 	Path,
@@ -165,19 +162,8 @@ impl BashMan {
 	pub fn write(&self) {
 		if let Err(e) = self._write() { Msg::error(e.to_string()).die(1); }
 		else {
-			Msg::new(
-				MsgKind::Success,
-				format!("BASH completions written to: {:?}", &self.bash),
-			)
-				.with_newline(true)
-				.print();
-
-			Msg::new(
-				MsgKind::Success,
-				format!("MAN page(s) written to: {:?}", &self.man),
-			)
-				.with_newline(true)
-				.print();
+			fyi_msg::success!(format!("BASH completions written to: {:?}", &self.bash));
+			fyi_msg::success!(format!("MAN page(s) written to: {:?}", &self.man));
 		}
 	}
 
