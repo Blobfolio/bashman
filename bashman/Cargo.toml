@@ -55,11 +55,11 @@ features = [ "clock", "std" ]
 
 [dependencies.fyi_menu]
 git = "https://github.com/Blobfolio/fyi.git"
-tag = "v0.6.0"
+branch = "feature/next"
 
 [dependencies.fyi_msg]
 git = "https://github.com/Blobfolio/fyi.git"
-tag = "v0.6.0"
+branch = "feature/next"
 
 [dependencies.toml]
 version = "0.5.*"

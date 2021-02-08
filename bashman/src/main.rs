@@ -255,23 +255,59 @@ path = true
 #![allow(clippy::module_name_repetitions)]
 
 
+use cargo_bashman::BashManError;
+use fyi_menu::{
+	ArgueError,
+	FLAG_HELP,
+	FLAG_VERSION,
+};
+use fyi_msg::Msg;
+use std::{
+	ffi::OsStr,
+	os::unix::ffi::OsStrExt,
+};
+
+
 
 /// Main.
 fn main() {
-	// Parse CLI arguments.
-	let args = fyi_menu::Argue::new(0)
-		.with_version("Cargo BashMan", env!("CARGO_PKG_VERSION"))
-		.with_help(helper);
+	if let Err(e) = _main() {
+		match e {
+			BashManError::Argue(ArgueError::WantsVersion) => {
+				fyi_msg::plain!(concat!("Cargo BashMan v", env!("CARGO_PKG_VERSION")));
+			},
+			BashManError::Argue(ArgueError::WantsHelp) => {
+				helper();
+			},
+			_ => {
+				Msg::error(e.to_string()).die(1);
+			}
+		}
+	}
+}
 
-	let bm = cargo_bashman::load(args.option2("-m", "--manifest-path"));
-	bm.write();
+#[inline]
+// Actual main.
+fn _main() -> Result<(), BashManError> {
+	// Parse CLI arguments.
+	let args = fyi_menu::Argue::new(FLAG_HELP | FLAG_VERSION)
+		.map_err(BashManError::Argue)?;
+
+	let bm = cargo_bashman::load(
+		args.option2(b"-m", b"--manifest-path")
+			.map(OsStr::from_bytes)
+	)?;
+
+	bm.write()?;
+
+	Ok(())
 }
 
 #[cold]
 /// Print Help.
-const fn helper() -> &'static str {
-    concat!(
-        r"
+fn helper() {
+	fyi_msg::plain!(concat!(
+		r"
    __              __
    \ `-._......_.-` /
     `.  '.    .'  .'
@@ -297,5 +333,5 @@ FLAGS:
 OPTIONS:
     -m, --manifest-path <FILE>  Read file paths from this list.
 "
-    )
+    ));
 }
