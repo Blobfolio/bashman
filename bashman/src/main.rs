@@ -271,18 +271,17 @@ use std::{
 
 /// Main.
 fn main() {
-	if let Err(e) = _main() {
-		match e {
-			BashManError::Argue(ArgueError::WantsVersion) => {
-				fyi_msg::plain!(concat!("Cargo BashMan v", env!("CARGO_PKG_VERSION")));
-			},
-			BashManError::Argue(ArgueError::WantsHelp) => {
-				helper();
-			},
-			_ => {
-				Msg::error(e.to_string()).die(1);
-			}
-		}
+	match _main() {
+		Err(BashManError::Argue(ArgueError::WantsVersion)) => {
+			fyi_msg::plain!(concat!("Cargo BashMan v", env!("CARGO_PKG_VERSION")));
+		},
+		Err(BashManError::Argue(ArgueError::WantsHelp)) => {
+			helper();
+		},
+		Err(e) => {
+			Msg::error(e.to_string()).die(1);
+		},
+		Ok(_) => {},
 	}
 }
 
