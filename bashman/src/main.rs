@@ -293,8 +293,7 @@ fn _main() -> Result<(), BashManError> {
 		.map_err(BashManError::Argue)?;
 
 	let bm = cargo_bashman::load(
-		args.option2(b"-m", b"--manifest-path")
-			.map(OsStr::from_bytes)
+		args.option2(b"-m", b"--manifest-path").map(OsStr::from_bytes)
 	)?;
 
 	bm.write()?;
