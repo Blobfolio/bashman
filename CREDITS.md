@@ -16,7 +16,7 @@ License details for project dependencies are listed below.
 
 * [hashbrown 0.9.1](https://github.com/rust-lang/hashbrown)
 * [indexmap 1.6.1](https://github.com/bluss/indexmap)
-* [libc 0.2.85](https://github.com/rust-lang/libc)
+* [libc 0.2.86](https://github.com/rust-lang/libc)
 * [libdeflater 0.7.1](https://github.com/adamkewley/libdeflater)
 * [num-integer 0.1.44](https://github.com/rust-num/num-integer)
 * [num-traits 0.2.14](https://github.com/rust-num/num-traits)
@@ -568,10 +568,10 @@ limitations under the License.
 
 **Used By:**
 
-* [cargo-bashman 0.2.0](https://github.com/Blobfolio/bashman)
-* [fyi_menu 0.6.0](https://github.com/Blobfolio/fyi)
-* [fyi_msg 0.6.0](https://github.com/Blobfolio/fyi)
-* [fyi_num 0.6.0](https://github.com/Blobfolio/fyi)
+* [cargo-bashman 0.2.1](https://github.com/Blobfolio/bashman)
+* [fyi_menu 0.6.1](https://github.com/Blobfolio/fyi)
+* [fyi_msg 0.6.1](https://github.com/Blobfolio/fyi)
+* [fyi_num 0.6.1](https://github.com/Blobfolio/fyi)
 
 
 ```
