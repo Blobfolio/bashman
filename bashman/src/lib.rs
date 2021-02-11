@@ -31,7 +31,6 @@
 pub mod agree;
 mod error;
 
-use fyi_msg::Msg;
 use indexmap::IndexMap;
 use std::path::{
 	Path,
@@ -159,12 +158,11 @@ impl BashMan {
 	/// Attempt to write the BASH completions and MAN page(s). If any problems
 	/// arise with either, the program will print an error and exit with a
 	/// status code of `1`.
-	pub fn write(&self) {
-		if let Err(e) = self._write() { Msg::error(e.to_string()).die(1); }
-		else {
-			fyi_msg::success!(format!("BASH completions written to: {:?}", &self.bash));
-			fyi_msg::success!(format!("MAN page(s) written to: {:?}", &self.man));
-		}
+	pub fn write(&self) -> Result<(), BashManError> {
+		self._write()?;
+		fyi_msg::success!(format!("BASH completions written to: {:?}", &self.bash));
+		fyi_msg::success!(format!("MAN page(s) written to: {:?}", &self.man));
+		Ok(())
 	}
 
 	/// # Write.
@@ -189,23 +187,14 @@ impl BashMan {
 ///
 /// If all goes well, the `BashMan` instance is returned, otherwise an error
 /// is printed and the program exists with a status code of `1`.
-pub fn load<P>(src: Option<P>) -> BashMan
+pub fn load<P>(src: Option<P>) -> Result<BashMan, BashManError>
 where P: AsRef<Path> {
 	let src = src.map(|x| PathBuf::from(x.as_ref()))
 		.or_else(|| Some(PathBuf::from("./Cargo.toml")))
 		.and_then(|s| std::fs::canonicalize(s).ok())
-		.unwrap_or_else(|| {
-			Msg::error("Missing manifest.").die(1);
-			unreachable!();
-		});
+		.ok_or(BashManError::MissingManifest)?;
 
-	match BashMan::new(src) {
-		Ok(bm) => bm,
-		Err(e) => {
-			Msg::error(e.to_string()).die(1);
-			unreachable!();
-		}
-	}
+	BashMan::new(src)
 }
 
 /// # Resolve Path.
