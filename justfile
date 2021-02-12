@@ -165,6 +165,7 @@ version:
 # Init dependencies.
 @_init:
 	[ ! -f "{{ justfile_directory() }}/Cargo.lock" ] || rm "{{ justfile_directory() }}/Cargo.lock"
+	mkdir "/tmp/bashman-test"
 	cargo update -w
 	cargo outdated -w
 

@@ -28,14 +28,16 @@
 #![allow(clippy::missing_errors_doc)]
 #![allow(clippy::module_name_repetitions)]
 
-pub mod agree;
+mod agree;
 mod error;
+pub(crate) mod tendril;
 
 use indexmap::IndexMap;
 use std::path::{
 	Path,
 	PathBuf,
 };
+use ::tendril::StrTendril;
 use toml::Value;
 
 pub use agree::{
@@ -131,7 +133,7 @@ impl BashMan {
 		);
 
 		// Check for subcommands.
-		let mut subcmd: IndexMap<String, Agree> = IndexMap::new();
+		let mut subcmd: IndexMap<StrTendril, Agree> = IndexMap::new();
 		resolve_subcommands(bm.get("subcommands"), &mut subcmd, agree.version());
 
 		// Load up flags/options/args.
@@ -222,12 +224,12 @@ fn resolve_path(path: Option<&Value>, dir: &PathBuf) -> Result<PathBuf, BashManE
 /// arguments. Those will reveal themselves later.
 fn resolve_subcommands(
 	subcommands: Option<&Value>,
-	subcmd: &mut IndexMap<String, Agree>,
+	subcmd: &mut IndexMap<StrTendril, Agree>,
 	version: &str,
 ) {
 	if let Some(x) = subcommands.and_then(Value::as_array) {
 		x.iter().filter_map(Value::as_table).for_each(|y| {
-			let cmd: String = y.get("cmd")
+			let cmd: StrTendril = y.get("cmd")
 				.and_then(Value::as_str)
 				.unwrap_or_default()
 				.into();
@@ -257,7 +259,7 @@ fn resolve_subcommands(
 fn resolve_switches(
 	switches: Option<&Value>,
 	cmd: &mut Agree,
-	subcmd: &mut IndexMap<String, Agree>
+	subcmd: &mut IndexMap<StrTendril, Agree>
 ) {
 	if let Some(x) = switches.and_then(Value::as_array) {
 		x.iter().filter_map(Value::as_table).for_each(|y| {
@@ -279,7 +281,7 @@ fn resolve_switches(
 fn resolve_options(
 	options: Option<&Value>,
 	cmd: &mut Agree,
-	subcmd: &mut IndexMap<String, Agree>
+	subcmd: &mut IndexMap<StrTendril, Agree>
 ) {
 	if let Some(x) = options.and_then(Value::as_array) {
 		x.iter().filter_map(Value::as_table).for_each(|y| {
@@ -308,7 +310,7 @@ fn resolve_options(
 fn resolve_args(
 	args: Option<&Value>,
 	cmd: &mut Agree,
-	subcmd: &mut IndexMap<String, Agree>
+	subcmd: &mut IndexMap<StrTendril, Agree>
 ) {
 	if let Some(x) = args.and_then(Value::as_array) {
 		x.iter().filter_map(Value::as_table).for_each(|y| {
@@ -403,17 +405,19 @@ fn clone_args(
 	set: Option<&Value>,
 	arg: AgreeKind,
 	cmd: &mut Agree,
-	subcmd: &mut IndexMap<String, Agree>
+	subcmd: &mut IndexMap<StrTendril, Agree>
 ) {
 	if let Some(z) = set.and_then(Value::as_array).filter(|z| ! z.is_empty()) {
-		z.iter().filter_map(Value::as_str).for_each(|sub| {
-			if sub.is_empty() {
-				cmd.push_arg(arg.clone());
-			}
-			else if subcmd.contains_key(sub) {
-				subcmd.get_mut(sub).unwrap().push_arg(arg.clone());
-			}
-		});
+		z.iter()
+			.filter_map(|x| Value::as_str(x).map(StrTendril::from))
+			.for_each(|sub| {
+				if sub.is_empty() {
+					cmd.push_arg(arg.clone());
+				}
+				else if subcmd.contains_key(&sub) {
+					subcmd.get_mut(&sub).unwrap().push_arg(arg.clone());
+				}
+			});
 	}
 	else {
 		cmd.push_arg(arg);
