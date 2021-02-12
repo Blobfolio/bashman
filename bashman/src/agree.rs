@@ -2,10 +2,17 @@
 # FYI Menu: Agree
 */
 
-use crate::BashManError;
+use crate::{
+	BashManError,
+	format_smartstring,
+};
 use libdeflater::{
 	CompressionLvl,
 	Compressor,
+};
+use smartstring::{
+	SmartString,
+	LazyCompact,
 };
 use std::{
 	ffi::OsStr,
@@ -15,10 +22,6 @@ use std::{
 		Path,
 		PathBuf,
 	},
-};
-use tendril::{
-	StrTendril,
-	format_tendril,
 };
 
 
@@ -95,7 +98,7 @@ impl AgreeKind {
 	///
 	/// This is a convenience method to register a new [`AgreeKind::Switch`].
 	pub fn switch<S>(description: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		Self::Switch(AgreeSwitch::new(description))
 	}
 
@@ -103,7 +106,7 @@ impl AgreeKind {
 	///
 	/// This is a convenience method to register a new [`AgreeKind::Option`].
 	pub fn option<S>(value: S, description: S, path: bool) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		Self::Option(AgreeOption::new(value, description, path))
 	}
 
@@ -111,7 +114,7 @@ impl AgreeKind {
 	///
 	/// This is a convenience method to register a new [`AgreeKind::Arg`].
 	pub fn arg<S>(name: S, description: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		Self::Arg(AgreeItem::new(name, description))
 	}
 
@@ -119,7 +122,7 @@ impl AgreeKind {
 	///
 	/// This is a convenience method to register a new [`AgreeKind::Item`].
 	pub fn item<S>(name: S, description: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		Self::Item(AgreeItem::new(name, description))
 	}
 
@@ -127,7 +130,7 @@ impl AgreeKind {
 	///
 	/// This is a convenience method to register a new [`AgreeKind::Paragraph`].
 	pub fn paragraph<S>(line: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		Self::Paragraph(AgreeParagraph::new(line))
 	}
 
@@ -141,7 +144,7 @@ impl AgreeKind {
 	///
 	/// This has no effect unless the type is [`AgreeKind::Paragraph`].
 	pub fn with_line<S>(self, line: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		if let Self::Paragraph(s) = self {
 			Self::Paragraph(s.with_line(line))
 		}
@@ -158,7 +161,7 @@ impl AgreeKind {
 	/// This has no effect unless the type is [`AgreeKind::Switch`] or
 	/// [`AgreeKind::Option`].
 	pub fn with_long<S>(self, key: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		match self {
 			Self::Switch(s) => Self::Switch(s.with_long(key)),
 			Self::Option(s) => Self::Option(s.with_long(key)),
@@ -176,7 +179,7 @@ impl AgreeKind {
 	/// This has no effect unless the type is [`AgreeKind::Switch`] or
 	/// [`AgreeKind::Option`].
 	pub fn with_short<S>(self, key: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		match self {
 			Self::Switch(s) => Self::Switch(s.with_short(key)),
 			Self::Option(s) => Self::Option(s.with_short(key)),
@@ -189,7 +192,7 @@ impl AgreeKind {
 	/// This formats the BASH flag/option conditions, if any, for the
 	/// completion script. This partial value is incorporated into the full
 	/// output produced by [`Agree::bash`].
-	fn bash(&self) -> StrTendril {
+	fn bash(&self) -> SmartString<LazyCompact> {
 		match self {
 			Self::Switch(s) => bash_long_short_conds(
 				s.short.as_deref(),
@@ -199,8 +202,8 @@ impl AgreeKind {
 				s.short.as_deref(),
 				s.long.as_deref(),
 			),
-			Self::SubCommand(s) => format_tendril!("\topts+=(\"{}\")\n", &s.bin),
-			_ => StrTendril::new(),
+			Self::SubCommand(s) => format_smartstring!("\topts+=(\"{}\")\n", &s.bin),
+			_ => SmartString::<LazyCompact>::new(),
 		}
 	}
 
@@ -229,56 +232,53 @@ impl AgreeKind {
 	///
 	/// This formats the MAN line(s) for the underlying data. This partial
 	/// value is incorporated into the full output produced by [`Agree::man`].
-	fn man(&self, indent: bool) -> StrTendril {
+	fn man(&self, indent: bool) -> SmartString<LazyCompact> {
 		match self {
 			Self::Switch(i) => {
-				let mut out: StrTendril = self.man_tagline();
+				let mut out: SmartString<LazyCompact> = self.man_tagline();
 				if out.is_empty() {
-					format_tendril!(".TP\n{}", i.description)
+					format_smartstring!(".TP\n{}", i.description)
 				}
 				else {
-					out.push_char('\n');
-					out.push_tendril(&i.description);
+					out.push('\n');
+					out.push_str(&i.description);
 					out
 				}
 			},
 			Self::Option(i) => {
-				let mut out: StrTendril = self.man_tagline();
+				let mut out: SmartString<LazyCompact> = self.man_tagline();
 				if out.is_empty() {
-					format_tendril!(".TP\n{}", i.description)
+					format_smartstring!(".TP\n{}", i.description)
 				}
 				else {
-					out.push_char('\n');
-					out.push_tendril(&i.description);
+					out.push('\n');
+					out.push_str(&i.description);
 					out
 				}
 			},
 			Self::Arg(i) | Self::Item(i) => {
-				let mut out: StrTendril = self.man_tagline();
+				let mut out: SmartString<LazyCompact> = self.man_tagline();
 				if out.is_empty() {
-					format_tendril!(".TP\n{}", i.description)
+					format_smartstring!(".TP\n{}", i.description)
 				}
 				else {
-					out.push_char('\n');
-					out.push_tendril(&i.description);
+					out.push('\n');
+					out.push_str(&i.description);
 					out
 				}
 			},
 			Self::Paragraph(i) => {
 				if indent {
-					format_tendril!(
-						".TP\n{}",
-						crate::tendril::join(&i.p, &StrTendril::from("\n.RE\n")),
-					)
+					format_smartstring!(".TP\n{}", &i.p.join("\n.RE\n"))
 				}
 				else {
-					crate::tendril::join(&i.p, &StrTendril::from("\n.RE\n"))
+					i.p.join("\n.RE\n").into()
 				}
 			},
-			Self::SubCommand(s) => format_tendril!(
+			Self::SubCommand(s) => format_smartstring!(
 				"{}\n{}",
 				self.man_tagline(),
-				s.description,
+				s.description
 			),
 		}
 	}
@@ -288,13 +288,13 @@ impl AgreeKind {
 	/// This formats the key/value line for the MAN output. This gets
 	/// incorporated into [`AgreeKind::man`], which gets incorporated into
 	/// [`Agree::man`] to produce the full output.
-	fn man_tagline(&self) -> StrTendril {
+	fn man_tagline(&self) -> SmartString<LazyCompact> {
 		match self {
-			Self::Switch(s) => man_tagline(s.short.as_ref(), s.long.as_ref(), None),
-			Self::Option(o) => man_tagline(o.short.as_ref(), o.long.as_ref(), Some(&o.value)),
+			Self::Switch(s) => man_tagline(s.short.as_deref(), s.long.as_deref(), None),
+			Self::Option(o) => man_tagline(o.short.as_deref(), o.long.as_deref(), Some(&o.value)),
 			Self::Arg(k) | Self::Item(k) => man_tagline(None, None, Some(&k.name)),
 			Self::SubCommand(s) => man_tagline(None, None, Some(&s.bin)),
-			_ => StrTendril::new(),
+			_ => SmartString::<LazyCompact>::new(),
 		}
 	}
 }
@@ -309,15 +309,15 @@ impl AgreeKind {
 /// directly. You should be using the passthrough methods provided by
 /// [`AgreeKind`] instead.
 pub struct AgreeSwitch {
-	short: Option<StrTendril>,
-	long: Option<StrTendril>,
-	description: StrTendril,
+	short: Option<SmartString<LazyCompact>>,
+	long: Option<SmartString<LazyCompact>>,
+	description: SmartString<LazyCompact>,
 }
 
 impl AgreeSwitch {
 	/// # New.
 	pub fn new<S>(description: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		Self {
 			short: None,
 			long: None,
@@ -329,7 +329,7 @@ impl AgreeSwitch {
 	///
 	/// Specify a long key, e.g. `--help`.
 	pub fn with_long<S>(mut self, key: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		self.long = Some(key.into());
 		self
 	}
@@ -338,7 +338,7 @@ impl AgreeSwitch {
 	///
 	/// Specify a short key, e.g. `-h`.
 	pub fn with_short<S>(mut self, key: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		self.short = Some(key.into());
 		self
 	}
@@ -354,11 +354,11 @@ impl AgreeSwitch {
 /// directly. You should be using the passthrough methods provided by
 /// [`AgreeKind`] instead.
 pub struct AgreeOption {
-	short: Option<StrTendril>,
-	long: Option<StrTendril>,
-	value: StrTendril,
+	short: Option<SmartString<LazyCompact>>,
+	long: Option<SmartString<LazyCompact>>,
+	value: SmartString<LazyCompact>,
 	path: bool,
-	description: StrTendril,
+	description: SmartString<LazyCompact>,
 }
 
 impl AgreeOption {
@@ -368,7 +368,7 @@ impl AgreeOption {
 	/// of file system path for its value. If `true`, the BASH completion will
 	/// reveal files and folders in the current directory.
 	pub fn new<S>(value: S, description: S, path: bool) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		Self {
 			short: None,
 			long: None,
@@ -383,7 +383,7 @@ impl AgreeOption {
 	///
 	/// Specify a long key, e.g. `--help`.
 	pub fn with_long<S>(mut self, key: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		self.long = Some(key.into());
 		self
 	}
@@ -393,7 +393,7 @@ impl AgreeOption {
 	///
 	/// Specify a short key, e.g. `-h`.
 	pub fn with_short<S>(mut self, key: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		self.short = Some(key.into());
 		self
 	}
@@ -409,14 +409,14 @@ impl AgreeOption {
 /// interacted with directly. You should be using the passthrough methods
 /// provided by [`AgreeKind`] instead.
 pub struct AgreeItem {
-	name: StrTendril,
-	description: StrTendril,
+	name: SmartString<LazyCompact>,
+	description: SmartString<LazyCompact>,
 }
 
 impl AgreeItem {
 	/// # New.
 	pub fn new<S>(name: S, description: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		Self {
 			name: name.into(),
 			description: description.into(),
@@ -434,7 +434,7 @@ impl AgreeItem {
 /// directly. You should be using the passthrough methods provided by
 /// [`AgreeKind`] instead.
 pub struct AgreeParagraph {
-	p: Vec<StrTendril>,
+	p: Vec<SmartString<LazyCompact>>,
 }
 
 impl Default for AgreeParagraph {
@@ -446,7 +446,7 @@ impl Default for AgreeParagraph {
 impl AgreeParagraph {
 	/// # New.
 	pub fn new<S>(line: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		Self {
 			p: vec![line.into()],
 		}
@@ -457,7 +457,7 @@ impl AgreeParagraph {
 	/// This can be used to force a line break between bits of text. Otherwise
 	/// if you jam everything into one "line", it will just wrap as needed.
 	pub fn with_line<S>(mut self, line: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		self.p.push(line.into());
 		self
 	}
@@ -480,7 +480,7 @@ impl AgreeParagraph {
 /// arbitrary content you want (on top of the default NAME/DESCRIPTION/USAGE
 /// bits.)
 pub struct AgreeSection {
-	name: StrTendril,
+	name: SmartString<LazyCompact>,
 	indent: bool,
 	items: Vec<AgreeKind>
 }
@@ -488,16 +488,15 @@ pub struct AgreeSection {
 impl AgreeSection {
 	/// # New.
 	pub fn new<S>(name: S, indent: bool) -> Self
-	where S: Into<StrTendril> {
-		let mut name: StrTendril = name.into().to_uppercase().into();
-		crate::tendril::trim(&mut name);
+	where S: Into<SmartString<LazyCompact>> {
+		let mut name: SmartString<LazyCompact> = name.into().trim().to_uppercase().into();
 		if indent {
 			if ! name.ends_with(':') {
-				name.push_char(':');
+				name.push(':');
 			}
 		}
 		else if name.ends_with(':') {
-			name.pop_back(1);
+			name.truncate(name.len() - 1);
 		}
 
 		Self {
@@ -541,20 +540,20 @@ impl AgreeSection {
 	///
 	/// This generates the MAN code for the section, which is incorporated by
 	/// [`Agree::man`] to produce the full document.
-	fn man(&self) -> StrTendril {
+	fn man(&self) -> SmartString<LazyCompact> {
 		// Start with the header.
-		let mut out: StrTendril = format_tendril!(
+		let mut out: SmartString<LazyCompact> = format_smartstring!(
 			"{} {}",
 			if self.indent { ".SS" } else { ".SH" },
-			&self.name,
+			self.name
 		);
 
 		// Add the items one at a time.
 		self.items.iter()
 			.map(|i| i.man(self.indent))
 			.for_each(|x| {
-				out.push_char('\n');
-				out.push_slice(&x);
+				out.push('\n');
+				out.push_str(&x);
 			});
 
 		// Done!
@@ -591,10 +590,10 @@ impl AgreeSection {
 /// those subcommands CANNOT have their own sub-subcommands. Undefined things
 /// will happen if 2+ levels are included.
 pub struct Agree {
-	name: StrTendril,
-	bin: StrTendril,
-	version: StrTendril,
-	description: StrTendril,
+	name: SmartString<LazyCompact>,
+	bin: SmartString<LazyCompact>,
+	version: SmartString<LazyCompact>,
+	description: SmartString<LazyCompact>,
 	args: Vec<AgreeKind>,
 	other: Vec<AgreeSection>,
 }
@@ -602,7 +601,7 @@ pub struct Agree {
 impl Agree {
 	/// # New.
 	pub fn new<S>(name: S, description: S, bin: S, version: S) -> Self
-	where S: Into<StrTendril> {
+	where S: Into<SmartString<LazyCompact>> {
 		Self {
 			name: name.into(),
 			bin: bin.into(),
@@ -663,24 +662,21 @@ impl Agree {
 	/// Completions are subcommand-aware. You can have different options for
 	/// different subcommands, and/or options available only to the top-level
 	/// bin.
-	pub fn bash(&self) -> StrTendril {
+	pub fn bash(&self) -> SmartString<LazyCompact> {
 		// Start by building all the subcommand code. We'll handle things
 		// differently depending on whether or not the resulting string is
 		// empty.
-		let mut out: StrTendril = self.args.iter()
+		let mut out: SmartString<LazyCompact> = self.args.iter()
 			.filter_map(|x| x.if_subcommand().and_then(|y| {
 				let tmp = y.bash_completions(&self.bin);
 				if tmp.is_empty() { None }
 				else { Some(tmp) }
 			}))
-			.fold(StrTendril::new(), |mut a, b| {
-				a.push_tendril(&b);
-				a
-			});
+			.collect();
 
 		// If this is empty, just add our app and call it quits.
 		if out.is_empty() {
-			return format_tendril!(
+			return format_smartstring!(
 				"{}complete -F {} -o bashdefault -o default {}\n",
 				self.bash_completions(""),
 				&self.bash_fname(""),
@@ -689,10 +685,10 @@ impl Agree {
 		}
 
 		// Add the app method.
-		out.push_tendril(&self.bash_completions(""));
+		out.push_str(&self.bash_completions(""));
 
 		// Add the function chooser.
-		out.push_tendril(&self.bash_subcommands());
+		out.push_str(&self.bash_subcommands());
 
 		// Done!
 		out
@@ -714,7 +710,7 @@ impl Agree {
 	/// Note: this will only return the manual for the top-level app. If there
 	/// are subcommands, those pages will be ignored. To obtain those, call
 	/// [`Agree::write_man`] instead.
-	pub fn man(&self) -> StrTendril {
+	pub fn man(&self) -> SmartString<LazyCompact> {
 		self.subman("")
 	}
 
@@ -735,7 +731,7 @@ impl Agree {
 			.filter(|x| x.is_dir())
 			.ok_or(BashManError::InvalidBashDir)?;
 
-		path.push([&self.bin, ".bash"].concat());
+		path.push(format_smartstring!("{}.bash", self.bin).as_str());
 		write_to(&path, self.bash().as_bytes(), false)
 			.map_err(|_| BashManError::WriteBash(path))
 	}
@@ -760,7 +756,7 @@ impl Agree {
 			.ok_or(BashManError::InvalidManDir)?;
 
 		// The main file.
-		path.push([&self.bin, ".1"].concat());
+		path.push(format_smartstring!("{}.1", self.bin).as_str());
 		write_to(&path, self.man().as_bytes(), true)
 			.map_err(|_| BashManError::WriteMan(path.clone()))?;
 
@@ -771,7 +767,7 @@ impl Agree {
 			)
 		{
 			path.pop();
-			path.push([&self.bin, "-", &bin, ".1"].concat());
+			path.push(format_smartstring!("{}-{}.1", self.bin, bin).as_str());
 			write_to(&path, man.as_bytes(), true)
 				.map_err(|_| BashManError::WriteMan(path.clone()))?;
 		}
@@ -783,13 +779,8 @@ impl Agree {
 	///
 	/// This generates a unique-ish function name for use in the BASH
 	/// completion script.
-	fn bash_fname(&self, parent: &str) -> StrTendril {
-		[
-			"_basher__",
-			parent,
-			"_",
-			&self.bin,
-		].concat()
+	fn bash_fname(&self, parent: &str) -> SmartString<LazyCompact> {
+		format_smartstring!("_basher__{}_{}", parent, self.bin)
 			.chars()
 			.filter_map(|x| match x {
 				'a'..='z' | '0'..='9' => Some(x),
@@ -797,7 +788,7 @@ impl Agree {
 				'-' | '_' | ' ' => Some('_'),
 				_ => None,
 			})
-			.collect::<StrTendril>()
+			.collect::<SmartString<LazyCompact>>()
 	}
 
 	/// # BASH Helper (Completions).
@@ -805,8 +796,8 @@ impl Agree {
 	/// This generates the completions for a given app or subcommand. The
 	/// output is combined with other code to produce the final script returned
 	/// by the main [`Agree::bash`] method.
-	fn bash_completions(&self, parent: &str) -> StrTendril {
-		format_tendril!(
+	fn bash_completions(&self, parent: &str) -> SmartString<LazyCompact> {
+		format_smartstring!(
 			r#"{}() {{
 	local cur prev opts
 	COMPREPLY=()
@@ -828,14 +819,13 @@ impl Agree {
 "#,
 			&self.bash_fname(parent),
 			&self.args.iter()
-				.fold(StrTendril::new(), |mut a, b| {
-					let txt: StrTendril = b.bash();
-					if ! txt.is_empty() {
-						a.push_tendril(&txt);
-					}
-
-					a
-				}),
+				.filter_map(|x| {
+					let txt: SmartString<LazyCompact> = x.bash();
+					if txt.is_empty() { None }
+					else { Some(txt) }
+				})
+				.collect::<Vec<SmartString<LazyCompact>>>()
+				.join(""),
 			&self.bash_paths(),
 		)
 	}
@@ -845,7 +835,7 @@ impl Agree {
 	/// This produces the file/directory-listing portion of the BASH completion
 	/// script for cases where the last option entered expects a path. It is
 	/// integrated into the main [`Agree::bash`] output.
-	fn bash_paths(&self) -> StrTendril {
+	fn bash_paths(&self) -> SmartString<LazyCompact> {
 		let keys: Vec<&str> = self.args.iter()
 			.filter_map(|o| o.if_path_option().and_then(|x| x.short.as_deref()))
 			.chain(
@@ -854,9 +844,9 @@ impl Agree {
 			)
 			.collect();
 
-		if keys.is_empty() { StrTendril::new() }
+		if keys.is_empty() { SmartString::<LazyCompact>::new() }
 		else {
-			format_tendril!(
+			format_smartstring!(
 				r#"	case "${{prev}}" in
 		{})
 			COMPREPLY=( $( compgen -f "${{cur}}" ) )
@@ -877,8 +867,8 @@ impl Agree {
 	/// This generates an additional method for applications with subcommands
 	/// to allow per-command suggestions. The output is incorporated into the
 	/// value returned by [`Agree::bash`].
-	fn bash_subcommands(&self) -> StrTendril {
-		let (cmd, chooser): (StrTendril, StrTendril) = std::iter::once((self.bin.clone(), self.bash_fname("")))
+	fn bash_subcommands(&self) -> SmartString<LazyCompact> {
+		let (cmd, chooser): (SmartString<LazyCompact>, SmartString<LazyCompact>) = std::iter::once((self.bin.clone(), self.bash_fname("")))
 			.chain(
 				self.args.iter()
 					.filter_map(|x| x.if_subcommand()
@@ -886,15 +876,15 @@ impl Agree {
 					)
 			)
 			.fold(
-				(StrTendril::new(), StrTendril::new()),
+				(SmartString::<LazyCompact>::new(), SmartString::<LazyCompact>::new()),
 				|(mut a, mut b), (c, d)| {
-					a.push_tendril(&format_tendril!("\
+					a.push_str(&format_smartstring!("\
 						\t\t\t{})\n\
 						\t\t\t\tcmd=\"{}\"\n\
 						\t\t\t\t;;\n",
 						&c, &c
 					));
-					b.push_tendril(&format_tendril!("\
+					b.push_str(&format_smartstring!("\
 						\t\t{})\n\
 						\t\t\t{}\n\
 						\t\t\t;;\n",
@@ -906,7 +896,7 @@ impl Agree {
 				}
 			);
 
-		format_tendril!(
+		format_smartstring!(
 			r#"subcmd_{fname}() {{
 	local i cmd
 	COMPREPLY=()
@@ -947,29 +937,26 @@ complete -F chooser_{fname} -o bashdefault -o default {bname}
 	/// # MAN Helper (Usage).
 	///
 	/// This generates an example command for the `USAGE` section, if any.
-	fn man_usage(&self, parent: &str) -> StrTendril {
-		let mut out: StrTendril = format_tendril!(
-			"{} {}",
-			parent,
-			&self.bin
-		);
-		crate::tendril::trim(&mut out);
+	fn man_usage(&self, parent: &str) -> SmartString<LazyCompact> {
+		let mut out: SmartString<LazyCompact> = format_smartstring!("{} {}", parent, &self.bin)
+			.trim()
+			.into();
 
 		if self.args.iter().any(|x| matches!(x, AgreeKind::SubCommand(_))) {
-			out.push_slice(" [SUBCOMMAND]");
+			out.push_str(" [SUBCOMMAND]");
 		}
 
 		if self.args.iter().any(|x| matches!(x, AgreeKind::Switch(_))) {
-			out.push_slice(" [FLAGS]");
+			out.push_str(" [FLAGS]");
 		}
 
 		if self.args.iter().any(|x| matches!(x, AgreeKind::Option(_))) {
-			out.push_slice(" [OPTIONS]");
+			out.push_str(" [OPTIONS]");
 		}
 
 		if let Some(s) = self.args.iter().find_map(AgreeKind::if_arg) {
-			out.push_char(' ');
-			out.push_tendril(&s.name);
+			out.push(' ');
+			out.push_str(&s.name);
 		}
 
 		out
@@ -980,11 +967,11 @@ complete -F chooser_{fname} -o bashdefault -o default {bname}
 	/// This produces the main manual content, varying based on whether or not
 	/// this is for a subcommand. Its output is incorporated into the main
 	/// [`Agree::man`] result.
-	fn subman(&self, parent: &str) -> StrTendril {
+	fn subman(&self, parent: &str) -> SmartString<LazyCompact> {
 		// Start with the header.
-		let mut out: StrTendril = format_tendril!(
+		let mut out: SmartString<LazyCompact> = format_smartstring!(
 			r#".TH "{}" "1" "{}" "{} v{}" "User Commands""#,
-			[&parent.to_uppercase(), " ", &self.name.to_uppercase()].concat().trim(),
+			format_smartstring!("{} {}", parent.to_uppercase(), self.name.to_uppercase()).trim(),
 			chrono::Local::now().format("%B %Y"),
 			&self.name,
 			&self.version,
@@ -993,7 +980,7 @@ complete -F chooser_{fname} -o bashdefault -o default {bname}
 		// Add each section.
 		let mut pre: Vec<AgreeSection> = vec![
 			AgreeSection::new("NAME", false)
-				.with_item(AgreeKind::paragraph(format_tendril!(
+				.with_item(AgreeKind::paragraph(format_smartstring!(
 					"{} - Manual page for {} v{}.",
 					&self.name,
 					&self.bin,
@@ -1038,7 +1025,7 @@ complete -F chooser_{fname} -o bashdefault -o default {bname}
 			.filter_map(AgreeKind::if_arg)
 			.for_each(|x| {
 				pre.push(
-					AgreeSection::new(format_tendril!("{}:", x.name), true)
+					AgreeSection::new(format_smartstring!("{}:", x.name), true)
 						.with_item(AgreeKind::paragraph(x.description.clone()))
 				);
 			});
@@ -1060,35 +1047,21 @@ complete -F chooser_{fname} -o bashdefault -o default {bname}
 		pre.iter()
 			.chain(self.other.iter())
 			.for_each(|x| {
-				out.push_char('\n');
-				out.push_slice(&x.man());
+				out.push('\n');
+				out.push_str(&x.man());
 			});
 
-		out.push_char('\n');
-		StrTendril::from(unsafe {
-			std::str::from_utf8_unchecked(
-				&out.as_bytes()
-					.iter()
-					.fold(Vec::new(), |mut v, &b| {
-						if b == b'-' {
-							v.extend_from_slice(br"\-");
-						}
-						else {
-							v.push(b);
-						}
-						v
-					})
-			)
-		})
+		out.push('\n');
+		out.replace('-', r"\-").into()
 	}
 }
 
 
 
 /// # Bash Helper (Long/Short Conds)
-fn bash_long_short_conds(short: Option<&str>, long: Option<&str>) -> StrTendril {
+fn bash_long_short_conds(short: Option<&str>, long: Option<&str>) -> SmartString<LazyCompact> {
 	match (short, long) {
-		(Some(s), Some(l)) => format_tendril!(
+		(Some(s), Some(l)) => format_smartstring!(
 			r#"	if [[ ! " ${{COMP_LINE}} " =~ " {short} " ]] && [[ ! " ${{COMP_LINE}} " =~ " {long} " ]]; then
 		opts+=("{short}")
 		opts+=("{long}")
@@ -1097,11 +1070,11 @@ fn bash_long_short_conds(short: Option<&str>, long: Option<&str>) -> StrTendril 
 			short=s,
 			long=l
 		),
-		(None, Some(k)) | (Some(k), None) => format_tendril!(
+		(None, Some(k)) | (Some(k), None) => format_smartstring!(
 			"\t[[ \" ${{COMP_LINE}} \" =~ \" {key} \" ]] || opts+=(\"{key}\")\n",
 			key=k
 		),
-		(None, None) => StrTendril::new(),
+		(None, None) => SmartString::<LazyCompact>::new(),
 	}
 }
 
@@ -1109,30 +1082,30 @@ fn bash_long_short_conds(short: Option<&str>, long: Option<&str>) -> StrTendril 
 ///
 /// This helper method generates an appropriate key/value line given what sorts
 /// of keys and values exist for the given [`AgreeKind`] type.
-fn man_tagline(short: Option<&StrTendril>, long: Option<&StrTendril>, value: Option<&StrTendril>) -> StrTendril {
+fn man_tagline(short: Option<&str>, long: Option<&str>, value: Option<&str>) -> SmartString<LazyCompact> {
 	match (short, long, value) {
 		// Option: long and short.
-		(Some(s), Some(l), Some(v)) => format_tendril!(
+		(Some(s), Some(l), Some(v)) => format_smartstring!(
 			".TP\n\\fB{}\\fR, \\fB{}\\fR {}",
 			s, l, v
 		),
 		// Option: long or short.
-		(Some(k), None, Some(v)) | (None, Some(k), Some(v)) => format_tendril!(
+		(Some(k), None, Some(v)) | (None, Some(k), Some(v)) => format_smartstring!(
 			".TP\n\\fB{}\\fR {}",
 			k, v
 		),
 		// Switch: long and short.
-		(Some(s), Some(l), None) => format_tendril!(
+		(Some(s), Some(l), None) => format_smartstring!(
 			".TP\n\\fB{}\\fR, \\fB{}\\fR",
 			s, l
 		),
 		// Switch: long or short.
 		// Key/Value.
-		(Some(k), None, None) | (None, Some(k), None) | (None, None, Some(k)) => format_tendril!(
+		(Some(k), None, None) | (None, Some(k), None) | (None, None, Some(k)) => format_smartstring!(
 			".TP\n\\fB{}\\fR",
 			k
 		),
-		_ => StrTendril::new(),
+		_ => SmartString::<LazyCompact>::new(),
 	}
 }
 
