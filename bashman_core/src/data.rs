@@ -505,11 +505,11 @@ impl<'a> Command<'a> {
 
 		if 0 != self.flags & FLAG_ARGUMENTS {
 			if let Some(s) = self.data.iter().find_map(|o| match o {
-				DataKind::Arg(s) => Some(s),
+				DataKind::Arg(s) => Some(s.label),
 				_ => None,
 			}) {
 				out.push(' ');
-				out.push_str(s.label);
+				out.push_str(s);
 			}
 		}
 
@@ -536,29 +536,20 @@ impl<'a> More<'a> {
 		lines: &'a [&'a str],
 		items: &'a [[&'a str; 2]],
 	) -> Option<Self> {
-		let mut data = Vec::new();
+		let mut data: Vec<DataKind<'_>> = items.iter()
+			.filter_map(|[a, b]|
+				(! a.is_empty() && ! b.is_empty())
+					.then(|| DataKind::Item(DataItem::new(a, b)))
+			)
+			.collect();
 
 		// Handle lines.
-		let lines: Vec<&'a str> = lines.iter()
-			.filter(|y| ! y.is_empty())
-			.cloned()
-			.collect();
 		if ! lines.is_empty() {
-			data.push(DataKind::Paragraph(lines));
+			data.push(DataKind::Paragraph(lines.to_vec()));
 		}
-
-		// Handle items.
-		items.iter()
-			.filter(|[a, b]| ! a.is_empty() && ! b.is_empty())
-			.for_each(|[a, b]| {
-				data.push(DataKind::Item(DataItem::new(a, b)));
-			});
 
 		// Return it!
-		if data.is_empty() || label.is_empty() { None }
-		else {
-			Some(Self { label, indent, data })
-		}
+		(! data.is_empty()).then(|| Self { label, indent, data })
 	}
 }
 
@@ -718,18 +709,18 @@ pub(super) struct DataFlag<'a> {
 impl<'a> DataFlag<'a> {
 	#[must_use]
 	/// # New.
-	pub(crate) fn new(
+	pub(crate) const fn new(
 		long: Option<&'a str>,
 		short: Option<&'a str>,
 		description: &'a str
 	) -> Option<Self> {
-		let out = Self {
-			long: long.filter(|x| ! x.is_empty()),
-			short: short.filter(|x| ! x.is_empty()),
-			description
-		};
-
-		if out.long.is_some() || out.short.is_some() { Some(out) }
+		if long.is_some() || short.is_some() {
+			Some(Self {
+				long,
+				short,
+				description
+			})
+		}
 		else { None }
 	}
 }

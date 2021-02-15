@@ -26,29 +26,6 @@ use std::{
 
 
 
-/// # Helper: Clone Args.
-macro_rules! clone_args {
-	($set:expr, $arg:ident, $cmd:ident, $subcmd:ident) => {
-		if $set.is_empty() {
-			$cmd.push($arg);
-		}
-		else {
-			for z in &$set {
-				if z.is_empty() { $cmd.push($arg.clone()); }
-				else {
-					$subcmd
-						.get_mut(z)
-						.ok_or_else(|| BashManError::InvalidSubCommand((*z).to_string()))?
-						.3
-						.push($arg.clone());
-				}
-			}
-		}
-	};
-}
-
-
-
 #[derive(Debug, Clone, Deserialize)]
 /// # Raw Data.
 ///
@@ -62,8 +39,7 @@ impl<'a> TryFrom<&'a str> for Raw<'a> {
 	type Error = BashManError;
 
 	fn try_from(src: &'a str) -> Result<Self, Self::Error> {
-		toml::from_str(src)
-			.map_err(|_| BashManError::ParseManifest)
+		toml::from_str(src).map_err(|e| BashManError::ParseManifest(e.to_string()))
 	}
 }
 
@@ -74,70 +50,79 @@ impl<'a> TryFrom<&'a str> for Raw<'a> {
 impl<'a> Raw<'a> {
 	/// # Parse.
 	pub(super) fn parse(&'a self) -> Result<Command<'a>, BashManError> {
-		// We can do this a light lighter without worrying about subcommands.
+		// We can process data more directly if there are no subcommands to
+		// worry about.
 		if self.package.metadata.subcommands.is_empty() {
 			return Ok(self.parse_single());
 		}
 
-		let mut subcmds: IndexMap<&str, (&str, &str, &str, Vec::<DataKind<'a>>)> = IndexMap::new();
-
-		self.package.metadata.subcommands.iter().try_for_each(|y| {
-			// Command is required.
-			if y.cmd.is_empty() {
-				return Err(BashManError::MissingSubCommand);
-			}
-
-			subcmds.insert(
-				y.cmd,
+		let mut subcmds: IndexMap<&'_ str, (&'_ str, &'_ str, &'_ str, Vec::<DataKind<'_>>)> = self.package.metadata.subcommands.iter()
+			.map(|y|
 				(
-					y.name.unwrap_or(y.cmd),
-					y.description,
 					y.cmd,
-					Vec::new(),
+					(
+						y.name.unwrap_or(y.cmd),
+						y.description,
+						y.cmd,
+						Vec::new(),
+					)
 				)
-			);
-
-			Ok(())
-		})?;
+			)
+			.collect();
 
 		let mut out_args: Vec<DataKind<'_>> = Vec::new();
 
-		// Switches.
-		self.package.metadata.switches.iter().try_for_each(|y| {
-			if let Some(flag) = DataFlag::new(y.long, y.short, y.description) {
-				let arg = DataKind::Switch(flag);
+		self.package.metadata.switches.iter()
+			.filter_map(|y|
+				DataFlag::new(y.long, y.short, y.description)
+					.map(|f| (DataKind::Switch(f), y.subcommands.as_slice()))
+			)
+			.chain(
+				self.package.metadata.options.iter()
+					.filter_map(|y|
+						DataFlag::new(y.long, y.short, y.description)
+							.map(|f|
+								(
+									DataKind::Option(DataOption::new(
+										f,
+										y.label.unwrap_or("<VAL>"),
+										y.path,
+									)),
+									y.subcommands.as_slice()
+								)
+							)
+					)
+			)
+			.chain(
+				self.package.metadata.arguments.iter()
+					.map(|y|
+						(
+							DataKind::Arg(DataItem::new(
+								y.label.unwrap_or("<VALUES>"),
+								y.description
+							)),
+							y.subcommands.as_slice()
+						)
+					)
+			)
+			.try_for_each(|(arg, subs)| {
+				if subs.is_empty() { out_args.push(arg); }
+				else {
+					subs.iter().try_for_each(|sub| {
+						if sub.is_empty() { out_args.push(arg.clone()) }
+						else {
+							subcmds
+								.get_mut(sub)
+								.ok_or_else(|| BashManError::InvalidSubCommand((*sub).to_string()))?
+								.3
+								.push(arg.clone());
+						}
+						Ok(())
+					})?;
+				}
 
-				clone_args!(y.subcommands, arg, out_args, subcmds);
-			}
-			Ok(())
-		})?;
-
-		// Options.
-		self.package.metadata.options.iter().try_for_each(|y| {
-			if let Some(flag) = DataFlag::new(y.long, y.short, y.description) {
-				let arg = DataKind::Option(DataOption::new(
-					flag,
-					y.label.unwrap_or("<VAL>"),
-					y.path,
-				));
-
-				clone_args!(y.subcommands, arg, out_args, subcmds);
-			}
-			Ok(())
-		})?;
-
-		// Arguments.
-		self.package.metadata.arguments.iter().try_for_each(|y| {
-			if ! y.description.is_empty() {
-				let arg = DataKind::Arg(DataItem::new(
-					y.label.unwrap_or("<VALUES>"),
-					y.description
-				));
-
-				clone_args!(y.subcommands, arg, out_args, subcmds);
-			}
-			Ok(())
-		})?;
+				Ok(())
+			})?;
 
 		// Drain the subcommands into args.
 		out_args.extend(
@@ -170,39 +155,31 @@ impl<'a> Raw<'a> {
 	///
 	/// This parses without subcommand support.
 	fn parse_single(&'a self) -> Command<'a> {
-		let mut out_args: Vec<DataKind<'_>> = Vec::new();
-
 		// Switches.
-		self.package.metadata.switches.iter()
-			.filter_map(|y| DataFlag::new(y.long, y.short, y.description))
-			.for_each(|flag| {
-				out_args.push(DataKind::Switch(flag));
-			});
-
-		// Options.
-		self.package.metadata.options.iter().for_each(|y| {
-			if let Some(flag) = DataFlag::new(y.long, y.short, y.description) {
-				out_args.push(
-					DataKind::Option(DataOption::new(
-						flag,
-						y.label.unwrap_or("<VAL>"),
-						y.path,
-					))
-				);
-			}
-		});
-
-		// Arguments.
-		self.package.metadata.arguments.iter()
-			.filter(|y| ! y.description.is_empty())
-			.for_each(|y| {
-				out_args.push(
-					DataKind::Arg(DataItem::new(
+		let out_args: Vec<DataKind<'_>> = self.package.metadata.switches.iter()
+			.filter_map(|y|
+				DataFlag::new(y.long, y.short, y.description)
+					.map(DataKind::Switch)
+			)
+			.chain(
+				self.package.metadata.options.iter()
+					.filter_map(|y|
+						DataFlag::new(y.long, y.short, y.description)
+							.map(|f| DataKind::Option(DataOption::new(
+								f,
+								y.label.unwrap_or("<VAL>"),
+								y.path,
+							)))
+					)
+			)
+			.chain(
+				self.package.metadata.arguments.iter()
+					.map(|y| DataKind::Arg(DataItem::new(
 						y.label.unwrap_or("<VALUES>"),
 						y.description
-					))
-				);
-			});
+					)))
+			)
+			.collect();
 
 		// Finally return the whole thing!
 		Command::new(
@@ -232,8 +209,7 @@ impl<'a> Raw<'a> {
 			);
 
 		if path.is_dir() {
-			std::fs::canonicalize(path)
-				.map_err(|_| BashManError::InvalidBashDir)
+			std::fs::canonicalize(path).map_err(|_| BashManError::InvalidBashDir)
 		}
 		else {
 			Err(BashManError::InvalidBashDir)
@@ -265,8 +241,7 @@ impl<'a> Raw<'a> {
 			);
 
 		if path.is_dir() {
-			std::fs::canonicalize(path)
-				.map_err(|_| BashManError::InvalidManDir)
+			std::fs::canonicalize(path).map_err(|_| BashManError::InvalidManDir)
 		}
 		else {
 			Err(BashManError::InvalidManDir)
@@ -282,13 +257,9 @@ impl<'a> Raw<'a> {
 	#[must_use]
 	/// # Sections.
 	fn sections(&'a self) -> Option<Vec<More<'a>>> {
-		let mut out = Vec::new();
-
-		self.package.metadata.sections.iter()
+		let out: Vec<More<'a>> = self.package.metadata.sections.iter()
 			.filter_map(|y| More::new(y.name, y.inside, &y.lines, &y.items))
-			.for_each(|section| {
-				out.push(section);
-			});
+			.collect();
 
 		if out.is_empty() { None }
 		else { Some(out) }
@@ -308,8 +279,13 @@ impl<'a> Raw<'a> {
 ///
 /// This is what is found under "package".
 struct RawPackage<'a> {
+	#[serde(deserialize_with = "deserialize_nonempty_str")]
 	name: &'a str,
+
+	#[serde(deserialize_with = "deserialize_nonempty_str")]
 	version: &'a str,
+
+	#[serde(deserialize_with = "deserialize_nonempty_str")]
 	description: &'a str,
 
 	#[serde(with = "RawMeta")]
@@ -342,12 +318,18 @@ impl<T> RawMeta<T> {
 ///
 /// This is what is found under "package.metadata.bashman".
 struct RawBashMan<'a> {
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
 	name: Option<&'a str>,
 
 	#[serde(rename = "bash-dir")]
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
 	bash_dir: Option<&'a str>,
 
 	#[serde(rename = "man-dir")]
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
 	man_dir: Option<&'a str>,
 
 	#[serde(default)]
@@ -368,13 +350,19 @@ struct RawBashMan<'a> {
 
 
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Copy, Clone, Deserialize)]
 /// # Raw Subcommand.
 ///
 /// This is what is found under "package.metadata.bashman.subcommands".
 struct RawSubCmd<'a> {
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
 	name: Option<&'a str>,
+
+	#[serde(deserialize_with = "deserialize_nonempty_str")]
 	cmd: &'a str,
+
+	#[serde(deserialize_with = "deserialize_nonempty_str")]
 	description: &'a str,
 }
 
@@ -385,8 +373,15 @@ struct RawSubCmd<'a> {
 ///
 /// This is what is found under "package.metadata.bashman.switches".
 struct RawSwitch<'a> {
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
 	short: Option<&'a str>,
+
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
 	long: Option<&'a str>,
+
+	#[serde(deserialize_with = "deserialize_nonempty_str")]
 	description: &'a str,
 
 	#[serde(default)]
@@ -400,9 +395,19 @@ struct RawSwitch<'a> {
 ///
 /// This is what is found under "package.metadata.bashman.options".
 struct RawOption<'a> {
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
 	short: Option<&'a str>,
+
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
 	long: Option<&'a str>,
+
+	#[serde(deserialize_with = "deserialize_nonempty_str")]
 	description: &'a str,
+
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
 	label: Option<&'a str>,
 
 	#[serde(default)]
@@ -419,7 +424,11 @@ struct RawOption<'a> {
 ///
 /// This is what is found under "package.metadata.bashman.arguments".
 struct RawArg<'a> {
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
 	label: Option<&'a str>,
+
+	#[serde(deserialize_with = "deserialize_nonempty_str")]
 	description: &'a str,
 
 	#[serde(default)]
@@ -433,6 +442,7 @@ struct RawArg<'a> {
 ///
 /// This is what is found under "package.metadata.bashman.subcommands".
 struct RawSection<'a> {
+	#[serde(deserialize_with = "deserialize_nonempty_str")]
 	name: &'a str,
 
 	#[serde(default)]
@@ -443,4 +453,30 @@ struct RawSection<'a> {
 
 	#[serde(default)]
 	items: Vec<[&'a str; 2]>
+}
+
+
+
+/// # Deserialize: Require Non-Empty Str
+///
+/// This will return an error if a string is present but empty.
+fn deserialize_nonempty_str<'de, D>(deserializer: D) -> Result<&'de str, D::Error>
+where D: Deserializer<'de> {
+	let wrapper = <&'de str as Deserialize>::deserialize(deserializer)?;
+	if wrapper.is_empty() { Err(serde::de::Error::custom("Value cannot be empty.")) }
+	else { Ok(wrapper) }
+}
+
+#[allow(clippy::unnecessary_wraps)] // Not our structure to decide.
+/// # Deserialize: Require Non-Empty Str
+///
+/// This will return `None` if the string is empty.
+fn deserialize_nonempty_opt_str<'de, D>(deserializer: D) -> Result<Option<&'de str>, D::Error>
+where D: Deserializer<'de> {
+	Ok(
+		Option::<&'de str>::deserialize(deserializer)
+			.ok()
+			.flatten()
+			.filter(|x| ! x.is_empty())
+	)
 }

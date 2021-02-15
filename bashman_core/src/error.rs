@@ -23,7 +23,7 @@ pub enum BashManError {
 	/// # Missing subcommand.
 	MissingSubCommand,
 	/// # Parse manifest.
-	ParseManifest,
+	ParseManifest(String),
 	/// # Write Bash.
 	WriteBash,
 	/// # Write Man.
@@ -41,7 +41,7 @@ impl fmt::Display for BashManError {
 			Self::InvalidManifest => f.write_str("Invalid manifest path."),
 			Self::InvalidSubCommand(s) => f.write_fmt(format_args!("Invalid subcommand: {:?}", s)),
 			Self::MissingSubCommand => f.write_str("Missing subcommand 'cmd' field."),
-			Self::ParseManifest => f.write_str("Unable to parse manifest."),
+			Self::ParseManifest(e) => f.write_fmt(format_args!("Unable to parse manifest: {:?}", e)),
 			Self::WriteBash => f.write_str("Unable to write BASH completions."),
 			Self::WriteMan => f.write_str("Unable to write Manual(s)."),
 			Self::WriteSubMan(s) => f.write_fmt(format_args!("Unable to write Man for {:?}.", s)),
