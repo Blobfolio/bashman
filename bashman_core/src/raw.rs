@@ -81,7 +81,7 @@ impl<'a> Raw<'a> {
 
 		let mut subcmds: IndexMap<&str, (&str, &str, &str, Vec::<DataKind<'a>>)> = IndexMap::new();
 
-		for y in &self.package.metadata.subcommands {
+		self.package.metadata.subcommands.iter().try_for_each(|y| {
 			// Command is required.
 			if y.cmd.is_empty() {
 				return Err(BashManError::MissingSubCommand);
@@ -96,21 +96,24 @@ impl<'a> Raw<'a> {
 					Vec::new(),
 				)
 			);
-		}
+
+			Ok(())
+		})?;
 
 		let mut out_args: Vec<DataKind<'_>> = Vec::new();
 
 		// Switches.
-		for y in &self.package.metadata.switches {
+		self.package.metadata.switches.iter().try_for_each(|y| {
 			if let Some(flag) = DataFlag::new(y.long, y.short, y.description) {
 				let arg = DataKind::Switch(flag);
 
 				clone_args!(y.subcommands, arg, out_args, subcmds);
 			}
-		}
+			Ok(())
+		})?;
 
 		// Options.
-		for y in &self.package.metadata.options {
+		self.package.metadata.options.iter().try_for_each(|y| {
 			if let Some(flag) = DataFlag::new(y.long, y.short, y.description) {
 				let arg = DataKind::Option(DataOption::new(
 					flag,
@@ -120,10 +123,11 @@ impl<'a> Raw<'a> {
 
 				clone_args!(y.subcommands, arg, out_args, subcmds);
 			}
-		}
+			Ok(())
+		})?;
 
 		// Arguments.
-		for y in &self.package.metadata.arguments {
+		self.package.metadata.arguments.iter().try_for_each(|y| {
 			if ! y.description.is_empty() {
 				let arg = DataKind::Arg(DataItem::new(
 					y.label.unwrap_or("<VALUES>"),
@@ -132,7 +136,8 @@ impl<'a> Raw<'a> {
 
 				clone_args!(y.subcommands, arg, out_args, subcmds);
 			}
-		}
+			Ok(())
+		})?;
 
 		// Drain the subcommands into args.
 		out_args.extend(
@@ -168,14 +173,14 @@ impl<'a> Raw<'a> {
 		let mut out_args: Vec<DataKind<'_>> = Vec::new();
 
 		// Switches.
-		for y in &self.package.metadata.switches {
-			if let Some(flag) = DataFlag::new(y.long, y.short, y.description) {
+		self.package.metadata.switches.iter()
+			.filter_map(|y| DataFlag::new(y.long, y.short, y.description))
+			.for_each(|flag| {
 				out_args.push(DataKind::Switch(flag));
-			}
-		}
+			});
 
 		// Options.
-		for y in &self.package.metadata.options {
+		self.package.metadata.options.iter().for_each(|y| {
 			if let Some(flag) = DataFlag::new(y.long, y.short, y.description) {
 				out_args.push(
 					DataKind::Option(DataOption::new(
@@ -185,19 +190,19 @@ impl<'a> Raw<'a> {
 					))
 				);
 			}
-		}
+		});
 
 		// Arguments.
-		for y in &self.package.metadata.arguments {
-			if ! y.description.is_empty() {
+		self.package.metadata.arguments.iter()
+			.filter(|y| ! y.description.is_empty())
+			.for_each(|y| {
 				out_args.push(
 					DataKind::Arg(DataItem::new(
 						y.label.unwrap_or("<VALUES>"),
 						y.description
 					))
 				);
-			}
-		}
+			});
 
 		// Finally return the whole thing!
 		Command {
@@ -279,11 +284,11 @@ impl<'a> Raw<'a> {
 	fn sections(&'a self) -> Option<Vec<More<'a>>> {
 		let mut out = Vec::new();
 
-		for y in &self.package.metadata.sections {
-			if let Some(section) = More::new(y.name, y.inside, &y.lines, &y.items) {
+		self.package.metadata.sections.iter()
+			.filter_map(|y| More::new(y.name, y.inside, &y.lines, &y.items))
+			.for_each(|section| {
 				out.push(section);
-			}
-		}
+			});
 
 		if out.is_empty() { None }
 		else { Some(out) }
