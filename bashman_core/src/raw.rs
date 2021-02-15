@@ -311,6 +311,8 @@ struct RawPackage<'a> {
 	metadata: RawBashMan<'a>,
 }
 
+
+
 #[derive(Deserialize)]
 /// # Wrapper.
 ///
@@ -327,6 +329,8 @@ impl<T> RawMeta<T> {
 		Ok(wrapper.bashman)
 	}
 }
+
+
 
 #[derive(Debug, Clone, Deserialize)]
 /// # Raw Package Metadata (bashman).
@@ -357,6 +361,8 @@ struct RawBashMan<'a> {
 	sections: Vec<RawSection<'a>>,
 }
 
+
+
 #[derive(Debug, Clone, Deserialize)]
 /// # Raw Subcommand.
 ///
@@ -366,6 +372,8 @@ struct RawSubCmd<'a> {
 	cmd: &'a str,
 	description: &'a str,
 }
+
+
 
 #[derive(Debug, Clone, Deserialize)]
 /// # Raw Switch.
@@ -379,6 +387,8 @@ struct RawSwitch<'a> {
 	#[serde(default)]
 	subcommands: Vec<&'a str>,
 }
+
+
 
 #[derive(Debug, Clone, Deserialize)]
 /// Raw Option.
@@ -397,6 +407,8 @@ struct RawOption<'a> {
 	subcommands: Vec<&'a str>,
 }
 
+
+
 #[derive(Debug, Clone, Deserialize)]
 /// # Raw Argument.
 ///
@@ -408,6 +420,8 @@ struct RawArg<'a> {
 	#[serde(default)]
 	subcommands: Vec<&'a str>,
 }
+
+
 
 #[derive(Debug, Clone, Deserialize)]
 /// # Raw Section.
