@@ -18,6 +18,14 @@ use std::{
 
 
 
+const FLAG_ARGUMENTS: u8 =    0b0000_0001;
+const FLAG_OPTIONS: u8 =      0b0000_0010;
+const FLAG_PATH_OPTIONS: u8 = 0b0000_0110;
+const FLAG_SUBCOMMANDS: u8 =  0b0000_1000;
+const FLAG_SWITCHES: u8 =     0b0001_0000;
+
+
+
 #[derive(Debug, Clone)]
 /// # Command Metadata.
 pub(super) struct Command<'a> {
@@ -28,6 +36,47 @@ pub(super) struct Command<'a> {
 	pub(crate) description: &'a str,
 	pub(crate) data: Vec<DataKind<'a>>,
 	pub(crate) more: Vec<More<'a>>,
+	flags: u8,
+}
+
+/// # Instantiation.
+impl<'a> Command<'a> {
+	/// # New.
+	pub(crate) fn new(
+		name: &'a str,
+		parent: Option<&'a str>,
+		bin: &'a str,
+		version: &'a str,
+		description: &'a str,
+		data: Vec<DataKind<'a>>,
+		more: Vec<More<'a>>,
+	) -> Self {
+		// One iter up front to see what kinds of content we have. This will
+		// potentially save unnecessary work later on.
+		let flags: u8 = data.iter().fold(0, |f, o| {
+			match o {
+				DataKind::SubCommand(_) => f | FLAG_SUBCOMMANDS,
+				DataKind::Switch(_) => f | FLAG_SWITCHES,
+				DataKind::Arg(_) => f | FLAG_ARGUMENTS,
+				DataKind::Option(o) => {
+					if o.path { f | FLAG_PATH_OPTIONS }
+					else { f | FLAG_OPTIONS }
+				},
+				_ => f,
+			}
+		});
+
+		Self {
+			name,
+			parent,
+			bin,
+			version,
+			description,
+			data,
+			more,
+			flags
+		}
+	}
 }
 
 /// # Getters.
@@ -47,21 +96,25 @@ impl<'a> Command<'a> {
 	#[must_use]
 	/// # Version.
 	const fn version(&'a self) -> &'a str { self.version }
-
-	#[must_use]
-	/// # Has Subcommands?
-	fn has_subcommands(&self) -> bool {
-		self.parent.is_none() &&
-		self.data.iter().any(|o| matches!(o, DataKind::SubCommand(_)))
-	}
 }
 
 /// # Bash.
 impl<'a> Command<'a> {
 	/// # Write Bash.
 	pub(crate) fn write_bash(&self, path: &PathBuf, buf: &mut Vec<u8>) -> Result<(), BashManError> {
-		// Has subcommands.
-		if self.has_subcommands() {
+		// No subcommands.
+		if 0 == self.flags & FLAG_SUBCOMMANDS {
+			self.bash_completions(buf)?;
+			writeln!(
+				buf,
+				"complete -F {} -o bashdefault -o default {}",
+				self.bash_fname(),
+				self.bin
+			)
+				.map_err(|_| BashManError::WriteBash)?;
+		}
+		// Subcommands.
+		else {
 			self.data.iter()
 				.try_for_each(|x| {
 					if let DataKind::SubCommand(x) = x {
@@ -73,17 +126,6 @@ impl<'a> Command<'a> {
 
 			self.bash_completions(buf)?;
 			self.bash_subcommands(buf)?;
-		}
-		// It is cleaner if it is singular.
-		else {
-			self.bash_completions(buf)?;
-			writeln!(
-				buf,
-				"complete -F {} -o bashdefault -o default {}",
-				self.bash_fname(),
-				self.bin
-			)
-				.map_err(|_| BashManError::WriteBash)?;
 		}
 
 		// Write it to a file!
@@ -129,7 +171,9 @@ impl<'a> Command<'a> {
 	fi
 
 "#);
-		self.bash_paths(buf)?;
+
+		if 0 != self.flags & FLAG_PATH_OPTIONS { self.bash_paths(buf)?; }
+
 		buf.extend_from_slice(br#"
 	COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
 	return 0
@@ -284,24 +328,26 @@ impl<'a> Command<'a> {
 		self._write_man(&out_file, buf)?;
 
 		// All the subcommands.
-		self.data.iter().try_for_each(|o| {
-			if let DataKind::SubCommand(o) = o {
-				buf.truncate(0);
-				o.man(buf)?;
-				man_escape(buf);
+		if 0 != self.flags & FLAG_SUBCOMMANDS {
+			self.data.iter().try_for_each(|o| {
+				if let DataKind::SubCommand(o) = o {
+					buf.truncate(0);
+					o.man(buf)?;
+					man_escape(buf);
 
-				out_file.pop();
-				out_file.push(format!(
-					"{}-{}.1",
-					self.bin,
-					o.bin
-				));
+					out_file.pop();
+					out_file.push(format!(
+						"{}-{}.1",
+						self.bin,
+						o.bin
+					));
 
-				o._write_man(&out_file, buf)?;
-			}
+					o._write_man(&out_file, buf)?;
+				}
 
-			Ok(())
-		})?;
+				Ok(())
+			})?;
+		}
 
 		fyi_msg::success!(format!(
 			"MAN page(s) written to: {:?}", path
@@ -445,24 +491,26 @@ impl<'a> Command<'a> {
 				None => self.bin.to_string(),
 			};
 
-		if self.data.iter().any(|x| matches!(x, DataKind::SubCommand(_))) {
+		if 0 != self.flags & FLAG_SUBCOMMANDS {
 			out.push_str(" [SUBCOMMAND]");
 		}
 
-		if self.data.iter().any(|x| matches!(x, DataKind::Switch(_))) {
+		if 0 != self.flags & FLAG_SWITCHES {
 			out.push_str(" [FLAGS]");
 		}
 
-		if self.data.iter().any(|x| matches!(x, DataKind::Option(_))) {
+		if 0 != self.flags & FLAG_OPTIONS {
 			out.push_str(" [OPTIONS]");
 		}
 
-		if let Some(s) = self.data.iter().find_map(|o| match o {
-			DataKind::Arg(s) => Some(s),
-			_ => None,
-		}) {
-			out.push(' ');
-			out.push_str(s.label);
+		if 0 != self.flags & FLAG_ARGUMENTS {
+			if let Some(s) = self.data.iter().find_map(|o| match o {
+				DataKind::Arg(s) => Some(s),
+				_ => None,
+			}) {
+				out.push(' ');
+				out.push_str(s.label);
+			}
 		}
 
 		out

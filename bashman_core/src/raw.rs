@@ -142,28 +142,28 @@ impl<'a> Raw<'a> {
 		// Drain the subcommands into args.
 		out_args.extend(
 			subcmds.drain(..).map(|(_, v)| {
-				DataKind::SubCommand(Command {
-					name: v.0,
-					description: v.1,
-					parent: Some(self.command()),
-					bin: v.2,
-					version: self.version(),
-					data: v.3,
-					more: Vec::new(),
-				})
+				DataKind::SubCommand(Command::new(
+					v.0,
+					Some(self.command()),
+					v.2,
+					self.version(),
+					v.1,
+					v.3,
+					Vec::new(),
+				))
 			})
 		);
 
 		// Finally return the whole thing!
-		Ok(Command {
-			name: self.name(),
-			description: self.description(),
-			parent: None,
-			bin: self.command(),
-			version: self.version(),
-			data: out_args,
-			more: self.sections().unwrap_or_default(),
-		})
+		Ok(Command::new(
+			self.name(),
+			None,
+			self.command(),
+			self.version(),
+			self.description(),
+			out_args,
+			self.sections().unwrap_or_default(),
+		))
 	}
 
 	/// # Parse Single.
@@ -205,15 +205,15 @@ impl<'a> Raw<'a> {
 			});
 
 		// Finally return the whole thing!
-		Command {
-			name: self.name(),
-			description: self.description(),
-			parent: None,
-			bin: self.command(),
-			version: self.version(),
-			data: out_args,
-			more: Vec::new(),
-		}
+		Command::new(
+			self.name(),
+			None,
+			self.command(),
+			self.version(),
+			self.description(),
+			out_args,
+			Vec::new(),
+		)
 	}
 }
 
