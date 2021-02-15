@@ -19,7 +19,7 @@ description="Print blank line(s)."
 
 [[package.metadata.bashman.subcommands]]
 cmd = "confirm"
-description="Ask a Yes/No question using the built-in prefix \"confirm\"."
+description='Ask a Yes/No question using the built-in prefix "confirm".'
 
 [[package.metadata.bashman.subcommands]]
 cmd = "print"
@@ -125,6 +125,24 @@ subcommands = [ "print" ]
 label = "<MSG>"
 description = "The message!"
 subcommands = [ "confirm", "print", "crunched", "debug", "done", "error", "info", "notice", "success", "task", "warning" ]
+
+[[package.metadata.bashman.sections]]
+name = "OPTIMIZERS"
+inside = true
+items = [
+	[ "MozJPEG", "<https://github.com/mozilla/mozjpeg>" ],
+	[ "Oxipng", "<https://github.com/shssoichiro/oxipng>" ],
+	[ "Zopflipng", "<https://github.com/google/zopfli>" ]
+]
+
+[[package.metadata.bashman.sections]]
+name = "FILE TYPES"
+inside = false
+lines = [
+	"Static copies will only be generated for files with these extensions:",
+	"atom; bmp; css; eot; (geo)json; htc; htm(l); ico; ics; js; manifest; md;",
+	"mjs; otf; rdf; rss; svg; ttf; txt; vcard; vcs; vtt; wasm; xhtm(l); xml; xsl",
+]
 
 [dependencies.fyi_menu]
 path = "../fyi_menu"

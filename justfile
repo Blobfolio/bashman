@@ -18,6 +18,7 @@
 pkg_id      := "cargo-bashman"
 pkg_name    := "Cargo BashMan"
 pkg_dir1    := justfile_directory() + "/bashman"
+pkg_dir2    := justfile_directory() + "/bashman_core"
 
 cargo_dir   := "/tmp/" + pkg_id + "-cargo"
 cargo_bin   := cargo_dir + "/x86_64-unknown-linux-gnu/release/" + pkg_id
@@ -75,6 +76,7 @@ rustflags   := "-C link-arg=-s"
 	# *other* shit in the designated target dir. Haha.
 	[ ! -d "{{ justfile_directory() }}/target" ] || rm -rf "{{ justfile_directory() }}/target"
 	[ ! -d "{{ pkg_dir1 }}/target" ] || rm -rf "{{ pkg_dir1 }}/target"
+	[ ! -d "{{ pkg_dir2 }}/target" ] || rm -rf "{{ pkg_dir2 }}/target"
 
 	cargo update -w
 
@@ -150,6 +152,7 @@ version:
 
 	# Set the release version!
 	just _version "{{ pkg_dir1 }}" "$_ver2"
+	just _version "{{ pkg_dir2 }}" "$_ver2"
 
 
 # Set version for real.

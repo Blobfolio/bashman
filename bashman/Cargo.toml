@@ -44,15 +44,8 @@ description = "Path to the Cargo.toml file to use."
 label = "<Cargo.toml>"
 path = true
 
-[dependencies]
-indexmap = "1.6.*"
-libdeflater = "0.7.*"
-smartstring = "0.2.*"
-
-[dependencies.chrono]
-version = "0.4.*"
-default-features = false
-features = [ "clock", "std" ]
+[dependencies.bashman_core]
+path = "../bashman_core"
 
 [dependencies.fyi_menu]
 git = "https://github.com/Blobfolio/fyi.git"
@@ -61,7 +54,3 @@ tag = "v0.6.1"
 [dependencies.fyi_msg]
 git = "https://github.com/Blobfolio/fyi.git"
 tag = "v0.6.1"
-
-[dependencies.toml]
-version = "0.5.*"
-features = [ "preserve_order" ]
