@@ -121,6 +121,13 @@ label = "<PREFIX>"
 path = false
 subcommands = [ "print" ]
 
+[[package.metadata.bashman.options]]
+short = "-l"
+long = "--list"
+label = "<FILE>"
+description = "Read file paths from this text file."
+path = true
+
 [[package.metadata.bashman.arguments]]
 label = "<MSG>"
 description = "The message!"

@@ -180,7 +180,7 @@ impl<'a> Command<'a> {
 			.filter_map(|o| o.and_path_option().and_then(|o| o.flag.short))
 			.chain(
 				self.data.iter()
-					.filter_map(|o| o.and_path_option().and_then(|o| o.flag.short))
+					.filter_map(|o| o.and_path_option().and_then(|o| o.flag.long))
 			)
 			.collect();
 
