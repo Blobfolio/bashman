@@ -5,17 +5,24 @@ This helps parse the raw TOML structure into the data we care about. From here,
 it can be converted into a more agreeable (and validated) structure.
 */
 
-use crate::BashManError;
-use crate::Command;
-use crate::DataFlag;
-use crate::DataItem;
-use crate::DataKind;
-use crate::DataOption;
-use crate::More;
+use crate::{
+	BashManError,
+	Command,
+	DataFlag,
+	DataItem,
+	DataKind,
+	DataOption,
+	More,
+};
 use indexmap::IndexMap;
-use serde::Deserialize;
-use std::convert::TryFrom;
-use std::path::PathBuf;
+use serde::{
+	Deserialize,
+	Deserializer,
+};
+use std::{
+	convert::TryFrom,
+	path::PathBuf,
+};
 
 
 
@@ -68,13 +75,13 @@ impl<'a> Raw<'a> {
 	/// # Parse.
 	pub(super) fn parse(&'a self) -> Result<Command<'a>, BashManError> {
 		// We can do this a light lighter without worrying about subcommands.
-		if self.package.metadata.bashman.subcommands.is_empty() {
+		if self.package.metadata.subcommands.is_empty() {
 			return Ok(self.parse_single());
 		}
 
 		let mut subcmds: IndexMap<&str, (&str, &str, &str, Vec::<DataKind<'a>>)> = IndexMap::new();
 
-		for y in &self.package.metadata.bashman.subcommands {
+		for y in &self.package.metadata.subcommands {
 			// Command is required.
 			if y.cmd.is_empty() {
 				return Err(BashManError::MissingSubCommand);
@@ -94,7 +101,7 @@ impl<'a> Raw<'a> {
 		let mut out_args: Vec<DataKind<'_>> = Vec::new();
 
 		// Switches.
-		for y in &self.package.metadata.bashman.switches {
+		for y in &self.package.metadata.switches {
 			if let Some(flag) = DataFlag::new(y.long, y.short, y.description) {
 				let arg = DataKind::Switch(flag);
 
@@ -103,7 +110,7 @@ impl<'a> Raw<'a> {
 		}
 
 		// Options.
-		for y in &self.package.metadata.bashman.options {
+		for y in &self.package.metadata.options {
 			if let Some(flag) = DataFlag::new(y.long, y.short, y.description) {
 				let arg = DataKind::Option(DataOption::new(
 					flag,
@@ -116,7 +123,7 @@ impl<'a> Raw<'a> {
 		}
 
 		// Arguments.
-		for y in &self.package.metadata.bashman.arguments {
+		for y in &self.package.metadata.arguments {
 			if ! y.description.is_empty() {
 				let arg = DataKind::Arg(DataItem::new(
 					y.label.unwrap_or("<VALUES>"),
@@ -161,14 +168,14 @@ impl<'a> Raw<'a> {
 		let mut out_args: Vec<DataKind<'_>> = Vec::new();
 
 		// Switches.
-		for y in &self.package.metadata.bashman.switches {
+		for y in &self.package.metadata.switches {
 			if let Some(flag) = DataFlag::new(y.long, y.short, y.description) {
 				out_args.push(DataKind::Switch(flag));
 			}
 		}
 
 		// Options.
-		for y in &self.package.metadata.bashman.options {
+		for y in &self.package.metadata.options {
 			if let Some(flag) = DataFlag::new(y.long, y.short, y.description) {
 				out_args.push(
 					DataKind::Option(DataOption::new(
@@ -181,7 +188,7 @@ impl<'a> Raw<'a> {
 		}
 
 		// Arguments.
-		for y in &self.package.metadata.bashman.arguments {
+		for y in &self.package.metadata.arguments {
 			if ! y.description.is_empty() {
 				out_args.push(
 					DataKind::Arg(DataItem::new(
@@ -209,7 +216,7 @@ impl<'a> Raw<'a> {
 impl<'a> Raw<'a> {
 	/// # Bash Directory.
 	pub(super) fn bash_dir(&self, dir: &PathBuf) -> Result<PathBuf, BashManError> {
-		let path: PathBuf = self.package.metadata.bashman.bash_dir
+		let path: PathBuf = self.package.metadata.bash_dir
 			.map_or_else(|| dir.clone(), |path|
 				if path.starts_with('/') { PathBuf::from(path) }
 				else {
@@ -242,7 +249,7 @@ impl<'a> Raw<'a> {
 
 	/// # Man Directory.
 	pub(super) fn man_dir(&self, dir: &PathBuf) -> Result<PathBuf, BashManError> {
-		let path: PathBuf = self.package.metadata.bashman.man_dir
+		let path: PathBuf = self.package.metadata.man_dir
 			.map_or_else(|| dir.clone(), |path|
 				if path.starts_with('/') { PathBuf::from(path) }
 				else {
@@ -264,7 +271,7 @@ impl<'a> Raw<'a> {
 	#[must_use]
 	/// # Name.
 	fn name(&'a self) -> &'a str {
-		self.package.metadata.bashman.name.unwrap_or(self.package.name)
+		self.package.metadata.name.unwrap_or(self.package.name)
 	}
 
 	#[must_use]
@@ -272,7 +279,7 @@ impl<'a> Raw<'a> {
 	fn sections(&'a self) -> Option<Vec<More<'a>>> {
 		let mut out = Vec::new();
 
-		for y in &self.package.metadata.bashman.sections {
+		for y in &self.package.metadata.sections {
 			if let Some(section) = More::new(y.name, y.inside, &y.lines, &y.items) {
 				out.push(section);
 			}
@@ -299,16 +306,26 @@ struct RawPackage<'a> {
 	name: &'a str,
 	version: &'a str,
 	description: &'a str,
-	metadata: RawMeta<'a>,
+
+	#[serde(with = "RawMeta")]
+	metadata: RawBashMan<'a>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
-/// # Raw Package Metadata.
+#[derive(Deserialize)]
+/// # Wrapper.
 ///
-/// This is what is found under "package.metadata".
-struct RawMeta<'a> {
-	#[serde(borrow)]
-	bashman: RawBashMan<'a>
+/// We don't care about metadata beyond metadata.bashman. This removes a level
+/// of complexity.
+struct RawMeta<T> {
+	bashman: T,
+}
+
+impl<T> RawMeta<T> {
+	fn deserialize<'de, D>(deserializer: D) -> Result<T, D::Error>
+	where T: Deserialize<'de>, D: Deserializer<'de> {
+		let wrapper = <Self as Deserialize>::deserialize(deserializer)?;
+		Ok(wrapper.bashman)
+	}
 }
 
 #[derive(Debug, Clone, Deserialize)]
