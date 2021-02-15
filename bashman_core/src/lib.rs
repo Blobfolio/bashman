@@ -34,8 +34,8 @@ mod error;
 mod raw;
 
 pub use error::BashManError;
-pub use raw::Raw;
-pub use data::{
+use raw::Raw;
+pub(crate) use data::{
 	Command,
 	DataFlag,
 	DataItem,
@@ -45,14 +45,13 @@ pub use data::{
 };
 use std::{
 	convert::TryFrom,
-	path::Path,
+	path::PathBuf,
 };
 
 
 
 /// # Parse.
-pub fn parse<P>(manifest: P) -> Result<(), BashManError>
-where P: AsRef<Path> {
+pub fn parse(manifest: PathBuf) -> Result<(), BashManError> {
 	// Clean up the manifest path.
 	let manifest = std::fs::canonicalize(manifest)
 		.map_err(|_| BashManError::InvalidManifest)?;
@@ -67,14 +66,13 @@ where P: AsRef<Path> {
 	// The actually-useful data!
 	let cmd = raw.parse()?;
 
-	// A base directory.
-	let dir = manifest.parent().unwrap().to_path_buf();
-	let bash_dir = raw.bash_dir(&dir)?;
-	let man_dir = raw.man_dir(&dir)?;
-
 	// Write BASH.
-	cmd.write_bash(&bash_dir)?;
-	cmd.write_man(&man_dir)?;
+	let mut buf: Vec<u8> = Vec::new();
+	let dir = manifest.parent().unwrap().to_path_buf();
+	cmd.write_bash(&raw.bash_dir(&dir)?, &mut buf)?;
+
+	buf.truncate(0);
+	cmd.write_man(&raw.man_dir(&dir)?, &mut buf)?;
 
 	Ok(())
 }

@@ -296,12 +296,13 @@ fn _main() -> Result<(), BashManError> {
 
 	bashman_core::parse(
 		args.option2(b"-m", b"--manifest-path")
-			.map(OsStr::from_bytes)
-			.map(PathBuf::from)
-			.or_else(|| std::env::current_dir().ok().map(|mut p| {
-				p.push("Cargo.toml");
-				p
-			}))
+			.map_or_else(
+				|| std::env::current_dir().ok().map(|mut p| {
+					p.push("Cargo.toml");
+					p
+				}),
+				|b| Some(PathBuf::from(OsStr::from_bytes(b)))
+			)
 			.ok_or(BashManError::InvalidManifest)?
 	)?;
 

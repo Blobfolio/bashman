@@ -46,7 +46,7 @@ macro_rules! clone_args {
 /// # Raw Data.
 ///
 /// The outermost struct.
-pub struct Raw<'a> {
+pub(super) struct Raw<'a> {
 	#[serde(borrow)]
 	package: RawPackage<'a>
 }
@@ -66,7 +66,7 @@ impl<'a> TryFrom<&'a str> for Raw<'a> {
 /// there!
 impl<'a> Raw<'a> {
 	/// # Parse.
-	pub fn parse(&'a self) -> Result<Command<'a>, BashManError> {
+	pub(super) fn parse(&'a self) -> Result<Command<'a>, BashManError> {
 		// We can do this a light lighter without worrying about subcommands.
 		if self.package.metadata.bashman.subcommands.is_empty() {
 			return Ok(self.parse_single());
@@ -208,7 +208,7 @@ impl<'a> Raw<'a> {
 /// # Getters.
 impl<'a> Raw<'a> {
 	/// # Bash Directory.
-	pub fn bash_dir(&self, dir: &PathBuf) -> Result<PathBuf, BashManError> {
+	pub(super) fn bash_dir(&self, dir: &PathBuf) -> Result<PathBuf, BashManError> {
 		let path: PathBuf = self.package.metadata.bashman.bash_dir
 			.map_or_else(|| dir.clone(), |path|
 				if path.starts_with('/') { PathBuf::from(path) }
@@ -230,18 +230,18 @@ impl<'a> Raw<'a> {
 
 	#[must_use]
 	/// # Main Command.
-	pub const fn command(&'a self) -> &'a str {
+	const fn command(&'a self) -> &'a str {
 		self.package.name
 	}
 
 	#[must_use]
 	/// # Main Description.
-	pub const fn description(&'a self) -> &'a str {
+	const fn description(&'a self) -> &'a str {
 		self.package.description
 	}
 
 	/// # Man Directory.
-	pub fn man_dir(&self, dir: &PathBuf) -> Result<PathBuf, BashManError> {
+	pub(super) fn man_dir(&self, dir: &PathBuf) -> Result<PathBuf, BashManError> {
 		let path: PathBuf = self.package.metadata.bashman.man_dir
 			.map_or_else(|| dir.clone(), |path|
 				if path.starts_with('/') { PathBuf::from(path) }
@@ -263,13 +263,13 @@ impl<'a> Raw<'a> {
 
 	#[must_use]
 	/// # Name.
-	pub fn name(&'a self) -> &'a str {
+	fn name(&'a self) -> &'a str {
 		self.package.metadata.bashman.name.unwrap_or(self.package.name)
 	}
 
 	#[must_use]
 	/// # Sections.
-	pub fn sections(&'a self) -> Option<Vec<More<'a>>> {
+	fn sections(&'a self) -> Option<Vec<More<'a>>> {
 		let mut out = Vec::new();
 
 		for y in &self.package.metadata.bashman.sections {
@@ -284,7 +284,7 @@ impl<'a> Raw<'a> {
 
 	#[must_use]
 	/// # Main Version.
-	pub const fn version(&'a self) -> &'a str {
+	const fn version(&'a self) -> &'a str {
 		self.package.version
 	}
 }

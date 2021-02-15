@@ -20,7 +20,7 @@ use std::{
 
 #[derive(Debug, Clone)]
 /// # Command Metadata.
-pub struct Command<'a> {
+pub(super) struct Command<'a> {
 	pub(crate) name: &'a str,
 	pub(crate) parent: Option<&'a str>,
 	pub(crate) bin: &'a str,
@@ -34,19 +34,19 @@ pub struct Command<'a> {
 impl<'a> Command<'a> {
 	#[must_use]
 	/// # Bin (cmd).
-	pub const fn bin(&'a self) -> &'a str { self.bin }
+	const fn bin(&'a self) -> &'a str { self.bin }
 
 	#[must_use]
 	/// # Description.
-	pub const fn description(&'a self) -> &'a str { self.description }
+	const fn description(&'a self) -> &'a str { self.description }
 
 	#[must_use]
 	/// # Name.
-	pub const fn name(&'a self) -> &'a str { self.name }
+	const fn name(&'a self) -> &'a str { self.name }
 
 	#[must_use]
 	/// # Version.
-	pub const fn version(&'a self) -> &'a str { self.version }
+	const fn version(&'a self) -> &'a str { self.version }
 
 	#[must_use]
 	/// # Has Subcommands?
@@ -59,32 +59,26 @@ impl<'a> Command<'a> {
 /// # Bash.
 impl<'a> Command<'a> {
 	/// # Write Bash.
-	pub fn write_bash(&self, path: &PathBuf) -> Result<(), BashManError> {
-		if ! path.is_dir() {
-			return Err(BashManError::WriteBash);
-		}
-
-		let mut out: Vec<u8> = Vec::new();
-
+	pub(crate) fn write_bash(&self, path: &PathBuf, buf: &mut Vec<u8>) -> Result<(), BashManError> {
 		// Has subcommands.
 		if self.has_subcommands() {
 			self.data.iter()
 				.try_for_each(|x| {
 					if let DataKind::SubCommand(x) = x {
-						x.bash_completions(&mut out)?;
+						x.bash_completions(buf)?;
 					}
 
 					Ok(())
 				})?;
 
-			self.bash_completions(&mut out)?;
-			self.bash_subcommands(&mut out)?;
+			self.bash_completions(buf)?;
+			self.bash_subcommands(buf)?;
 		}
 		// It is cleaner if it is singular.
 		else {
-			self.bash_completions(&mut out)?;
+			self.bash_completions(buf)?;
 			writeln!(
-				&mut out,
+				buf,
 				"complete -F {} -o bashdefault -o default {}",
 				self.bash_fname(),
 				self.bin
@@ -96,7 +90,7 @@ impl<'a> Command<'a> {
 		let mut out_file = path.clone();
 		out_file.push(self.bin.to_string() + ".bash");
 		std::fs::File::create(&out_file)
-			.and_then(|mut f| f.write_all(&out).and_then(|_| f.flush()))
+			.and_then(|mut f| f.write_all(buf).and_then(|_| f.flush()))
 			.map_err(|_| BashManError::WriteBash)?;
 
 		fyi_msg::success!(format!(
@@ -112,42 +106,36 @@ impl<'a> Command<'a> {
 	/// output is combined with other code to produce the final script returned
 	/// by the main [`Agree::bash`] method.
 	fn bash_completions(&self, buf: &mut Vec<u8>) -> Result<(), BashManError> {
-		write!(
-			buf,
-			r#"{}() {{
+		buf.extend_from_slice(self.bash_fname().as_bytes());
+		buf.extend_from_slice(br#"() {
 	local cur prev opts
 	COMPREPLY=()
-	cur="${{COMP_WORDS[COMP_CWORD]}}"
-	prev="${{COMP_WORDS[COMP_CWORD-1]}}"
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
 	opts=()
 
-"#,
-			self.bash_fname()
-		)
-		.map_err(|_| BashManError::WriteBash)?;
+"#);
 
 		self.data.iter()
 			.try_for_each(|x| {
 				x.write_bash(buf)
 			})?;
 
-		write!(
-			buf,
-			r#"
-	opts=" ${{opts[@]}} "
-	if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq 1 ]] ; then
-		COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
+		buf.extend_from_slice(br#"
+	opts=" ${opts[@]} "
+	if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
+		COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
 		return 0
 	fi
 
-{}
-	COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
+"#);
+		self.bash_paths(buf)?;
+		buf.extend_from_slice(br#"
+	COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
 	return 0
-}}
-"#,
-			self.bash_paths()
-		)
-		.map_err(|_| BashManError::WriteBash)
+}
+"#);
+		Ok(())
 	}
 
 	/// # BASH Helper (Function Name).
@@ -175,7 +163,7 @@ impl<'a> Command<'a> {
 	/// This produces the file/directory-listing portion of the BASH completion
 	/// script for cases where the last option entered expects a path. It is
 	/// integrated into the main [`Agree::bash`] output.
-	fn bash_paths(&self) -> String {
+	fn bash_paths(&self, buf: &mut Vec<u8>) -> Result<(), BashManError> {
 		let keys: Vec<&str> = self.data.iter()
 			.filter_map(|o| o.and_path_option().and_then(|o| o.flag.short))
 			.chain(
@@ -184,9 +172,9 @@ impl<'a> Command<'a> {
 			)
 			.collect();
 
-		if keys.is_empty() { String::new() }
-		else {
-			format!(
+		if ! keys.is_empty() {
+			write!(
+				buf,
 				r#"	case "${{prev}}" in
 		{})
 			COMPREPLY=( $( compgen -f "${{cur}}" ) )
@@ -199,7 +187,10 @@ impl<'a> Command<'a> {
 "#,
 				&keys.join("|")
 			)
+				.map_err(|_| BashManError::WriteBash)?;
 		}
+
+		Ok(())
 	}
 
 	/// # BASH Helper (Subcommand Chooser).
@@ -208,7 +199,7 @@ impl<'a> Command<'a> {
 	/// to allow per-command suggestions. The output is incorporated into the
 	/// value returned by [`Agree::bash`].
 	fn bash_subcommands(&self, buf: &mut Vec<u8>) -> Result<(), BashManError> {
-		let (cmd, chooser): (String, String) = std::iter::once((self.bin, self.bash_fname()))
+		let (cmd, chooser) = std::iter::once((self.bin, self.bash_fname()))
 			.chain(
 				self.data.iter()
 					.filter_map(|x|
@@ -283,26 +274,21 @@ complete -F chooser_{fname} -o bashdefault -o default {bname}
 /// # Manuals.
 impl<'a> Command<'a> {
 	/// # Write Manuals.
-	pub fn write_man(&self, path: &PathBuf) -> Result<(), BashManError> {
-		if ! path.is_dir() {
-			return Err(BashManError::WriteSubMan(self.bin.to_string()));
-		}
-
+	pub(crate) fn write_man(&self, path: &PathBuf, buf: &mut Vec<u8>) -> Result<(), BashManError> {
 		// Main manual first.
-		let mut out: Vec<u8> = Vec::new();
-		self.man(&mut out)?;
-		man_escape(&mut out);
+		self.man(buf)?;
+		man_escape(buf);
 
 		let mut out_file = path.clone();
 		out_file.push(self.bin.to_string() + ".1");
-		self._write_man(&out_file, &out)?;
+		self._write_man(&out_file, buf)?;
 
 		// All the subcommands.
 		self.data.iter().try_for_each(|o| {
 			if let DataKind::SubCommand(o) = o {
-				out.truncate(0);
-				o.man(&mut out)?;
-				man_escape(&mut out);
+				buf.truncate(0);
+				o.man(buf)?;
+				man_escape(buf);
 
 				out_file.pop();
 				out_file.push(format!(
@@ -311,7 +297,7 @@ impl<'a> Command<'a> {
 					o.bin
 				));
 
-				o._write_man(&out_file, &out)?;
+				o._write_man(&out_file, buf)?;
 			}
 
 			Ok(())
@@ -334,8 +320,7 @@ impl<'a> Command<'a> {
 
 		// Write compressed.
 		let mut writer = Compressor::new(CompressionLvl::best());
-		let mut buf: Vec<u8> = Vec::with_capacity(data.len());
-		buf.resize(writer.gzip_compress_bound(data.len()), 0);
+		let mut buf: Vec<u8> = vec![0; writer.gzip_compress_bound(data.len())];
 
 		// Trim any excess now that we know the final length.
 		let len = writer.gzip_compress(data, &mut buf)
@@ -358,11 +343,7 @@ impl<'a> Command<'a> {
 			buf,
 			r#".TH "{}" "1" "{}" "{} v{}" "User Commands""#,
 			match self.parent {
-				Some(p) => format!(
-					"{} {}",
-					p.to_uppercase(),
-					self.name().to_uppercase()
-				),
+				Some(p) => format!("{} {}", p, self.name()).to_uppercase(),
 				None => self.name().to_uppercase(),
 			},
 			chrono::Local::now().format("%B %Y"),
@@ -371,29 +352,41 @@ impl<'a> Command<'a> {
 		)
 			.map_err(|_| BashManError::WriteSubMan(self.bin.to_string()))?;
 
-		// Start with general sections.
-		More {
-			label: "NAME",
-			indent: false,
-			data: vec![DataKind::Paragraph(vec![&format!(
+		// Helper: Generic section writer.
+		macro_rules! write_section {
+			($label:expr, $indent:expr, $data:expr) => {
+				More { label: $label, indent: $indent, data: $data }.man(buf)?;
+			};
+			($label:literal, $arr:ident) => {
+				if ! $arr.is_empty() { write_section!($label, true, $arr); }
+			};
+		}
+
+		// Name.
+		write_section!(
+			"NAME",
+			false,
+			vec![DataKind::Paragraph(vec![&format!(
 				"{} - Manual page for {} v{}.",
 				self.name(),
 				self.bin,
 				self.version()
-			)])],
-		}.man(buf)?;
+			)])]
+		);
 
-		More {
-			label: "DESCRIPTION",
-			indent: false,
-			data: vec![DataKind::Paragraph(vec![self.description()])],
-		}.man(buf)?;
+		// Description.
+		write_section!(
+			"DESCRIPTION",
+			false,
+			vec![DataKind::Paragraph(vec![self.description()])]
+		);
 
-		More {
-			label: "USAGE:",
-			indent: true,
-			data: vec![DataKind::Paragraph(vec![&self.man_usage()])],
-		}.man(buf)?;
+		// Usage.
+		write_section!(
+			"USAGE:",
+			true,
+			vec![DataKind::Paragraph(vec![&self.man_usage()])]
+		);
 
 		// Handle the generated sections.
 		let mut flags: Vec<DataKind> = Vec::new();
@@ -425,21 +418,8 @@ impl<'a> Command<'a> {
 		});
 
 		// Now print each section.
-		if ! flags.is_empty() {
-			More {
-				label: "FLAGS:",
-				indent: true,
-				data: flags,
-			}.man(buf)?;
-		}
-
-		if ! opts.is_empty() {
-			More {
-				label: "OPTIONS:",
-				indent: true,
-				data: opts,
-			}.man(buf)?;
-		}
+		write_section!("FLAGS:", flags);
+		write_section!("OPTIONS:", opts);
 
 		args.drain(..).try_for_each(|(label, data)| {
 			More {
@@ -449,13 +429,7 @@ impl<'a> Command<'a> {
 			}.man(buf)
 		})?;
 
-		if ! subs.is_empty() {
-			More {
-				label: "SUBCOMMANDS:",
-				indent: true,
-				data: subs,
-			}.man(buf)?;
-		}
+		write_section!("SUBCOMMANDS:", subs);
 
 		// Random sections.
 		self.more.iter().try_for_each(|x| x.man(buf))?;
@@ -499,7 +473,7 @@ impl<'a> Command<'a> {
 
 #[derive(Debug, Clone)]
 /// # Misc Metadata Section.
-pub struct More<'a> {
+pub(super) struct More<'a> {
 	label: &'a str,
 	indent: bool,
 	data: Vec<DataKind<'a>>,
@@ -508,7 +482,7 @@ pub struct More<'a> {
 impl<'a> More<'a> {
 	#[must_use]
 	/// # New.
-	pub fn new(
+	pub(crate) fn new(
 		label: &'a str,
 		indent: bool,
 		lines: &'a [&'a str],
@@ -545,24 +519,26 @@ impl<'a> More<'a> {
 	/// # Manual.
 	fn man(&self, buf: &mut Vec<u8>) -> Result<(), BashManError> {
 		// Start with the header.
-		write!(buf, "\n{} ", if self.indent { ".SS" } else { ".SH" })
-			.map_err(|_| BashManError::WriteMan)?;
+		if self.indent {
+			buf.extend_from_slice(b"\n.SS ");
+		}
+		else {
+			buf.extend_from_slice(b"\n.SH ");
+		}
 
 		match (self.indent, self.label.ends_with(':')) {
 			// Indented sections need a trailing colon.
 			(true, false) => {
-				write!(buf, "{}:", self.label)
-					.map_err(|_| BashManError::WriteMan)?;
+				buf.extend_from_slice(self.label.as_bytes());
+				buf.push(b':');
 			},
 			// Unindented sections should not have a trailing colon.
 			(false, true) => {
-				write!(buf, "{}", &self.label[..self.label.len() - 1])
-					.map_err(|_| BashManError::WriteMan)?;
+				buf.extend_from_slice(self.label[..self.label.len() - 1].as_bytes());
 			},
 			// The label is fine as is.
 			_ => {
-				write!(buf, "{}", self.label)
-					.map_err(|_| BashManError::WriteMan)?;
+				buf.extend_from_slice(self.label.as_bytes());
 			}
 		}
 
@@ -580,7 +556,7 @@ impl<'a> More<'a> {
 
 #[derive(Debug, Clone)]
 /// # Data Kind.
-pub enum DataKind<'a> {
+pub(super) enum DataKind<'a> {
 	/// # Trailing argument.
 	Arg(DataItem<'a>),
 	/// # Misc Item.
@@ -620,52 +596,42 @@ impl<'a> DataKind<'a> {
 impl<'a> DataKind<'a> {
 	/// # Manual.
 	fn man(&self, buf: &mut Vec<u8>, indent: bool) -> Result<(), BashManError> {
+		macro_rules! push_desc {
+			($desc:expr) => {
+				if self.man_tagline(buf)? {
+					buf.push(b'\n');
+					buf.extend_from_slice($desc.as_bytes());
+				}
+				else {
+					buf.extend_from_slice(b"\n.TP\n");
+					buf.extend_from_slice($desc.as_bytes());
+				}
+			};
+		}
 		match self {
 			Self::Switch(i) => {
-				let res = self.man_tagline(buf)?;
-				if res {
-					write!(buf, "\n{}", i.description)
-						.map_err(|_| BashManError::WriteMan)
-				}
-				else {
-					write!(buf, "\n.TP\n{}", i.description)
-						.map_err(|_| BashManError::WriteMan)
-				}
+				push_desc!(i.description);
 			},
 			Self::Option(i) => {
-				let res = self.man_tagline(buf)?;
-				if res {
-					write!(buf, "\n{}", i.flag.description)
-						.map_err(|_| BashManError::WriteMan)
-				}
-				else {
-					write!(buf, "\n.TP\n{}", i.flag.description)
-						.map_err(|_| BashManError::WriteMan)
-				}
+				push_desc!(i.flag.description);
 			},
 			Self::Arg(i) | Self::Item(i) => {
-				let res = self.man_tagline(buf)?;
-				if res {
-					write!(buf, "\n{}", i.description)
-						.map_err(|_| BashManError::WriteMan)
-				}
-				else {
-					write!(buf, "\n.TP\n{}", i.description)
-						.map_err(|_| BashManError::WriteMan)
-				}
+				push_desc!(i.description);
 			},
 			Self::Paragraph(i) => {
 				if indent {
-					write!(buf, "\n.TP\n{}", i.join("\n.RE\n"))
-						.map_err(|_| BashManError::WriteMan)
+					buf.extend_from_slice(b"\n.TP\n");
+					buf.extend_from_slice(i.join("\n.RE\n").as_bytes());
 				}
 				else {
-					write!(buf, "\n{}", i.join("\n.RE\n"))
-						.map_err(|_| BashManError::WriteMan)
+					buf.push(b'\n');
+					buf.extend_from_slice(i.join("\n.RE\n").as_bytes());
 				}
 			},
-			_ => Ok(()),
+			_ => {},
 		}
+
+		Ok(())
 	}
 
 	/// # Manual Tagline.
@@ -695,7 +661,7 @@ impl<'a> DataKind<'a> {
 
 #[derive(Debug, Copy, Clone)]
 /// # Flag.
-pub struct DataFlag<'a> {
+pub(super) struct DataFlag<'a> {
 	short: Option<&'a str>,
 	long: Option<&'a str>,
 	description: &'a str,
@@ -704,7 +670,7 @@ pub struct DataFlag<'a> {
 impl<'a> DataFlag<'a> {
 	#[must_use]
 	/// # New.
-	pub fn new(
+	pub(crate) fn new(
 		long: Option<&'a str>,
 		short: Option<&'a str>,
 		description: &'a str
@@ -724,7 +690,7 @@ impl<'a> DataFlag<'a> {
 
 #[derive(Debug, Copy, Clone)]
 /// # Misc Item.
-pub struct DataItem<'a> {
+pub(super) struct DataItem<'a> {
 	label: &'a str,
 	description: &'a str,
 }
@@ -732,7 +698,7 @@ pub struct DataItem<'a> {
 impl<'a> DataItem<'a> {
 	#[must_use]
 	/// # New.
-	pub const fn new(label: &'a str, description: &'a str) -> Self {
+	pub(crate) const fn new(label: &'a str, description: &'a str) -> Self {
 		Self { label, description }
 	}
 }
@@ -741,7 +707,7 @@ impl<'a> DataItem<'a> {
 
 #[derive(Debug, Copy, Clone)]
 /// # Option.
-pub struct DataOption<'a> {
+pub(super) struct DataOption<'a> {
 	flag: DataFlag<'a>,
 	label: &'a str,
 	path: bool,
@@ -750,7 +716,7 @@ pub struct DataOption<'a> {
 impl<'a> DataOption<'a> {
 	#[must_use]
 	/// # New.
-	pub const fn new(flag: DataFlag<'a>, label: &'a str, path: bool) -> Self {
+	pub(crate) const fn new(flag: DataFlag<'a>, label: &'a str, path: bool) -> Self {
 		Self {
 			flag,
 			label,
