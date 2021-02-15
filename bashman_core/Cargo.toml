@@ -11,7 +11,6 @@ publish = false
 [dependencies]
 indexmap = "1.6.*"
 libdeflater = "0.7.*"
-smartstring = "0.2.*"
 
 [dependencies.chrono]
 version = "0.4.*"

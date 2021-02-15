@@ -9,33 +9,12 @@ use libdeflater::{
 	CompressionLvl,
 	Compressor,
 };
-use smartstring::{
-	LazyCompact,
-	SmartString,
-};
 use std::{
 	ffi::OsStr,
 	io::Write,
 	os::unix::ffi::OsStrExt,
 	path::PathBuf,
 };
-
-
-
-/// Create a `SmartString` through string formatting.
-macro_rules! format_smartstring {
-    ($($arg:tt)*) => (format_ss(format_args!($($arg)*)))
-}
-
-/// Helper for [`format_smartstring!`].
-#[must_use]
-#[inline]
-fn format_ss(args: std::fmt::Arguments) -> SmartString<LazyCompact> {
-	use std::fmt::Write;
-	let mut output = SmartString::<LazyCompact>::new();
-	let _ = write!(&mut output, "{}", args);
-	output
-}
 
 
 
@@ -120,7 +99,7 @@ impl<'a> Command<'a> {
 			.and_then(|mut f| f.write_all(&out).and_then(|_| f.flush()))
 			.map_err(|_| BashManError::WriteBash)?;
 
-		fyi_msg::success!(format_smartstring!(
+		fyi_msg::success!(format!(
 			"BASH completions written to: {:?}", path
 		));
 
@@ -175,8 +154,8 @@ impl<'a> Command<'a> {
 	///
 	/// This generates a unique-ish function name for use in the BASH
 	/// completion script.
-	fn bash_fname(&self) -> SmartString<LazyCompact> {
-		format_smartstring!(
+	fn bash_fname(&self) -> String {
+		format!(
 			"_basher__{}_{}",
 			self.parent.unwrap_or_default(),
 			self.bin
@@ -196,7 +175,7 @@ impl<'a> Command<'a> {
 	/// This produces the file/directory-listing portion of the BASH completion
 	/// script for cases where the last option entered expects a path. It is
 	/// integrated into the main [`Agree::bash`] output.
-	fn bash_paths(&self) -> SmartString<LazyCompact> {
+	fn bash_paths(&self) -> String {
 		let keys: Vec<&str> = self.data.iter()
 			.filter_map(|o| o.and_path_option().and_then(|o| o.flag.short))
 			.chain(
@@ -205,9 +184,9 @@ impl<'a> Command<'a> {
 			)
 			.collect();
 
-		if keys.is_empty() { SmartString::<LazyCompact>::new() }
+		if keys.is_empty() { String::new() }
 		else {
-			format_smartstring!(
+			format!(
 				r#"	case "${{prev}}" in
 		{})
 			COMPREPLY=( $( compgen -f "${{cur}}" ) )
@@ -229,7 +208,7 @@ impl<'a> Command<'a> {
 	/// to allow per-command suggestions. The output is incorporated into the
 	/// value returned by [`Agree::bash`].
 	fn bash_subcommands(&self, buf: &mut Vec<u8>) -> Result<(), BashManError> {
-		let (cmd, chooser): (SmartString<LazyCompact>, SmartString<LazyCompact>) = std::iter::once((self.bin, self.bash_fname()))
+		let (cmd, chooser): (String, String) = std::iter::once((self.bin, self.bash_fname()))
 			.chain(
 				self.data.iter()
 					.filter_map(|x|
@@ -240,15 +219,15 @@ impl<'a> Command<'a> {
 					)
 			)
 			.fold(
-				(SmartString::<LazyCompact>::new(), SmartString::<LazyCompact>::new()),
+				(String::new(), String::new()),
 				|(mut a, mut b), (c, d)| {
-					a.push_str(&format_smartstring!("\
+					a.push_str(&format!("\
 						\t\t\t{})\n\
 						\t\t\t\tcmd=\"{}\"\n\
 						\t\t\t\t;;\n",
 						&c, &c
 					));
-					b.push_str(&format_smartstring!("\
+					b.push_str(&format!("\
 						\t\t{})\n\
 						\t\t\t{}\n\
 						\t\t\t;;\n",
@@ -338,7 +317,7 @@ impl<'a> Command<'a> {
 			Ok(())
 		})?;
 
-		fyi_msg::success!(format_smartstring!(
+		fyi_msg::success!(format!(
 			"MAN page(s) written to: {:?}", path
 		));
 
