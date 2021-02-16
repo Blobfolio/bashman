@@ -62,9 +62,7 @@ pub fn parse(manifest: PathBuf) -> Result<(), BashManError> {
 
 	// Parse the raw data.
 	let raw = Raw::try_from(content.as_str())?;
-
-	// The actually-useful data!
-	let cmd = raw.parse()?;
+	let cmd = Command::try_from(&raw)?;
 
 	// Write BASH.
 	let mut buf: Vec<u8> = Vec::new();

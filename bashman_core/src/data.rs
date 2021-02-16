@@ -455,10 +455,10 @@ impl<'a> Command<'a> {
 				));
 			},
 			DataKind::SubCommand(s) => {
-				subs.push(DataKind::Item(DataItem::new(
-					s.bin(),
-					s.description(),
-				)));
+				subs.push(DataKind::Item(DataItem {
+					label: s.bin(),
+					description: s.description(),
+				}));
 			},
 			_ => {},
 		});
@@ -522,35 +522,9 @@ impl<'a> Command<'a> {
 #[derive(Debug, Clone)]
 /// # Misc Metadata Section.
 pub(super) struct More<'a> {
-	label: &'a str,
-	indent: bool,
-	data: Vec<DataKind<'a>>,
-}
-
-impl<'a> More<'a> {
-	#[must_use]
-	/// # New.
-	pub(crate) fn new(
-		label: &'a str,
-		indent: bool,
-		lines: &'a [&'a str],
-		items: &'a [[&'a str; 2]],
-	) -> Option<Self> {
-		let mut data: Vec<DataKind<'_>> = items.iter()
-			.filter_map(|[a, b]|
-				(! a.is_empty() && ! b.is_empty())
-					.then(|| DataKind::Item(DataItem::new(a, b)))
-			)
-			.collect();
-
-		// Handle lines.
-		if ! lines.is_empty() {
-			data.push(DataKind::Paragraph(lines.to_vec()));
-		}
-
-		// Return it!
-		(! data.is_empty()).then(|| Self { label, indent, data })
-	}
+	pub(crate) label: &'a str,
+	pub(crate) indent: bool,
+	pub(crate) data: Vec<DataKind<'a>>,
 }
 
 /// # Manual.
@@ -701,28 +675,9 @@ impl<'a> DataKind<'a> {
 #[derive(Debug, Copy, Clone)]
 /// # Flag.
 pub(super) struct DataFlag<'a> {
-	short: Option<&'a str>,
-	long: Option<&'a str>,
-	description: &'a str,
-}
-
-impl<'a> DataFlag<'a> {
-	#[must_use]
-	/// # New.
-	pub(crate) const fn new(
-		long: Option<&'a str>,
-		short: Option<&'a str>,
-		description: &'a str
-	) -> Option<Self> {
-		if long.is_some() || short.is_some() {
-			Some(Self {
-				long,
-				short,
-				description
-			})
-		}
-		else { None }
-	}
+	pub(crate) short: Option<&'a str>,
+	pub(crate) long: Option<&'a str>,
+	pub(crate) description: &'a str,
 }
 
 
@@ -730,16 +685,8 @@ impl<'a> DataFlag<'a> {
 #[derive(Debug, Copy, Clone)]
 /// # Misc Item.
 pub(super) struct DataItem<'a> {
-	label: &'a str,
-	description: &'a str,
-}
-
-impl<'a> DataItem<'a> {
-	#[must_use]
-	/// # New.
-	pub(crate) const fn new(label: &'a str, description: &'a str) -> Self {
-		Self { label, description }
-	}
+	pub(crate) label: &'a str,
+	pub(crate) description: &'a str,
 }
 
 
@@ -747,21 +694,9 @@ impl<'a> DataItem<'a> {
 #[derive(Debug, Copy, Clone)]
 /// # Option.
 pub(super) struct DataOption<'a> {
-	flag: DataFlag<'a>,
-	label: &'a str,
-	path: bool,
-}
-
-impl<'a> DataOption<'a> {
-	#[must_use]
-	/// # New.
-	pub(crate) const fn new(flag: DataFlag<'a>, label: &'a str, path: bool) -> Self {
-		Self {
-			flag,
-			label,
-			path,
-		}
-	}
+	pub(crate) flag: DataFlag<'a>,
+	pub(crate) label: &'a str,
+	pub(crate) path: bool,
 }
 
 

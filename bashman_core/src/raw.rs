@@ -48,96 +48,23 @@ impl<'a> TryFrom<&'a str> for Raw<'a> {
 /// Working around the static lifetimes is terrible, but this eventually gets
 /// there!
 impl<'a> Raw<'a> {
-	/// # Parse.
-	pub(super) fn parse(&'a self) -> Result<Command<'a>, BashManError> {
-		// We can process data more directly if there are no subcommands to
-		// worry about.
-		if self.package.metadata.subcommands.is_empty() {
-			return Ok(self.parse_single());
-		}
-
-		let mut subcmds: IndexMap<&'_ str, (&'_ str, &'_ str, &'_ str, Vec::<DataKind<'_>>)> = self.package.metadata.subcommands.iter()
-			.map(|y|
-				(
-					y.cmd,
-					(
-						y.name.unwrap_or(y.cmd),
-						y.description,
-						y.cmd,
-						Vec::new(),
-					)
-				)
-			)
-			.collect();
-
-		let mut out_args: Vec<DataKind<'_>> = Vec::new();
-
-		self.package.metadata.switches.iter()
-			.filter_map(|y|
-				DataFlag::new(y.long, y.short, y.description)
-					.map(|f| (DataKind::Switch(f), y.subcommands.as_slice()))
+	/// # Parse Single.
+	///
+	/// This parses without subcommand support.
+	fn parse_single(&'a self) -> Result<Command<'a>, BashManError> {
+		// Switches.
+		let out_args: Vec<DataKind<'_>> = self.package.metadata.switches.iter()
+			.map(DataKind::try_from)
+			.chain(
+				self.package.metadata.options.iter().map(DataKind::try_from)
 			)
 			.chain(
-				self.package.metadata.options.iter()
-					.filter_map(|y|
-						DataFlag::new(y.long, y.short, y.description)
-							.map(|f|
-								(
-									DataKind::Option(DataOption::new(
-										f,
-										y.label.unwrap_or("<VAL>"),
-										y.path,
-									)),
-									y.subcommands.as_slice()
-								)
-							)
-					)
+				self.package.metadata.arguments.iter().map(|y| Ok(DataKind::from(y)))
 			)
-			.chain(
-				self.package.metadata.arguments.iter()
-					.map(|y|
-						(
-							DataKind::Arg(DataItem::new(
-								y.label.unwrap_or("<VALUES>"),
-								y.description
-							)),
-							y.subcommands.as_slice()
-						)
-					)
-			)
-			.try_for_each(|(arg, subs)| {
-				if subs.is_empty() { out_args.push(arg); }
-				else {
-					subs.iter().try_for_each(|sub| {
-						if sub.is_empty() { out_args.push(arg.clone()) }
-						else {
-							subcmds
-								.get_mut(sub)
-								.ok_or_else(|| BashManError::InvalidSubCommand((*sub).to_string()))?
-								.3
-								.push(arg.clone());
-						}
-						Ok(())
-					})?;
-				}
-
-				Ok(())
+			.try_fold(Vec::with_capacity(self.count_args()), |mut v, a| {
+				v.push(a?);
+				Ok(v)
 			})?;
-
-		// Drain the subcommands into args.
-		out_args.extend(
-			subcmds.drain(..).map(|(_, v)| {
-				DataKind::SubCommand(Command::new(
-					v.0,
-					Some(self.command()),
-					v.2,
-					self.version(),
-					v.1,
-					v.3,
-					Vec::new(),
-				))
-			})
-		);
 
 		// Finally return the whole thing!
 		Ok(Command::new(
@@ -147,50 +74,15 @@ impl<'a> Raw<'a> {
 			self.version(),
 			self.description(),
 			out_args,
-			self.sections().unwrap_or_default(),
+			self.sections()?,
 		))
 	}
 
-	/// # Parse Single.
-	///
-	/// This parses without subcommand support.
-	fn parse_single(&'a self) -> Command<'a> {
-		// Switches.
-		let out_args: Vec<DataKind<'_>> = self.package.metadata.switches.iter()
-			.filter_map(|y|
-				DataFlag::new(y.long, y.short, y.description)
-					.map(DataKind::Switch)
-			)
-			.chain(
-				self.package.metadata.options.iter()
-					.filter_map(|y|
-						DataFlag::new(y.long, y.short, y.description)
-							.map(|f| DataKind::Option(DataOption::new(
-								f,
-								y.label.unwrap_or("<VAL>"),
-								y.path,
-							)))
-					)
-			)
-			.chain(
-				self.package.metadata.arguments.iter()
-					.map(|y| DataKind::Arg(DataItem::new(
-						y.label.unwrap_or("<VALUES>"),
-						y.description
-					)))
-			)
-			.collect();
-
-		// Finally return the whole thing!
-		Command::new(
-			self.name(),
-			None,
-			self.command(),
-			self.version(),
-			self.description(),
-			out_args,
-			Vec::new(),
-		)
+	/// # Arg Size Hint.
+	fn count_args(&'a self) -> usize {
+		self.package.metadata.switches.len() +
+		self.package.metadata.options.len() +
+		self.package.metadata.arguments.len()
 	}
 }
 
@@ -254,15 +146,14 @@ impl<'a> Raw<'a> {
 		self.package.metadata.name.unwrap_or(self.package.name)
 	}
 
-	#[must_use]
 	/// # Sections.
-	fn sections(&'a self) -> Option<Vec<More<'a>>> {
-		let out: Vec<More<'a>> = self.package.metadata.sections.iter()
-			.filter_map(|y| More::new(y.name, y.inside, &y.lines, &y.items))
-			.collect();
-
-		if out.is_empty() { None }
-		else { Some(out) }
+	fn sections(&'a self) -> Result<Vec<More<'a>>, BashManError> {
+		self.package.metadata.sections.iter()
+			.map(More::try_from)
+			.try_fold(Vec::with_capacity(self.package.metadata.sections.len()), |mut v, a| {
+				v.push(a?);
+				Ok(v)
+			})
 	}
 
 	#[must_use]
@@ -479,4 +370,183 @@ where D: Deserializer<'de> {
 			.flatten()
 			.filter(|x| ! x.is_empty())
 	)
+}
+
+
+
+impl<'a> TryFrom<&'a Raw<'a>> for Command<'a> {
+	type Error = BashManError;
+
+	fn try_from(src: &'a Raw) -> Result<Self, Self::Error> {
+		// We can process data more directly if there are no subcommands to
+		// worry about.
+		if src.package.metadata.subcommands.is_empty() {
+			return src.parse_single();
+		}
+
+		let mut subcmds: IndexMap<&'_ str, (&'_ str, &'_ str, &'_ str, Vec::<DataKind<'_>>)> = src.package.metadata.subcommands.iter()
+			.map(|y|
+				(
+					y.cmd,
+					(
+						y.name.unwrap_or(y.cmd),
+						y.description,
+						y.cmd,
+						Vec::new(),
+					)
+				)
+			)
+			.collect();
+
+		let mut out_args: Vec<DataKind<'_>> = Vec::new();
+
+		src.package.metadata.switches.iter()
+			.map(|y| (DataKind::try_from(y), y.subcommands.as_slice()))
+			.chain(
+				src.package.metadata.options.iter()
+					.map(|y| (DataKind::try_from(y), y.subcommands.as_slice()))
+			)
+			.chain(
+				src.package.metadata.arguments.iter()
+					.map(|y| (Ok(DataKind::from(y)), y.subcommands.as_slice()))
+			)
+			.try_for_each(|(arg, subs)| {
+				let arg = arg?;
+				if subs.is_empty() { out_args.push(arg); }
+				else {
+					subs.iter().try_for_each(|sub| {
+						if sub.is_empty() { out_args.push(arg.clone()) }
+						else {
+							subcmds
+								.get_mut(sub)
+								.ok_or_else(|| BashManError::InvalidSubCommand((*sub).to_string()))?
+								.3
+								.push(arg.clone());
+						}
+						Ok(())
+					})?;
+				}
+
+				Ok(())
+			})?;
+
+		// Drain the subcommands into args.
+		out_args.extend(
+			subcmds.drain(..).map(|(_, v)| {
+				DataKind::SubCommand(Command::new(
+					v.0,
+					Some(src.command()),
+					v.2,
+					src.version(),
+					v.1,
+					v.3,
+					Vec::new(),
+				))
+			})
+		);
+
+		// Finally return the whole thing!
+		Ok(Command::new(
+			src.name(),
+			None,
+			src.command(),
+			src.version(),
+			src.description(),
+			out_args,
+			src.sections()?,
+		))
+	}
+}
+
+impl<'a> TryFrom<&'a RawSwitch<'a>> for DataKind<'a> {
+	type Error = BashManError;
+
+	fn try_from(src: &'a RawSwitch<'a>) -> Result<Self, Self::Error> {
+		if src.short.is_some() || src.long.is_some() {
+			Ok(DataKind::Switch(
+				DataFlag {
+					long: src.long,
+					short: src.short,
+					description: src.description,
+				}
+			))
+		}
+		else {
+			Err(BashManError::InvalidFlag)
+		}
+	}
+}
+
+impl<'a> TryFrom<&'a RawOption<'a>> for DataKind<'a> {
+	type Error = BashManError;
+
+	fn try_from(src: &'a RawOption<'a>) -> Result<Self, Self::Error> {
+		if src.short.is_some() || src.long.is_some() {
+			Ok(DataKind::Option(
+				DataOption {
+					flag: DataFlag {
+						long: src.long,
+						short: src.short,
+						description: src.description,
+					},
+					label: src.label.unwrap_or("<VAL>"),
+					path: src.path
+				}
+			))
+		}
+		else {
+			Err(BashManError::InvalidFlag)
+		}
+	}
+}
+
+impl<'a> From<&'a RawArg<'a>> for DataKind<'a> {
+	fn from(src: &'a RawArg<'a>) -> Self {
+		DataKind::Arg(DataItem {
+			label: src.label.unwrap_or("<VALUES>"),
+			description: src.description
+		})
+	}
+}
+
+impl<'a> TryFrom<[&'a str; 2]> for DataKind<'a> {
+	type Error = BashManError;
+
+	fn try_from(src: [&'a str; 2]) -> Result<Self, Self::Error> {
+		if src[0].is_empty() || src[1].is_empty() {
+			Err(BashManError::InvalidItem)
+		}
+		else {
+			Ok(DataKind::Item(DataItem { label: src[0], description: src[1] }))
+		}
+	}
+}
+
+impl<'a> TryFrom<&'a RawSection<'a>> for More<'a> {
+	type Error = BashManError;
+
+	fn try_from(src: &'a RawSection<'a>) -> Result<Self, Self::Error> {
+		Ok(More {
+			label: src.name,
+			indent: src.inside,
+			data: match (src.lines.is_empty(), src.items.len()) {
+				// Neither.
+				(true, 0) => return Err(BashManError::InvalidSection),
+				// Just lines.
+				(false, 0) => vec![DataKind::Paragraph(src.lines.to_vec())],
+				// Just items.
+				(true, len) => src.items.iter().try_fold(Vec::with_capacity(len), |mut v, &a| {
+					v.push(DataKind::try_from(a)?);
+					Ok(v)
+				})?,
+				// Both.
+				(false, len) => std::iter::once(Ok(DataKind::Paragraph(src.lines.to_vec())))
+					.chain(src.items.iter().map(|&a| DataKind::try_from(a)))
+					.try_fold(Vec::with_capacity(len + 1), |mut v, a| {
+						v.push(a?);
+						Ok(v)
+					})?,
+			}
+		})
+	}
 }
