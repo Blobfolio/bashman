@@ -51,6 +51,9 @@ use std::{
 
 
 /// # Parse.
+///
+/// This is the sole public output of the entire library. It accepts a manifest
+/// path, parses it, and builds and writes the appropriate outputs.
 pub fn parse(manifest: PathBuf) -> Result<(), BashManError> {
 	// Clean up the manifest path.
 	let manifest = std::fs::canonicalize(manifest)
@@ -64,11 +67,17 @@ pub fn parse(manifest: PathBuf) -> Result<(), BashManError> {
 	let raw = Raw::try_from(content.as_str())?;
 	let cmd = Command::try_from(&raw)?;
 
-	// Write BASH.
+	// Establish a shared buffer to use to write chunked Man/BASH output to
+	// (before sending said output to a file). A Vec is used instead of a
+	// BufWriter because the manuals need to send their completed output to
+	// two different writers.
 	let mut buf: Vec<u8> = Vec::new();
+
+	// Write BASH.
 	let dir = manifest.parent().unwrap().to_path_buf();
 	cmd.write_bash(&raw.bash_dir(&dir)?, &mut buf)?;
 
+	// Write Man.
 	buf.truncate(0);
 	cmd.write_man(&raw.man_dir(&dir)?, &mut buf)?;
 
