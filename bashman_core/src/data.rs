@@ -1,7 +1,8 @@
 /*!
 # `Cargo BashMan` — Parsed Data
 
-This is the cleaned-up version of the TOML data.
+This module contains the [`Command`] and related data structures produced from
+[`Raw`]. See that module for more information on why all the windiness.
 */
 
 use crate::BashManError;

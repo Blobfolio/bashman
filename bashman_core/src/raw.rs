@@ -1,8 +1,16 @@
 /*!
 # `Cargo BashMan` — Raw Data
 
-This helps parse the raw TOML structure into the data we care about. From here,
-it can be converted into a more agreeable (and validated) structure.
+This module contains intermediate data structures to hold the raw data from
+Cargo.toml, namely for the purpose of utilizing [`serde`] deserialization.
+
+From here, a proper [`Command`] is created, which contains the same data in a
+form more amenable to BASH/Man generation.
+
+The windy web of static references is a bit of a hot mess, but more than halves
+the number of allocations resulting from attempting the feat more directly.
+
+So be it.
 */
 
 use crate::{
