@@ -38,10 +38,12 @@ pub(super) struct Command<'a> {
 	pub(crate) data: Vec<DataKind<'a>>,
 	pub(crate) more: Vec<More<'a>>,
 	flags: u8,
+	fname: Box<str>,
 }
 
 /// # Instantiation.
 impl<'a> Command<'a> {
+	#[allow(clippy::similar_names)] // It is what it is.
 	/// # New.
 	pub(crate) fn new(
 		name: &'a str,
@@ -75,7 +77,8 @@ impl<'a> Command<'a> {
 			description,
 			data,
 			more,
-			flags
+			flags,
+			fname: bash_subfname(parent.map(str::as_bytes).unwrap_or_default(), bin.as_bytes())
 		}
 	}
 }
@@ -84,19 +87,19 @@ impl<'a> Command<'a> {
 impl<'a> Command<'a> {
 	#[must_use]
 	/// # Bin (cmd).
-	const fn bin(&'a self) -> &'a str { self.bin }
+	const fn bin(&self) -> &'a str { self.bin }
 
 	#[must_use]
 	/// # Description.
-	const fn description(&'a self) -> &'a str { self.description }
+	const fn description(&self) -> &'a str { self.description }
 
 	#[must_use]
 	/// # Name.
-	const fn name(&'a self) -> &'a str { self.name }
+	const fn name(&self) -> &'a str { self.name }
 
 	#[must_use]
 	/// # Version.
-	const fn version(&'a self) -> &'a str { self.version }
+	const fn version(&self) -> &'a str { self.version }
 }
 
 /// # Bash.
@@ -109,7 +112,7 @@ impl<'a> Command<'a> {
 			writeln!(
 				buf,
 				"complete -F {} -o bashdefault -o default {}",
-				self.bash_fname(),
+				self.fname,
 				self.bin
 			)
 				.map_err(|_| BashManError::WriteBash)?;
@@ -149,7 +152,7 @@ impl<'a> Command<'a> {
 	/// output is combined with other code to produce the final script returned
 	/// by the main [`Agree::bash`] method.
 	fn bash_completions(&self, buf: &mut Vec<u8>) -> Result<(), BashManError> {
-		buf.extend_from_slice(self.bash_fname().as_bytes());
+		buf.extend_from_slice(self.fname.as_bytes());
 		buf.extend_from_slice(br#"() {
 	local cur prev opts
 	COMPREPLY=()
@@ -181,26 +184,6 @@ impl<'a> Command<'a> {
 }
 "#);
 		Ok(())
-	}
-
-	/// # BASH Helper (Function Name).
-	///
-	/// This generates a unique-ish function name for use in the BASH
-	/// completion script.
-	fn bash_fname(&self) -> String {
-		format!(
-			"_basher__{}_{}",
-			self.parent.unwrap_or_default(),
-			self.bin
-		)
-			.chars()
-			.filter_map(|x| match x {
-				'a'..='z' | '0'..='9' => Some(x),
-				'A'..='Z' => Some(x.to_ascii_lowercase()),
-				'-' | '_' | ' ' => Some('_'),
-				_ => None,
-			})
-			.collect()
 	}
 
 	/// # BASH Helper (Path Options).
@@ -244,12 +227,12 @@ impl<'a> Command<'a> {
 	/// to allow per-command suggestions. The output is incorporated into the
 	/// value returned by [`Agree::bash`].
 	fn bash_subcommands(&self, buf: &mut Vec<u8>) -> Result<(), BashManError> {
-		let (cmd, chooser) = std::iter::once((self.bin, self.bash_fname()))
+		let (cmd, chooser) = std::iter::once((self.bin, &self.fname))
 			.chain(
 				self.data.iter()
 					.filter_map(|x|
 						if let DataKind::SubCommand(c) = x {
-							Some((c.bin, c.bash_fname()))
+							Some((c.bin, &c.fname))
 						}
 						else { None }
 					)
@@ -307,7 +290,7 @@ chooser_{fname}() {{
 
 complete -F chooser_{fname} -o bashdefault -o default {bname}
 "#,
-			fname=self.bash_fname(),
+			fname=self.fname,
 			bname=self.bin,
 			sub1=cmd,
 			sub2=chooser
@@ -386,17 +369,25 @@ impl<'a> Command<'a> {
 	/// # Manual!
 	fn man(&self, buf: &mut Vec<u8>) -> Result<(), BashManError> {
 		// Start with the header.
-		write!(
-			buf,
-			r#".TH "{}" "1" "{}" "{} v{}" "User Commands""#,
-			match self.parent {
-				Some(p) => format!("{} {}", p, self.name()).to_uppercase(),
-				None => self.name().to_uppercase(),
-			},
-			chrono::Local::now().format("%B %Y"),
-			self.name(),
-			self.version(),
-		)
+		match self.parent {
+			Some(p) => write!(
+				buf,
+				r#".TH "{} {}" "1" "{}" "{} v{}" "User Commands""#,
+				p.to_uppercase(),
+				self.name().to_uppercase(),
+				chrono::Local::now().format("%B %Y"),
+				self.name(),
+				self.version(),
+			),
+			None => write!(
+				buf,
+				r#".TH "{}" "1" "{}" "{} v{}" "User Commands""#,
+				self.name().to_uppercase(),
+				chrono::Local::now().format("%B %Y"),
+				self.name(),
+				self.version(),
+			),
+		}
 			.map_err(|_| BashManError::WriteSubMan(self.bin.to_string()))?;
 
 		// Helper: Generic section writer.
@@ -701,6 +692,29 @@ pub(super) struct DataOption<'a> {
 }
 
 
+
+#[inline]
+/// # Bash Char.
+const fn bash_bytes(b: u8) -> u8 {
+	match b {
+		b'a'..=b'z' | b'0'..=b'9' => b,
+		b'A'..=b'Z' => b | 32_u8,
+		_ => b'_',
+	}
+}
+
+/// # Bash (Sub)Function Name.
+fn bash_subfname(parent: &[u8], bin: &[u8]) -> Box<str> {
+	let mut v: Vec<u8> = Vec::with_capacity(10 + parent.len() + bin.len());
+	v.extend_from_slice(b"_basher__");
+	if ! parent.is_empty() {
+		v.extend(parent.iter().map(|&b| bash_bytes(b)));
+	}
+	v.push(b'_');
+	v.extend(bin.iter().map(|&b| bash_bytes(b)));
+
+	unsafe { String::from_utf8_unchecked(v).into_boxed_str() }
+}
 
 /// # Bash Helper (Long/Short Conds)
 fn bash_long_short_conds(

@@ -78,16 +78,16 @@ impl<'a> Raw<'a> {
 		Ok(Command::new(
 			self.name(),
 			None,
-			self.command(),
-			self.version(),
-			self.description(),
+			self.package.name,
+			self.package.version,
+			self.package.description,
 			out_args,
 			self.sections()?,
 		))
 	}
 
 	/// # Arg Size Hint.
-	fn count_args(&'a self) -> usize {
+	fn count_args(&self) -> usize {
 		self.package.metadata.switches.len() +
 		self.package.metadata.options.len() +
 		self.package.metadata.arguments.len()
@@ -116,18 +116,6 @@ impl<'a> Raw<'a> {
 		}
 	}
 
-	#[must_use]
-	/// # Main Command.
-	const fn command(&'a self) -> &'a str {
-		self.package.name
-	}
-
-	#[must_use]
-	/// # Main Description.
-	const fn description(&'a self) -> &'a str {
-		self.package.description
-	}
-
 	/// # Man Directory.
 	pub(super) fn man_dir(&self, dir: &PathBuf) -> Result<PathBuf, BashManError> {
 		let path: PathBuf = self.package.metadata.man_dir
@@ -150,7 +138,7 @@ impl<'a> Raw<'a> {
 
 	#[must_use]
 	/// # Name.
-	fn name(&'a self) -> &'a str {
+	fn name(&self) -> &'a str {
 		self.package.metadata.name.unwrap_or(self.package.name)
 	}
 
@@ -162,12 +150,6 @@ impl<'a> Raw<'a> {
 				v.push(a?);
 				Ok(v)
 			})
-	}
-
-	#[must_use]
-	/// # Main Version.
-	const fn version(&'a self) -> &'a str {
-		self.package.version
 	}
 }
 
@@ -443,9 +425,9 @@ impl<'a> TryFrom<&'a Raw<'a>> for Command<'a> {
 			subcmds.drain(..).map(|(_, v)| {
 				DataKind::SubCommand(Command::new(
 					v.0,
-					Some(src.command()),
+					Some(src.package.name),
 					v.2,
-					src.version(),
+					src.package.version,
 					v.1,
 					v.3,
 					Vec::new(),
@@ -457,9 +439,9 @@ impl<'a> TryFrom<&'a Raw<'a>> for Command<'a> {
 		Ok(Command::new(
 			src.name(),
 			None,
-			src.command(),
-			src.version(),
-			src.description(),
+			src.package.name,
+			src.package.version,
+			src.package.description,
 			out_args,
 			src.sections()?,
 		))
@@ -473,8 +455,8 @@ impl<'a> TryFrom<&'a RawSwitch<'a>> for DataKind<'a> {
 		if src.short.is_some() || src.long.is_some() {
 			Ok(DataKind::Switch(
 				DataFlag {
-					long: src.long,
 					short: src.short,
+					long: src.long,
 					description: src.description,
 				}
 			))
@@ -493,8 +475,8 @@ impl<'a> TryFrom<&'a RawOption<'a>> for DataKind<'a> {
 			Ok(DataKind::Option(
 				DataOption {
 					flag: DataFlag {
-						long: src.long,
 						short: src.short,
+						long: src.long,
 						description: src.description,
 					},
 					label: src.label.unwrap_or("<VAL>"),
