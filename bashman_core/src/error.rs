@@ -2,7 +2,7 @@
 # `Cargo BashMan` - Error
 */
 
-use fyi_menu::ArgueError;
+use argue::ArgueError;
 use std::fmt;
 
 
@@ -10,7 +10,7 @@ use std::fmt;
 #[derive(Debug, Clone)]
 /// # Error.
 pub enum BashManError {
-	/// # fyi_menu Passthru.
+	/// # Argue Passthru.
 	Argue(ArgueError),
 	/// # Invalid Bash output directory.
 	InvalidBashDir,

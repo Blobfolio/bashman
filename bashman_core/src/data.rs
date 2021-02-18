@@ -6,6 +6,10 @@ This module contains the [`Command`] and related data structures produced from
 */
 
 use crate::BashManError;
+use fyi_msg::{
+	Msg,
+	MsgKind,
+};
 use libdeflater::{
 	CompressionLvl,
 	Compressor,
@@ -139,9 +143,12 @@ impl<'a> Command<'a> {
 			.and_then(|mut f| f.write_all(buf).and_then(|_| f.flush()))
 			.map_err(|_| BashManError::WriteBash)?;
 
-		fyi_msg::success!(format!(
-			"BASH completions written to: {:?}", path
-		));
+		Msg::fmt_prefixed(
+			MsgKind::Success,
+			format_args!("BASH completions written to: {:?}", path)
+		)
+			.with_newline(true)
+			.print();
 
 		Ok(())
 	}
@@ -333,9 +340,12 @@ impl<'a> Command<'a> {
 			})?;
 		}
 
-		fyi_msg::success!(format!(
-			"MAN page(s) written to: {:?}", path
-		));
+		Msg::fmt_prefixed(
+			MsgKind::Success,
+			format_args!("Man page(s) written to: {:?}", path)
+		)
+			.with_newline(true)
+			.print();
 
 		Ok(())
 	}

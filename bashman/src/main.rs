@@ -257,7 +257,8 @@ path = true
 
 
 use bashman_core::BashManError;
-use fyi_menu::{
+use argue::{
+	Argue,
 	ArgueError,
 	FLAG_HELP,
 	FLAG_VERSION,
@@ -291,8 +292,7 @@ fn main() {
 // Actual main.
 fn _main() -> Result<(), BashManError> {
 	// Parse CLI arguments.
-	let args = fyi_menu::Argue::new(FLAG_HELP | FLAG_VERSION)
-		.map_err(BashManError::Argue)?;
+	let args = Argue::new(FLAG_HELP | FLAG_VERSION).map_err(BashManError::Argue)?;
 
 	bashman_core::parse(
 		args.option2(b"-m", b"--manifest-path")
