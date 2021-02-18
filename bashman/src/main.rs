@@ -244,6 +244,7 @@ path = true
 #![warn(trivial_casts)]
 #![warn(trivial_numeric_casts)]
 #![warn(unreachable_pub)]
+#![warn(unused_crate_dependencies)]
 #![warn(unused_extern_crates)]
 #![warn(unused_import_braces)]
 
@@ -255,8 +256,9 @@ path = true
 #![allow(clippy::module_name_repetitions)]
 
 
-use cargo_bashman::BashManError;
-use fyi_menu::{
+use bashman_core::BashManError;
+use argue::{
+	Argue,
 	ArgueError,
 	FLAG_HELP,
 	FLAG_VERSION,
@@ -265,6 +267,7 @@ use fyi_msg::Msg;
 use std::{
 	ffi::OsStr,
 	os::unix::ffi::OsStrExt,
+	path::PathBuf,
 };
 
 
@@ -289,14 +292,19 @@ fn main() {
 // Actual main.
 fn _main() -> Result<(), BashManError> {
 	// Parse CLI arguments.
-	let args = fyi_menu::Argue::new(FLAG_HELP | FLAG_VERSION)
-		.map_err(BashManError::Argue)?;
+	let args = Argue::new(FLAG_HELP | FLAG_VERSION).map_err(BashManError::Argue)?;
 
-	let bm = cargo_bashman::load(
-		args.option2(b"-m", b"--manifest-path").map(OsStr::from_bytes)
+	bashman_core::parse(
+		args.option2(b"-m", b"--manifest-path")
+			.map_or_else(
+				|| std::env::current_dir().ok().map(|mut p| {
+					p.push("Cargo.toml");
+					p
+				}),
+				|b| Some(PathBuf::from(OsStr::from_bytes(b)))
+			)
+			.ok_or(BashManError::InvalidManifest)?
 	)?;
-
-	bm.write()?;
 
 	Ok(())
 }

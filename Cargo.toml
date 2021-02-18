@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "bashman",
+    "bashman_core",
 ]
 
 [profile.release]
