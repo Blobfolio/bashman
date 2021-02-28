@@ -50,7 +50,7 @@ impl<'a> TryFrom<&'a str> for Raw<'a> {
 	type Error = BashManError;
 
 	fn try_from(src: &'a str) -> Result<Self, Self::Error> {
-		toml::from_str(src).map_err(|e| BashManError::ParseManifest(e.to_string()))
+		toml::from_str(src).map_err(|e| BashManError::ParseManifest(Box::from(e.to_string())))
 	}
 }
 
@@ -412,7 +412,7 @@ impl<'a> TryFrom<&'a Raw<'a>> for Command<'a> {
 						else {
 							subcmds
 								.get_mut(sub)
-								.ok_or_else(|| BashManError::InvalidSubCommand((*sub).to_string()))?
+								.ok_or_else(|| BashManError::InvalidSubCommand(Box::from(*sub)))?
 								.3
 								.push(arg.clone());
 						}

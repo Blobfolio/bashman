@@ -341,7 +341,7 @@ impl<'a> Command<'a> {
 		// Write plain.
 		std::fs::File::create(&path)
 			.and_then(|mut f| f.write_all(data).and_then(|_| f.flush()))
-			.map_err(|_| BashManError::WriteSubMan(self.bin.to_string()))?;
+			.map_err(|_| BashManError::WriteSubMan(Box::from(self.bin)))?;
 
 		// Write compressed.
 		let mut writer = Compressor::new(CompressionLvl::best());
@@ -349,7 +349,7 @@ impl<'a> Command<'a> {
 
 		// Trim any excess now that we know the final length.
 		let len = writer.gzip_compress(data, &mut buf)
-			.map_err(|_| BashManError::WriteSubMan(self.bin.to_string()))?;
+			.map_err(|_| BashManError::WriteSubMan(Box::from(self.bin)))?;
 		buf.truncate(len);
 
 		// Toss ".gz" onto the original file path and write again!
@@ -358,7 +358,7 @@ impl<'a> Command<'a> {
 			b".gz",
 		].concat()))
 			.and_then(|mut f| f.write_all(&buf).and_then(|_| f.flush()))
-			.map_err(|_| BashManError::WriteSubMan(self.bin.to_string()))
+			.map_err(|_| BashManError::WriteSubMan(Box::from(self.bin)))
 	}
 
 	/// # Manual!
@@ -383,7 +383,7 @@ impl<'a> Command<'a> {
 				self.version(),
 			),
 		}
-			.map_err(|_| BashManError::WriteSubMan(self.bin.to_string()))?;
+			.map_err(|_| BashManError::WriteSubMan(Box::from(self.bin)))?;
 
 		// Helper: Generic section writer.
 		macro_rules! write_section {

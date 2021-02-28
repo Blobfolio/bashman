@@ -25,17 +25,17 @@ pub enum BashManError {
 	/// # Invalid section.
 	InvalidSection,
 	/// # Invalid subcommand.
-	InvalidSubCommand(String),
+	InvalidSubCommand(Box<str>),
 	/// # Missing subcommand.
 	MissingSubCommand,
 	/// # Parse manifest.
-	ParseManifest(String),
+	ParseManifest(Box<str>),
 	/// # Write Bash.
 	WriteBash,
 	/// # Write Man.
 	WriteMan,
 	/// # Write Man.
-	WriteSubMan(String),
+	WriteSubMan(Box<str>),
 }
 
 impl fmt::Display for BashManError {
