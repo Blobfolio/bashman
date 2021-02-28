@@ -2,7 +2,7 @@
 # `Cargo BashMan` - Error
 */
 
-use argue::ArgueError;
+use argyle::ArgyleError;
 use std::fmt;
 
 
@@ -11,7 +11,7 @@ use std::fmt;
 /// # Error.
 pub enum BashManError {
 	/// # Argue Passthru.
-	Argue(ArgueError),
+	Argue(ArgyleError),
 	/// # Invalid Bash output directory.
 	InvalidBashDir,
 	/// # Invalid flag.

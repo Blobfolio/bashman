@@ -6,10 +6,7 @@ This module contains the [`Command`] and related data structures produced from
 */
 
 use crate::BashManError;
-use fyi_msg::{
-	Msg,
-	MsgKind,
-};
+use fyi_msg::Msg;
 use libdeflater::{
 	CompressionLvl,
 	Compressor,
@@ -18,7 +15,7 @@ use std::{
 	ffi::OsStr,
 	io::Write,
 	os::unix::ffi::OsStrExt,
-	path::PathBuf,
+	path::Path,
 };
 
 
@@ -109,7 +106,7 @@ impl<'a> Command<'a> {
 /// # Bash.
 impl<'a> Command<'a> {
 	/// # Write Bash.
-	pub(crate) fn write_bash(&self, path: &PathBuf, buf: &mut Vec<u8>) -> Result<(), BashManError> {
+	pub(crate) fn write_bash(&self, path: &Path, buf: &mut Vec<u8>) -> Result<(), BashManError> {
 		// No subcommands.
 		if 0 == self.flags & FLAG_SUBCOMMANDS {
 			self.bash_completions(buf)?;
@@ -137,19 +134,13 @@ impl<'a> Command<'a> {
 		}
 
 		// Write it to a file!
-		let mut out_file = path.clone();
+		let mut out_file = path.to_path_buf();
 		out_file.push(self.bin.to_string() + ".bash");
 		std::fs::File::create(&out_file)
 			.and_then(|mut f| f.write_all(buf).and_then(|_| f.flush()))
 			.map_err(|_| BashManError::WriteBash)?;
 
-		Msg::fmt_prefixed(
-			MsgKind::Success,
-			format_args!("BASH completions written to: {:?}", path)
-		)
-			.with_newline(true)
-			.print();
-
+		Msg::success(format!("BASH completions written to: {:?}", path)).print();
 		Ok(())
 	}
 
@@ -309,12 +300,12 @@ complete -F chooser_{fname} -o bashdefault -o default {bname}
 /// # Manuals.
 impl<'a> Command<'a> {
 	/// # Write Manuals.
-	pub(crate) fn write_man(&self, path: &PathBuf, buf: &mut Vec<u8>) -> Result<(), BashManError> {
+	pub(crate) fn write_man(&self, path: &Path, buf: &mut Vec<u8>) -> Result<(), BashManError> {
 		// Main manual first.
 		self.man(buf)?;
 		man_escape(buf);
 
-		let mut out_file = path.clone();
+		let mut out_file = path.to_path_buf();
 		out_file.push(self.bin.to_string() + ".1");
 		self._write_man(&out_file, buf)?;
 
@@ -340,19 +331,13 @@ impl<'a> Command<'a> {
 			})?;
 		}
 
-		Msg::fmt_prefixed(
-			MsgKind::Success,
-			format_args!("Man page(s) written to: {:?}", path)
-		)
-			.with_newline(true)
-			.print();
-
+		Msg::success(format!("Man page(s) written to: {:?}", path)).print();
 		Ok(())
 	}
 
 	#[allow(trivial_casts)]
 	/// # Write For Real.
-	fn _write_man(&self, path: &PathBuf, data: &[u8]) -> Result<(), BashManError> {
+	fn _write_man(&self, path: &Path, data: &[u8]) -> Result<(), BashManError> {
 		// Write plain.
 		std::fs::File::create(&path)
 			.and_then(|mut f| f.write_all(data).and_then(|_| f.flush()))

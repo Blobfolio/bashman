@@ -167,6 +167,10 @@ version:
 
 # Init dependencies.
 @_init:
+	# We need beta until 1.51 is stable.
+	rustup default beta
+	rustup component add clippy
+
 	[ ! -f "{{ justfile_directory() }}/Cargo.lock" ] || rm "{{ justfile_directory() }}/Cargo.lock"
 	mkdir "/tmp/bashman-test"
 	cargo update -w
