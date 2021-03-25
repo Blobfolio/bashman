@@ -52,4 +52,4 @@ path = "../bashman_core"
 
 [dependencies.fyi_msg]
 git = "https://github.com/Blobfolio/fyi.git"
-branch = "feature/next"
+tag = "v0.7.0"
