@@ -1,6 +1,6 @@
 [package]
 name = "bashman_core"
-version = "0.2.2"
+version = "0.2.3"
 license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
 edition = "2018"
@@ -9,6 +9,7 @@ repository = "https://github.com/Blobfolio/bashman"
 publish = false
 
 [dependencies]
+argyle = "0.3.*"
 indexmap = "1.6.*"
 libdeflater = "0.7.*"
 
@@ -17,13 +18,9 @@ version = "0.4.*"
 default-features = false
 features = [ "clock", "std" ]
 
-[dependencies.argue]
-git = "https://github.com/Blobfolio/argue.git"
-tag = "v0.1.0"
-
 [dependencies.fyi_msg]
 git = "https://github.com/Blobfolio/fyi.git"
-tag = "v0.6.2"
+tag = "v0.7.0"
 
 [dependencies.serde]
 version = "1.0.*"

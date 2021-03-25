@@ -29,7 +29,10 @@ use serde::{
 };
 use std::{
 	convert::TryFrom,
-	path::PathBuf,
+	path::{
+		Path,
+		PathBuf,
+	},
 };
 
 
@@ -47,7 +50,7 @@ impl<'a> TryFrom<&'a str> for Raw<'a> {
 	type Error = BashManError;
 
 	fn try_from(src: &'a str) -> Result<Self, Self::Error> {
-		toml::from_str(src).map_err(|e| BashManError::ParseManifest(e.to_string()))
+		toml::from_str(src).map_err(|e| BashManError::ParseManifest(Box::from(e.to_string())))
 	}
 }
 
@@ -97,12 +100,12 @@ impl<'a> Raw<'a> {
 /// # Getters.
 impl<'a> Raw<'a> {
 	/// # Bash Directory.
-	pub(super) fn bash_dir(&self, dir: &PathBuf) -> Result<PathBuf, BashManError> {
+	pub(super) fn bash_dir(&self, dir: &Path) -> Result<PathBuf, BashManError> {
 		let path: PathBuf = self.package.metadata.bash_dir
-			.map_or_else(|| dir.clone(), |path|
+			.map_or_else(|| dir.to_path_buf(), |path|
 				if path.starts_with('/') { PathBuf::from(path) }
 				else {
-					let mut tmp = dir.clone();
+					let mut tmp = dir.to_path_buf();
 					tmp.push(path);
 					tmp
 				}
@@ -117,12 +120,12 @@ impl<'a> Raw<'a> {
 	}
 
 	/// # Man Directory.
-	pub(super) fn man_dir(&self, dir: &PathBuf) -> Result<PathBuf, BashManError> {
+	pub(super) fn man_dir(&self, dir: &Path) -> Result<PathBuf, BashManError> {
 		let path: PathBuf = self.package.metadata.man_dir
-			.map_or_else(|| dir.clone(), |path|
+			.map_or_else(|| dir.to_path_buf(), |path|
 				if path.starts_with('/') { PathBuf::from(path) }
 				else {
-					let mut tmp = dir.clone();
+					let mut tmp = dir.to_path_buf();
 					tmp.push(path);
 					tmp
 				}
@@ -409,7 +412,7 @@ impl<'a> TryFrom<&'a Raw<'a>> for Command<'a> {
 						else {
 							subcmds
 								.get_mut(sub)
-								.ok_or_else(|| BashManError::InvalidSubCommand((*sub).to_string()))?
+								.ok_or_else(|| BashManError::InvalidSubCommand(Box::from(*sub)))?
 								.3
 								.push(arg.clone());
 						}

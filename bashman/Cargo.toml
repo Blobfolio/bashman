@@ -1,6 +1,6 @@
 [package]
 name = "cargo-bashman"
-version = "0.2.2"
+version = "0.2.3"
 license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
 edition = "2018"
@@ -44,13 +44,12 @@ description = "Path to the Cargo.toml file to use."
 label = "<Cargo.toml>"
 path = true
 
+[dependencies]
+argyle = "0.3.*"
+
 [dependencies.bashman_core]
 path = "../bashman_core"
 
-[dependencies.argue]
-git = "https://github.com/Blobfolio/argue.git"
-tag = "v0.1.0"
-
 [dependencies.fyi_msg]
 git = "https://github.com/Blobfolio/fyi.git"
-tag = "v0.6.2"
+tag = "v0.7.0"

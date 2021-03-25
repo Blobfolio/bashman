@@ -257,9 +257,9 @@ path = true
 
 
 use bashman_core::BashManError;
-use argue::{
+use argyle::{
 	Argue,
-	ArgueError,
+	ArgyleError,
 	FLAG_HELP,
 	FLAG_VERSION,
 };
@@ -275,16 +275,16 @@ use std::{
 /// Main.
 fn main() {
 	match _main() {
-		Err(BashManError::Argue(ArgueError::WantsVersion)) => {
-			fyi_msg::plain!(concat!("Cargo BashMan v", env!("CARGO_PKG_VERSION")));
+		Ok(_) => {},
+		Err(BashManError::Argue(ArgyleError::WantsVersion)) => {
+			println!(concat!("Cargo BashMan v", env!("CARGO_PKG_VERSION")));
 		},
-		Err(BashManError::Argue(ArgueError::WantsHelp)) => {
+		Err(BashManError::Argue(ArgyleError::WantsHelp)) => {
 			helper();
 		},
 		Err(e) => {
 			Msg::error(e.to_string()).die(1);
 		},
-		Ok(_) => {},
 	}
 }
 
@@ -312,7 +312,7 @@ fn _main() -> Result<(), BashManError> {
 #[cold]
 /// Print Help.
 fn helper() {
-	fyi_msg::plain!(concat!(
+	println!(concat!(
 		r"
    __              __
    \ `-._......_.-` /

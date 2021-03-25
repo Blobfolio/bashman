@@ -105,11 +105,8 @@ rustflags   := "-C link-arg=-s"
 
 # Build Docs.
 @doc:
-	# Make sure nightly is installed; this version generates better docs.
-	rustup install nightly
-
 	# Make the docs.
-	cargo +nightly doc \
+	cargo doc \
 		--workspace \
 		--release \
 		--no-deps \
@@ -130,6 +127,16 @@ rustflags   := "-C link-arg=-s"
 		--target x86_64-unknown-linux-gnu \
 		--target-dir "{{ cargo_dir }}" \
 		-- {{ ARGS }}
+
+
+# Unit tests!
+@test:
+	clear
+	cargo test \
+		--release \
+		--workspace \
+		--target x86_64-unknown-linux-gnu \
+		--target-dir "{{ cargo_dir }}"
 
 
 # Get/Set version.
@@ -167,10 +174,7 @@ version:
 
 # Init dependencies.
 @_init:
-	[ ! -f "{{ justfile_directory() }}/Cargo.lock" ] || rm "{{ justfile_directory() }}/Cargo.lock"
 	mkdir "/tmp/bashman-test"
-	cargo update -w
-	cargo outdated -w
 
 
 # Fix file/directory permissions.
