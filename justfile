@@ -105,11 +105,8 @@ rustflags   := "-C link-arg=-s"
 
 # Build Docs.
 @doc:
-	# Make sure nightly is installed; this version generates better docs.
-	env RUSTUP_PERMIT_COPY_RENAME=true rustup install nightly
-
 	# Make the docs.
-	cargo +nightly doc \
+	cargo doc \
 		--workspace \
 		--release \
 		--no-deps \
@@ -177,10 +174,6 @@ version:
 
 # Init dependencies.
 @_init:
-	# We need beta until 1.51 is stable.
-	env RUSTUP_PERMIT_COPY_RENAME=true rustup default beta
-	env RUSTUP_PERMIT_COPY_RENAME=true rustup component add clippy
-
 	mkdir "/tmp/bashman-test"
 
 
