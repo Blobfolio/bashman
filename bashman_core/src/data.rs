@@ -13,6 +13,7 @@ use libdeflater::{
 };
 use std::{
 	ffi::OsStr,
+	fs::File,
 	io::Write,
 	os::unix::ffi::OsStrExt,
 	path::Path,
@@ -136,7 +137,7 @@ impl<'a> Command<'a> {
 		// Write it to a file!
 		let mut out_file = path.to_path_buf();
 		out_file.push(self.bin.to_string() + ".bash");
-		std::fs::File::create(&out_file)
+		File::create(&out_file)
 			.and_then(|mut f| f.write_all(buf).and_then(|_| f.flush()))
 			.map_err(|_| BashManError::WriteBash)?;
 
@@ -335,11 +336,10 @@ impl<'a> Command<'a> {
 		Ok(())
 	}
 
-	#[allow(trivial_casts)]
 	/// # Write For Real.
 	fn _write_man(&self, path: &Path, data: &[u8]) -> Result<(), BashManError> {
 		// Write plain.
-		std::fs::File::create(&path)
+		File::create(&path)
 			.and_then(|mut f| f.write_all(data).and_then(|_| f.flush()))
 			.map_err(|_| BashManError::WriteSubMan(Box::from(self.bin)))?;
 
@@ -353,10 +353,7 @@ impl<'a> Command<'a> {
 		buf.truncate(len);
 
 		// Toss ".gz" onto the original file path and write again!
-		std::fs::File::create(OsStr::from_bytes(&[
-			unsafe { &*(path.as_os_str() as *const OsStr as *const [u8]) },
-			b".gz",
-		].concat()))
+		File::create(OsStr::from_bytes(&[path.as_os_str().as_bytes(), b".gz"].concat()))
 			.and_then(|mut f| f.write_all(&buf).and_then(|_| f.flush()))
 			.map_err(|_| BashManError::WriteSubMan(Box::from(self.bin)))
 	}

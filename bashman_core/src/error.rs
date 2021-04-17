@@ -41,7 +41,7 @@ pub enum BashManError {
 impl fmt::Display for BashManError {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		match self {
-			Self::Argue(src) => f.write_str(src.as_ref()),
+			Self::Argue(src) => f.write_str(src.as_str()),
 			Self::InvalidBashDir => f.write_str("Invalid BASH output directory."),
 			Self::InvalidFlag => f.write_str("Flags require at least one short/long key."),
 			Self::InvalidItem => f.write_str("Items require a key and value."),
