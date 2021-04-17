@@ -9,7 +9,7 @@ repository = "https://github.com/Blobfolio/bashman"
 publish = false
 
 [dependencies]
-argyle = "0.3.*"
+argyle = "0.4.*"
 indexmap = "1.6.*"
 libdeflater = "0.7.*"
 
@@ -20,7 +20,7 @@ features = [ "clock", "std" ]
 
 [dependencies.fyi_msg]
 git = "https://github.com/Blobfolio/fyi.git"
-tag = "v0.7.0"
+tag = "v0.7.1"
 
 [dependencies.serde]
 version = "1.0.*"

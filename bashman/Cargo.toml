@@ -45,11 +45,11 @@ label = "<Cargo.toml>"
 path = true
 
 [dependencies]
-argyle = "0.3.*"
+argyle = "0.4.*"
 
 [dependencies.bashman_core]
 path = "../bashman_core"
 
 [dependencies.fyi_msg]
 git = "https://github.com/Blobfolio/fyi.git"
-tag = "v0.7.0"
+tag = "v0.7.1"
