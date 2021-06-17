@@ -618,14 +618,13 @@ impl<'a> DataKind<'a> {
 			Self::Paragraph(i) => {
 				if indent {
 					buf.extend_from_slice(b"\n.TP\n");
-					buf.extend_from_slice(i.join("\n.RE\n").as_bytes());
 				}
 				else {
 					buf.push(b'\n');
-					buf.extend_from_slice(i.join("\n.RE\n").as_bytes());
 				}
+				buf.extend_from_slice(i.join("\n.RE\n").as_bytes());
 			},
-			_ => {},
+			Self::SubCommand(_) => {},
 		}
 
 		Ok(())
