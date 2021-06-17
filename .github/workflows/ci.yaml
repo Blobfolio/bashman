@@ -51,7 +51,7 @@ jobs:
 
     - name: Build
       run: |
-        cargo build --bin bashman --release --target ${{ matrix.target }}
+        cargo build --bin cargo-bashman --release --target ${{ matrix.target }}
 
     - name: Clippy
       run: |
