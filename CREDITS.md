@@ -267,17 +267,17 @@ limitations under the License.
 
 * [hashbrown 0.9.1](https://github.com/rust-lang/hashbrown)
 * [indexmap 1.6.2](https://github.com/bluss/indexmap)
-* [libc 0.2.93](https://github.com/rust-lang/libc)
+* [libc 0.2.97](https://github.com/rust-lang/libc)
 * [libdeflater 0.7.1](https://github.com/adamkewley/libdeflater)
 * [num-integer 0.1.44](https://github.com/rust-num/num-integer)
 * [num-traits 0.2.14](https://github.com/rust-num/num-traits)
-* [proc-macro2 1.0.26](https://github.com/alexcrichton/proc-macro2)
+* [proc-macro2 1.0.27](https://github.com/alexcrichton/proc-macro2)
 * [quote 1.0.9](https://github.com/dtolnay/quote)
-* [serde 1.0.125](https://github.com/serde-rs/serde)
-* [serde_derive 1.0.125](https://github.com/serde-rs/serde)
-* [syn 1.0.69](https://github.com/dtolnay/syn)
+* [serde 1.0.126](https://github.com/serde-rs/serde)
+* [serde_derive 1.0.126](https://github.com/serde-rs/serde)
+* [syn 1.0.73](https://github.com/dtolnay/syn)
 * [toml 0.5.8](https://github.com/alexcrichton/toml-rs)
-* [unicode-xid 0.2.1](https://github.com/unicode-rs/unicode-xid)
+* [unicode-xid 0.2.2](https://github.com/unicode-rs/unicode-xid)
 
 
 ```
@@ -573,11 +573,11 @@ limitations under the License.
 
 **Used By:**
 
-* [argyle 0.4.1](https://github.com/Blobfolio/argyle)
-* [bashman_core 0.2.4](https://github.com/Blobfolio/bashman)
-* [cargo-bashman 0.2.4](https://github.com/Blobfolio/bashman)
-* [dactyl 0.1.7](https://github.com/Blobfolio/dactyl)
-* [fyi_msg 0.7.1](https://github.com/Blobfolio/fyi)
+* [argyle 0.4.2](https://github.com/Blobfolio/argyle)
+* [bashman_core 0.2.5](https://github.com/Blobfolio/bashman)
+* [cargo-bashman 0.2.5](https://github.com/Blobfolio/bashman)
+* [dactyl 0.1.8](https://github.com/Blobfolio/dactyl)
+* [fyi_msg 0.8.1](https://github.com/Blobfolio/fyi)
 
 
 ```
