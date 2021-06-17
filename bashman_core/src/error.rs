@@ -3,6 +3,7 @@
 */
 
 use argyle::ArgyleError;
+use std::error::Error;
 use std::fmt;
 
 
@@ -37,6 +38,8 @@ pub enum BashManError {
 	/// # Write Man.
 	WriteSubMan(Box<str>),
 }
+
+impl Error for BashManError {}
 
 impl fmt::Display for BashManError {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

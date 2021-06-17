@@ -1,5 +1,7 @@
 # Cargo BashMan
 
+[![Build Status](https://github.com/Blobfolio/bashman/workflows/Build/badge.svg)](https://github.com/Blobfolio/bashman/actions)
+
 `BashMan` is a Cargo plugin that helps you generate BASH completions and/or MAN pages for your Rust apps using metadata from your projects' `Cargo.toml` manifests. It pairs well with the (unaffiliated) [cargo-deb](https://github.com/mmstick/cargo-deb).
 
 (This can technically be used for non-Rust apps. It just parses the data out of a [TOML](https://en.wikipedia.org/wiki/TOML) file. Any TOML'll do.)
@@ -18,17 +20,24 @@ Feel free to use it, but if something weird happens — or if you have ideas for
 
 ## Installation
 
-This application is written in [Rust](https://www.rust-lang.org/) and can be installed using [Cargo](https://github.com/rust-lang/cargo).
+Debian and Ubuntu users can just grab the pre-built `.deb` package from the [latest release](https://github.com/Blobfolio/bashman/releases/latest).
 
-For stable Rust (>= `1.51.0`), run:
+This application is written in [Rust](https://www.rust-lang.org/) and can alternatively be built from source using [Cargo](https://github.com/rust-lang/cargo):
+
 ```bash
-RUSTFLAGS="-C link-arg=-s" cargo install \
-    --git https://github.com/Blobfolio/bashman.git \
-    --bin cargo-bashman \
-    --target x86_64-unknown-linux-gnu
+# Clone the source.
+git clone https://github.com/Blobfolio/bashman.git
+
+# Go to it.
+cd bashman
+
+# Build as usual. Specify additional flags as desired.
+cargo build \
+    --bin bashman \
+    --release
 ```
 
-Pre-built `.deb` packages are also added for each [release](https://github.com/Blobfolio/bashman/releases/latest). They should always work for the latest stable Debian and Ubuntu.
+(This should work under other 64-bit Unix environments too, like MacOS.)
 
 
 

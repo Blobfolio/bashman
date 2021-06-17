@@ -526,14 +526,14 @@ impl<'a> TryFrom<&'a RawSection<'a>> for More<'a> {
 				// Neither.
 				(true, 0) => return Err(BashManError::InvalidSection),
 				// Just lines.
-				(false, 0) => vec![DataKind::Paragraph(src.lines.to_vec())],
+				(false, 0) => vec![DataKind::Paragraph(src.lines.clone())],
 				// Just items.
 				(true, len) => src.items.iter().try_fold(Vec::with_capacity(len), |mut v, &a| {
 					v.push(DataKind::try_from(a)?);
 					Ok(v)
 				})?,
 				// Both.
-				(false, len) => std::iter::once(Ok(DataKind::Paragraph(src.lines.to_vec())))
+				(false, len) => std::iter::once(Ok(DataKind::Paragraph(src.lines.clone())))
 					.chain(src.items.iter().map(|&a| DataKind::try_from(a)))
 					.try_fold(Vec::with_capacity(len + 1), |mut v, a| {
 						v.push(a?);
