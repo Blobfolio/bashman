@@ -369,7 +369,7 @@ impl<'a> Command<'a> {
 				r#".TH "{} {}" "1" "{} {}" "{} v{}" "User Commands""#,
 				p.to_uppercase(),
 				self.name().to_uppercase(),
-				month_name(now.month()),
+				now.month_name(),
 				now.year(),
 				self.name(),
 				self.version(),
@@ -378,7 +378,7 @@ impl<'a> Command<'a> {
 				buf,
 				r#".TH "{}" "1" "{} {}" "{} v{}" "User Commands""#,
 				self.name().to_uppercase(),
-				month_name(now.month()),
+				now.month_name(),
 				now.year(),
 				self.name(),
 				self.version(),
@@ -793,23 +793,5 @@ fn man_tagline(
 			Ok(true)
 		},
 		_ => Ok(false),
-	}
-}
-
-/// # Month Name.
-const fn month_name(month: u8) -> &'static str {
-	match month {
-		1 => "January",
-		2 => "February",
-		3 => "March",
-		4 => "April",
-		5 => "May",
-		6 => "June",
-		7 => "July",
-		8 => "August",
-		9 => "September",
-		10 => "October",
-		11 => "November",
-		_ => "December",
 	}
 }
