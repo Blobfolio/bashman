@@ -87,7 +87,6 @@ rustflags   := "-C link-arg=-s"
 	RUSTFLAGS="{{ rustflags }}" cargo clippy \
 		--workspace \
 		--release \
-		--all-features \
 		--target x86_64-unknown-linux-gnu \
 		--target-dir "{{ cargo_dir }}"
 
