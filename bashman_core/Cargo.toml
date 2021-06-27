@@ -13,7 +13,7 @@ argyle = "0.4.*"
 fyi_msg = "0.8.*"
 indexmap = "1.6.*"
 libdeflater = "0.7.*"
-utc2k = "0.1.*"
+utc2k = "0.2.*"
 
 [dependencies.serde]
 version = "1.0.*"
