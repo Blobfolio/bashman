@@ -408,7 +408,7 @@ impl<'a> TryFrom<&'a Raw<'a>> for Command<'a> {
 				if subs.is_empty() { out_args.push(arg); }
 				else {
 					subs.iter().try_for_each(|sub| {
-						if sub.is_empty() { out_args.push(arg.clone()) }
+						if sub.is_empty() { out_args.push(arg.clone()); }
 						else {
 							subcmds
 								.get_mut(sub)

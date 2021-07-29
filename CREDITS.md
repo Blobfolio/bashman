@@ -14,16 +14,16 @@ License details for project dependencies are listed below.
 
 **Used By:**
 
-* [hashbrown 0.9.1](https://github.com/rust-lang/hashbrown)
-* [indexmap 1.6.2](https://github.com/bluss/indexmap)
+* [hashbrown 0.11.2](https://github.com/rust-lang/hashbrown)
+* [indexmap 1.7.0](https://github.com/bluss/indexmap)
 * [libdeflate-sys 0.7.3](https://github.com/adamkewley/libdeflater)
 * [libdeflater 0.7.3](https://github.com/adamkewley/libdeflater)
 * [num-traits 0.2.14](https://github.com/rust-num/num-traits)
-* [proc-macro2 1.0.27](https://github.com/alexcrichton/proc-macro2)
+* [proc-macro2 1.0.28](https://github.com/alexcrichton/proc-macro2)
 * [quote 1.0.9](https://github.com/dtolnay/quote)
 * [serde 1.0.126](https://github.com/serde-rs/serde)
 * [serde_derive 1.0.126](https://github.com/serde-rs/serde)
-* [syn 1.0.73](https://github.com/dtolnay/syn)
+* [syn 1.0.74](https://github.com/dtolnay/syn)
 * [toml 0.5.8](https://github.com/alexcrichton/toml-rs)
 * [unicode-xid 0.2.2](https://github.com/unicode-rs/unicode-xid)
 
@@ -238,11 +238,11 @@ limitations under the License.
 **Used By:**
 
 * [argyle 0.4.2](https://github.com/Blobfolio/argyle)
-* [bashman_core 0.2.6](https://github.com/Blobfolio/bashman)
-* [cargo-bashman 0.2.6](https://github.com/Blobfolio/bashman)
+* [bashman_core 0.2.7](https://github.com/Blobfolio/bashman)
+* [cargo-bashman 0.2.7](https://github.com/Blobfolio/bashman)
 * [dactyl 0.1.8](https://github.com/Blobfolio/dactyl)
 * [fyi_msg 0.8.1](https://github.com/Blobfolio/fyi)
-* [utc2k 0.1.1](https://github.com/Blobfolio/utc2k)
+* [utc2k 0.2.4](https://github.com/Blobfolio/utc2k)
 
 
 ```
