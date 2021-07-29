@@ -11,7 +11,7 @@ publish = false
 [dependencies]
 argyle = "0.4.*"
 fyi_msg = "0.8.*"
-indexmap = "1.6.*"
+indexmap = "1.7.*"
 libdeflater = "0.7.*"
 utc2k = "0.2.*"
 
