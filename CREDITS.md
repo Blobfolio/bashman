@@ -19,11 +19,11 @@ License details for project dependencies are listed below.
 * [libdeflate-sys 0.7.3](https://github.com/adamkewley/libdeflater)
 * [libdeflater 0.7.3](https://github.com/adamkewley/libdeflater)
 * [num-traits 0.2.14](https://github.com/rust-num/num-traits)
-* [proc-macro2 1.0.28](https://github.com/alexcrichton/proc-macro2)
-* [quote 1.0.9](https://github.com/dtolnay/quote)
-* [serde 1.0.126](https://github.com/serde-rs/serde)
-* [serde_derive 1.0.126](https://github.com/serde-rs/serde)
-* [syn 1.0.74](https://github.com/dtolnay/syn)
+* [proc-macro2 1.0.30](https://github.com/alexcrichton/proc-macro2)
+* [quote 1.0.10](https://github.com/dtolnay/quote)
+* [serde 1.0.130](https://github.com/serde-rs/serde)
+* [serde_derive 1.0.130](https://github.com/serde-rs/serde)
+* [syn 1.0.80](https://github.com/dtolnay/syn)
 * [toml 0.5.8](https://github.com/alexcrichton/toml-rs)
 * [unicode-xid 0.2.2](https://github.com/unicode-rs/unicode-xid)
 
@@ -237,12 +237,12 @@ limitations under the License.
 
 **Used By:**
 
-* [argyle 0.4.2](https://github.com/Blobfolio/argyle)
-* [bashman_core 0.2.7](https://github.com/Blobfolio/bashman)
-* [cargo-bashman 0.2.7](https://github.com/Blobfolio/bashman)
-* [dactyl 0.1.8](https://github.com/Blobfolio/dactyl)
-* [fyi_msg 0.8.1](https://github.com/Blobfolio/fyi)
-* [utc2k 0.2.4](https://github.com/Blobfolio/utc2k)
+* [argyle 0.5.0](https://github.com/Blobfolio/argyle)
+* [bashman_core 0.2.8](https://github.com/Blobfolio/bashman)
+* [cargo-bashman 0.2.8](https://github.com/Blobfolio/bashman)
+* [dactyl 0.2.0](https://github.com/Blobfolio/dactyl)
+* [fyi_msg 0.9.0](https://github.com/Blobfolio/fyi)
+* [utc2k 0.3.0](https://github.com/Blobfolio/utc2k)
 
 
 ```
