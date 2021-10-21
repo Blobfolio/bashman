@@ -10,11 +10,11 @@ repository = "https://github.com/Blobfolio/bashman"
 publish = false
 
 [dependencies]
-argyle = "0.4.*"
-fyi_msg = "0.8.*"
+argyle = "0.5.*"
+fyi_msg = "0.9.*"
 indexmap = "1.7.*"
 libdeflater = "0.7.*"
-utc2k = "0.2.*"
+utc2k = "0.3.*"
 
 [dependencies.serde]
 version = "1.0.*"
