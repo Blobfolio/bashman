@@ -1,6 +1,7 @@
 # Cargo BashMan
 
 [![Build Status](https://github.com/Blobfolio/bashman/workflows/Build/badge.svg)](https://github.com/Blobfolio/bashman/actions)
+[![Dependency Status](https://deps.rs/repo/github/blobfolio/bashman/status.svg)](https://deps.rs/repo/github/blobfolio/bashman)
 
 `BashMan` is a Cargo plugin that helps you generate BASH completions and/or MAN pages for your Rust apps using metadata from your projects' `Cargo.toml` manifests. It pairs well with the (unaffiliated) [cargo-deb](https://github.com/mmstick/cargo-deb).
 
