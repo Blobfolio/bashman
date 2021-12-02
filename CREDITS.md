@@ -4,9 +4,8 @@ License details for project dependencies are listed below.
 
 ## Overview of Licenses:
 
-* Apache License 2.0 (1)
+* Apache License 2.0 (2)
 * Do What The F*ck You Want To Public License (1)
-
 
 ## Complete Licenses:
 
@@ -19,14 +18,13 @@ License details for project dependencies are listed below.
 * [libdeflate-sys 0.7.3](https://github.com/adamkewley/libdeflater)
 * [libdeflater 0.7.3](https://github.com/adamkewley/libdeflater)
 * [num-traits 0.2.14](https://github.com/rust-num/num-traits)
-* [proc-macro2 1.0.30](https://github.com/alexcrichton/proc-macro2)
+* [proc-macro2 1.0.32](https://github.com/dtolnay/proc-macro2)
 * [quote 1.0.10](https://github.com/dtolnay/quote)
 * [serde 1.0.130](https://github.com/serde-rs/serde)
 * [serde_derive 1.0.130](https://github.com/serde-rs/serde)
-* [syn 1.0.80](https://github.com/dtolnay/syn)
+* [syn 1.0.82](https://github.com/dtolnay/syn)
 * [toml 0.5.8](https://github.com/alexcrichton/toml-rs)
 * [unicode-xid 0.2.2](https://github.com/unicode-rs/unicode-xid)
-
 
 ```
                               Apache License
@@ -233,17 +231,33 @@ limitations under the License.
 
 ```
 
+### Apache License 2.0
+
+**Used By:**
+
+* [unicode-xid 0.2.2](https://github.com/unicode-rs/unicode-xid)
+
+```
+Licensed under the Apache License, Version 2.0
+<LICENSE-APACHE or
+http://www.apache.org/licenses/LICENSE-2.0> or the MIT
+license <LICENSE-MIT or http://opensource.org/licenses/MIT>,
+at your option. All files in the project carrying such
+notice may not be copied, modified, or distributed except
+according to those terms.
+
+```
+
 ### Do What The F*ck You Want To Public License
 
 **Used By:**
 
-* [argyle 0.5.0](https://github.com/Blobfolio/argyle)
-* [bashman_core 0.2.8](https://github.com/Blobfolio/bashman)
-* [cargo-bashman 0.2.8](https://github.com/Blobfolio/bashman)
-* [dactyl 0.2.0](https://github.com/Blobfolio/dactyl)
-* [fyi_msg 0.9.0](https://github.com/Blobfolio/fyi)
-* [utc2k 0.3.0](https://github.com/Blobfolio/utc2k)
-
+* [argyle 0.5.1](https://github.com/Blobfolio/argyle)
+* [bashman_core 0.2.9](https://github.com/Blobfolio/bashman)
+* [cargo-bashman 0.2.9](https://github.com/Blobfolio/bashman)
+* [dactyl 0.2.1](https://github.com/Blobfolio/dactyl)
+* [fyi_msg 0.9.1](https://github.com/Blobfolio/fyi)
+* [utc2k 0.3.1](https://github.com/Blobfolio/utc2k)
 
 ```
 DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
@@ -261,6 +275,5 @@ TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 0. You just DO WHAT THE FUCK YOU WANT TO.
 
 ```
-
 
 
