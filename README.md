@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/Blobfolio/bashman/workflows/Build/badge.svg)](https://github.com/Blobfolio/bashman/actions)
 [![Dependency Status](https://deps.rs/repo/github/blobfolio/bashman/status.svg)](https://deps.rs/repo/github/blobfolio/bashman)
 
-`BashMan` is a Cargo plugin that helps you generate BASH completions and/or MAN pages for your Rust apps using metadata from your projects' `Cargo.toml` manifests. It pairs well with the (unaffiliated) [cargo-deb](https://github.com/mmstick/cargo-deb).
+`BashMan` is a Cargo plugin that helps you generate BASH completions, MAN pages, and/or a `CREDITS.md` page for your Rust apps using metadata from your projects' `Cargo.toml` manifests. It pairs well with the (unaffiliated) [cargo-deb](https://github.com/mmstick/cargo-deb).
 
 (This can technically be used for non-Rust apps. It just parses the data out of a [TOML](https://en.wikipedia.org/wiki/TOML) file. Any TOML'll do.)
 
@@ -83,6 +83,9 @@ credits-dir = "../"
 | arguments | *array* | An array of any trailing arguments expected by your app. | |
 | sections | *array* | Arbitrary sections to append to the MAN page. | |
 
+While `bash-dir`, `man-dir`, and `credits-dir` are required, the actual content generation can be skipped by using the CLI flags `--no-bash`, `--no-man`, and/or `--no-credits` respectively.
+
+
 ### SUBCOMMANDS
 
 When adding subcommands, each entry requires the following fields:
@@ -102,6 +105,7 @@ name="Whale Talk"
 cmd="whale"
 description="Print an underwater message."
 ```
+
 
 ### SWITCHES
 
@@ -129,6 +133,7 @@ long = "--help"
 description = "Print help information."
 subcommands = [ "call", "text", "" ]
 ```
+
 
 ### OPTIONS
 
@@ -160,6 +165,7 @@ label = "<NUM>"
 subcommands = [ "print", "echo" ]
 ```
 
+
 ### ARGUMENTS
 
 A trailing argument is what comes after everything else.
@@ -177,6 +183,7 @@ label = "<FILE(s)…>"
 description = "Files and directories to search."
 subcommands = [ "search" ]
 ```
+
 
 ### SECTIONS
 
@@ -219,6 +226,7 @@ items = [
 ]
 ```
 
+
 ### ALL TOGETHER NOW
 
 Taking `BashMan` as an example, the `Cargo.toml` will end up containing something like:
@@ -234,6 +242,7 @@ description = "BashMan is a Cargo plugin that helps you generate BASH completion
 name = "Cargo BashMan"
 bash-dir = "../release/completions"
 man-dir = "../release/man"
+credits-dir = "../"
 
 [[package.metadata.bashman.switches]]
 short = "-h"
