@@ -1,5 +1,7 @@
-# Cargo BashMan v0.2.9
-## Dependency List
+# Project Dependencies
+    Package:   cargo-bashman
+    Version:   0.2.9
+    Generated: 2021-12-03 07:54:28 UTC
 
 | Package | Version | Author(s) | License |
 | ---- | ---- | ---- | ---- |

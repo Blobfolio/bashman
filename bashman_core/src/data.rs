@@ -20,6 +20,7 @@ use std::{
 	os::unix::ffi::OsStrExt,
 	path::Path,
 };
+use utc2k::Utc2k;
 
 
 
@@ -568,12 +569,12 @@ impl<'a> Command<'a> {
 			})
 			.collect();
 
-
 		// Write the header.
 		buf.extend_from_slice(format!(
-			"# {} v{}\n## Dependency List\n",
-			self.name,
+			"# Project Dependencies\n    Package:   {}\n    Version:   {}\n    Generated: {} UTC\n",
+			self.bin,
 			self.version,
+			Utc2k::now().to_string(),
 		).as_bytes());
 
 		if raw.is_empty() {
