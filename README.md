@@ -54,6 +54,8 @@ cargo bashman [--manifest-path /path/to/Cargo.toml]
 cargo bashman [-h/--help]
 ```
 
+The flags `--no-bash`, `--no-man`, and `--no-credits` can be used to skip the generation of BASH completions, MAN pages, and/or `CREDITS.md` respectively.
+
 
 ## CONFIGURATION
 

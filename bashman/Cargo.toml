@@ -32,7 +32,18 @@ credits-dir = "../"
 short = "-h"
 long = "--help"
 description = "Print help information."
-subcommands = [ "", "sub" ]
+
+[[package.metadata.bashman.switches]]
+long = "--no-bash"
+description = "Do not generate BASH completions."
+
+[[package.metadata.bashman.switches]]
+long = "--no-credits"
+description = "Do not generate CREDITS.md."
+
+[[package.metadata.bashman.switches]]
+long = "--no-man"
+description = "Do not generate MAN page(s)."
 
 [[package.metadata.bashman.switches]]
 short = "-V"

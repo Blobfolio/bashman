@@ -44,6 +44,20 @@ use std::path::PathBuf;
 
 
 
+/// # Enable BASH completions.
+pub const FLAG_BASH: u8 =    0b0001;
+
+/// # Enable CREDITS.md.
+pub const FLAG_CREDITS: u8 = 0b0010;
+
+/// # Enable MAN page(s).
+pub const FLAG_MAN: u8 =     0b0100;
+
+/// # All Flags.
+pub const FLAG_ALL: u8 =     0b0111;
+
+
+
 #[allow(clippy::missing_panics_doc)] // This can't really panic; the path exists.
 /// # Parse.
 ///
@@ -54,7 +68,7 @@ use std::path::PathBuf;
 ///
 /// Returns an error if the BASH/Man output paths are invalid, or any other
 /// metadata parsing issues come up.
-pub fn parse(manifest: PathBuf) -> Result<(), BashManError> {
+pub fn parse(manifest: PathBuf, flags: u8) -> Result<(), BashManError> {
 	// Clean up the manifest path.
 	let manifest = std::fs::canonicalize(manifest)
 		.map_err(|_| BashManError::InvalidManifest)?;
@@ -73,21 +87,30 @@ pub fn parse(manifest: PathBuf) -> Result<(), BashManError> {
 	// two different writers.
 	let mut buf: Vec<u8> = Vec::new();
 
-	// Write BASH.
+	// Get the manifest's parent directory in case we have any relative paths
+	// to deal with.
 	let dir = manifest.parent().unwrap().to_path_buf();
-	cmd.write_bash(&raw.bash_dir(&dir)?, &mut buf)?;
+
+	// Write BASH.
+	if FLAG_BASH == flags & FLAG_BASH {
+		cmd.write_bash(&raw.bash_dir(&dir)?, &mut buf)?;
+		buf.truncate(0);
+	}
 
 	// Write Man.
-	buf.truncate(0);
-	cmd.write_man(&raw.man_dir(&dir)?, &mut buf)?;
+	if FLAG_MAN == flags & FLAG_MAN {
+		cmd.write_man(&raw.man_dir(&dir)?, &mut buf)?;
+		buf.truncate(0);
+	}
 
 	// Write Credits.
-	buf.truncate(0);
-	cmd.write_credits(
-		&manifest,
-		&raw.credits_dir(&dir)?,
-		&mut buf
-	)?;
+	if FLAG_CREDITS == flags & FLAG_CREDITS {
+		cmd.write_credits(
+			&manifest,
+			&raw.credits_dir(&dir)?,
+			&mut buf
+		)?;
+	}
 
 	Ok(())
 }
