@@ -81,5 +81,13 @@ pub fn parse(manifest: PathBuf) -> Result<(), BashManError> {
 	buf.truncate(0);
 	cmd.write_man(&raw.man_dir(&dir)?, &mut buf)?;
 
+	// Write Credits.
+	buf.truncate(0);
+	cmd.write_credits(
+		&manifest,
+		&raw.credits_dir(&dir)?,
+		&mut buf
+	)?;
+
 	Ok(())
 }

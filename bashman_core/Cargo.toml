@@ -11,9 +11,12 @@ publish = false
 
 [dependencies]
 argyle = "0.5.*"
+cargo-license = "0.4.*"
+cargo_metadata = "0.14.*"
 fyi_msg = "0.9.*"
 indexmap = "1.7.*"
 libdeflater = "0.7.*"
+regex = "1.5.*"
 utc2k = "0.3.*"
 
 [dependencies.serde]

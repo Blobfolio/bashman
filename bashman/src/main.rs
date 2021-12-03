@@ -51,12 +51,14 @@ For everything else, start by adding a section to your `Cargo.toml` manifest lik
 name = "Cargo BashMan"
 bash-dir = "../release/bash_completion.d"
 man-dir = "../release/man1"
+credits-dir = "../"
 ```
 
 | Key | Type | Description | Default |
 | --- | ---- | ----------- | ------- |
 | name | *string* | The proper name of your application. | If not provided, the binary name is used. |
 | bash-dir | *directory* | The output directory for BASH completions. This can be an absolute path, or a path relative to the manifest. | If not provided, the manifest's parent directory is used. |
+| credits-dir | *directory* | The output directory for the `CREDITS.md` dependency list. This can be an absolute path, or a path relative to the manifest. | If not provided, the manifest's parent directory is used. |
 | man-dir | *directory* | The output directory for MAN page(s). This can be an absolute path, or a path relative to the manifest. | If not provided, the manifest's parent directory is used. |
 | subcommands | *array* | An array of your app's subcommands, if any. | |
 | switches | *array* | An array of your app's true/false flags, if any. | |
@@ -303,7 +305,7 @@ fn _main() -> Result<(), BashManError> {
 				}),
 				|b| Some(PathBuf::from(OsStr::from_bytes(b)))
 			)
-			.ok_or(BashManError::InvalidManifest)?
+			.ok_or(BashManError::InvalidManifest)?,
 	)?;
 
 	Ok(())
