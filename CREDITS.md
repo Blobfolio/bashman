@@ -1,7 +1,7 @@
 # Project Dependencies
     Package:   cargo-bashman
-    Version:   0.2.9
-    Generated: 2021-12-03 07:54:28 UTC
+    Version:   0.3.0
+    Generated: 2021-12-03 18:32:59 UTC
 
 | Package | Version | Author(s) | License |
 | ---- | ---- | ---- | ---- |
@@ -10,7 +10,7 @@
 | [anyhow](https://github.com/dtolnay/anyhow) | 1.0.51 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 OR MIT |
 | [argyle](https://github.com/Blobfolio/argyle) | 0.5.1 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
 | [atty](https://github.com/softprops/atty) | 0.2.14 | [softprops](mailto:d.tangren@gmail.com) | MIT |
-| [bashman_core](https://github.com/Blobfolio/bashman) | 0.2.9 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
+| [bashman_core](https://github.com/Blobfolio/bashman) | 0.3.0 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
 | [bitflags](https://github.com/bitflags/bitflags) | 1.3.2 | The Rust Project Developers | Apache-2.0 OR MIT |
 | [bstr](https://github.com/BurntSushi/bstr) | 0.2.17 | [Andrew Gallant](mailto:jamslam@gmail.com) | Apache-2.0 OR MIT |
 | [camino](https://github.com/withoutboats/camino) | 1.0.5 | [Without Boats](mailto:saoirse@without.boats); [Ashley Williams](mailto:ashley666ashley@gmail.com); [Steve Klabnik](mailto:steve@steveklabnik.com); [Rain](mailto:rain@sunshowers.io) | Apache-2.0 OR MIT |
