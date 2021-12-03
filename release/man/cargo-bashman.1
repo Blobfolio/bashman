@@ -1,6 +1,6 @@
-.TH "CARGO BASHMAN" "1" "December 2021" "Cargo BashMan v0.2.9" "User Commands"
+.TH "CARGO BASHMAN" "1" "December 2021" "Cargo BashMan v0.3.0" "User Commands"
 .SH NAME
-Cargo BashMan \- Manual page for cargo\-bashman v0.2.9.
+Cargo BashMan \- Manual page for cargo\-bashman v0.3.0.
 .SH DESCRIPTION
 BashMan is a Cargo plugin that helps you generate BASH completions and/or MAN pages for your Rust project.
 .SS USAGE:
@@ -10,6 +10,15 @@ cargo\-bashman [FLAGS] [OPTIONS]
 .TP
 \fB\-h\fR, \fB\-\-help\fR
 Print help information.
+.TP
+\fB\-\-no\-bash\fR
+Do not generate BASH completions.
+.TP
+\fB\-\-no\-credits\fR
+Do not generate CREDITS.md.
+.TP
+\fB\-\-no\-man\fR
+Do not generate MAN page(s).
 .TP
 \fB\-V\fR, \fB\-\-version\fR
 Print application version.

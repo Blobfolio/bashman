@@ -1,279 +1,62 @@
-# Third Party Licenses
+# Project Dependencies
+    Package:   cargo-bashman
+    Version:   0.3.0
+    Generated: 2021-12-03 18:32:59 UTC
 
-License details for project dependencies are listed below.
-
-## Overview of Licenses:
-
-* Apache License 2.0 (2)
-* Do What The F*ck You Want To Public License (1)
-
-## Complete Licenses:
-
-### Apache License 2.0
-
-**Used By:**
-
-* [hashbrown 0.11.2](https://github.com/rust-lang/hashbrown)
-* [indexmap 1.7.0](https://github.com/bluss/indexmap)
-* [libdeflate-sys 0.7.3](https://github.com/adamkewley/libdeflater)
-* [libdeflater 0.7.3](https://github.com/adamkewley/libdeflater)
-* [num-traits 0.2.14](https://github.com/rust-num/num-traits)
-* [proc-macro2 1.0.32](https://github.com/dtolnay/proc-macro2)
-* [quote 1.0.10](https://github.com/dtolnay/quote)
-* [serde 1.0.130](https://github.com/serde-rs/serde)
-* [serde_derive 1.0.130](https://github.com/serde-rs/serde)
-* [syn 1.0.82](https://github.com/dtolnay/syn)
-* [toml 0.5.8](https://github.com/alexcrichton/toml-rs)
-* [unicode-xid 0.2.2](https://github.com/unicode-rs/unicode-xid)
-
-```
-                              Apache License
-                        Version 2.0, January 2004
-                     http://www.apache.org/licenses/
-
-TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-
-1. Definitions.
-
-   "License" shall mean the terms and conditions for use, reproduction,
-   and distribution as defined by Sections 1 through 9 of this document.
-
-   "Licensor" shall mean the copyright owner or entity authorized by
-   the copyright owner that is granting the License.
-
-   "Legal Entity" shall mean the union of the acting entity and all
-   other entities that control, are controlled by, or are under common
-   control with that entity. For the purposes of this definition,
-   "control" means (i) the power, direct or indirect, to cause the
-   direction or management of such entity, whether by contract or
-   otherwise, or (ii) ownership of fifty percent (50%) or more of the
-   outstanding shares, or (iii) beneficial ownership of such entity.
-
-   "You" (or "Your") shall mean an individual or Legal Entity
-   exercising permissions granted by this License.
-
-   "Source" form shall mean the preferred form for making modifications,
-   including but not limited to software source code, documentation
-   source, and configuration files.
-
-   "Object" form shall mean any form resulting from mechanical
-   transformation or translation of a Source form, including but
-   not limited to compiled object code, generated documentation,
-   and conversions to other media types.
-
-   "Work" shall mean the work of authorship, whether in Source or
-   Object form, made available under the License, as indicated by a
-   copyright notice that is included in or attached to the work
-   (an example is provided in the Appendix below).
-
-   "Derivative Works" shall mean any work, whether in Source or Object
-   form, that is based on (or derived from) the Work and for which the
-   editorial revisions, annotations, elaborations, or other modifications
-   represent, as a whole, an original work of authorship. For the purposes
-   of this License, Derivative Works shall not include works that remain
-   separable from, or merely link (or bind by name) to the interfaces of,
-   the Work and Derivative Works thereof.
-
-   "Contribution" shall mean any work of authorship, including
-   the original version of the Work and any modifications or additions
-   to that Work or Derivative Works thereof, that is intentionally
-   submitted to Licensor for inclusion in the Work by the copyright owner
-   or by an individual or Legal Entity authorized to submit on behalf of
-   the copyright owner. For the purposes of this definition, "submitted"
-   means any form of electronic, verbal, or written communication sent
-   to the Licensor or its representatives, including but not limited to
-   communication on electronic mailing lists, source code control systems,
-   and issue tracking systems that are managed by, or on behalf of, the
-   Licensor for the purpose of discussing and improving the Work, but
-   excluding communication that is conspicuously marked or otherwise
-   designated in writing by the copyright owner as "Not a Contribution."
-
-   "Contributor" shall mean Licensor and any individual or Legal Entity
-   on behalf of whom a Contribution has been received by Licensor and
-   subsequently incorporated within the Work.
-
-2. Grant of Copyright License. Subject to the terms and conditions of
-   this License, each Contributor hereby grants to You a perpetual,
-   worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-   copyright license to reproduce, prepare Derivative Works of,
-   publicly display, publicly perform, sublicense, and distribute the
-   Work and such Derivative Works in Source or Object form.
-
-3. Grant of Patent License. Subject to the terms and conditions of
-   this License, each Contributor hereby grants to You a perpetual,
-   worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-   (except as stated in this section) patent license to make, have made,
-   use, offer to sell, sell, import, and otherwise transfer the Work,
-   where such license applies only to those patent claims licensable
-   by such Contributor that are necessarily infringed by their
-   Contribution(s) alone or by combination of their Contribution(s)
-   with the Work to which such Contribution(s) was submitted. If You
-   institute patent litigation against any entity (including a
-   cross-claim or counterclaim in a lawsuit) alleging that the Work
-   or a Contribution incorporated within the Work constitutes direct
-   or contributory patent infringement, then any patent licenses
-   granted to You under this License for that Work shall terminate
-   as of the date such litigation is filed.
-
-4. Redistribution. You may reproduce and distribute copies of the
-   Work or Derivative Works thereof in any medium, with or without
-   modifications, and in Source or Object form, provided that You
-   meet the following conditions:
-
-   (a) You must give any other recipients of the Work or
-       Derivative Works a copy of this License; and
-
-   (b) You must cause any modified files to carry prominent notices
-       stating that You changed the files; and
-
-   (c) You must retain, in the Source form of any Derivative Works
-       that You distribute, all copyright, patent, trademark, and
-       attribution notices from the Source form of the Work,
-       excluding those notices that do not pertain to any part of
-       the Derivative Works; and
-
-   (d) If the Work includes a "NOTICE" text file as part of its
-       distribution, then any Derivative Works that You distribute must
-       include a readable copy of the attribution notices contained
-       within such NOTICE file, excluding those notices that do not
-       pertain to any part of the Derivative Works, in at least one
-       of the following places: within a NOTICE text file distributed
-       as part of the Derivative Works; within the Source form or
-       documentation, if provided along with the Derivative Works; or,
-       within a display generated by the Derivative Works, if and
-       wherever such third-party notices normally appear. The contents
-       of the NOTICE file are for informational purposes only and
-       do not modify the License. You may add Your own attribution
-       notices within Derivative Works that You distribute, alongside
-       or as an addendum to the NOTICE text from the Work, provided
-       that such additional attribution notices cannot be construed
-       as modifying the License.
-
-   You may add Your own copyright statement to Your modifications and
-   may provide additional or different license terms and conditions
-   for use, reproduction, or distribution of Your modifications, or
-   for any such Derivative Works as a whole, provided Your use,
-   reproduction, and distribution of the Work otherwise complies with
-   the conditions stated in this License.
-
-5. Submission of Contributions. Unless You explicitly state otherwise,
-   any Contribution intentionally submitted for inclusion in the Work
-   by You to the Licensor shall be under the terms and conditions of
-   this License, without any additional terms or conditions.
-   Notwithstanding the above, nothing herein shall supersede or modify
-   the terms of any separate license agreement you may have executed
-   with Licensor regarding such Contributions.
-
-6. Trademarks. This License does not grant permission to use the trade
-   names, trademarks, service marks, or product names of the Licensor,
-   except as required for reasonable and customary use in describing the
-   origin of the Work and reproducing the content of the NOTICE file.
-
-7. Disclaimer of Warranty. Unless required by applicable law or
-   agreed to in writing, Licensor provides the Work (and each
-   Contributor provides its Contributions) on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-   implied, including, without limitation, any warranties or conditions
-   of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-   PARTICULAR PURPOSE. You are solely responsible for determining the
-   appropriateness of using or redistributing the Work and assume any
-   risks associated with Your exercise of permissions under this License.
-
-8. Limitation of Liability. In no event and under no legal theory,
-   whether in tort (including negligence), contract, or otherwise,
-   unless required by applicable law (such as deliberate and grossly
-   negligent acts) or agreed to in writing, shall any Contributor be
-   liable to You for damages, including any direct, indirect, special,
-   incidental, or consequential damages of any character arising as a
-   result of this License or out of the use or inability to use the
-   Work (including but not limited to damages for loss of goodwill,
-   work stoppage, computer failure or malfunction, or any and all
-   other commercial damages or losses), even if such Contributor
-   has been advised of the possibility of such damages.
-
-9. Accepting Warranty or Additional Liability. While redistributing
-   the Work or Derivative Works thereof, You may choose to offer,
-   and charge a fee for, acceptance of support, warranty, indemnity,
-   or other liability obligations and/or rights consistent with this
-   License. However, in accepting such obligations, You may act only
-   on Your own behalf and on Your sole responsibility, not on behalf
-   of any other Contributor, and only if You agree to indemnify,
-   defend, and hold each Contributor harmless for any liability
-   incurred by, or claims asserted against, such Contributor by reason
-   of your accepting any such warranty or additional liability.
-
-END OF TERMS AND CONDITIONS
-
-APPENDIX: How to apply the Apache License to your work.
-
-   To apply the Apache License to your work, attach the following
-   boilerplate notice, with the fields enclosed by brackets "[]"
-   replaced with your own identifying information. (Don't include
-   the brackets!)  The text should be enclosed in the appropriate
-   comment syntax for the file format. We also recommend that a
-   file or class name and description of purpose be included on the
-   same "printed page" as the copyright notice for easier
-   identification within third-party archives.
-
-Copyright [yyyy] [name of copyright owner]
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-	http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-```
-
-### Apache License 2.0
-
-**Used By:**
-
-* [unicode-xid 0.2.2](https://github.com/unicode-rs/unicode-xid)
-
-```
-Licensed under the Apache License, Version 2.0
-<LICENSE-APACHE or
-http://www.apache.org/licenses/LICENSE-2.0> or the MIT
-license <LICENSE-MIT or http://opensource.org/licenses/MIT>,
-at your option. All files in the project carrying such
-notice may not be copied, modified, or distributed except
-according to those terms.
-
-```
-
-### Do What The F*ck You Want To Public License
-
-**Used By:**
-
-* [argyle 0.5.1](https://github.com/Blobfolio/argyle)
-* [bashman_core 0.2.9](https://github.com/Blobfolio/bashman)
-* [cargo-bashman 0.2.9](https://github.com/Blobfolio/bashman)
-* [dactyl 0.2.1](https://github.com/Blobfolio/dactyl)
-* [fyi_msg 0.9.1](https://github.com/Blobfolio/fyi)
-* [utc2k 0.3.1](https://github.com/Blobfolio/utc2k)
-
-```
-DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-Version 2, December 2004
-
-Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
-
-Everyone is permitted to copy and distribute verbatim or modified
-copies of this license document, and changing it is allowed as long
-as the name is changed.
-
-DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-
-0. You just DO WHAT THE FUCK YOU WANT TO.
-
-```
-
-
+| Package | Version | Author(s) | License |
+| ---- | ---- | ---- | ---- |
+| [aho-corasick](https://github.com/BurntSushi/aho-corasick) | 0.7.18 | [Andrew Gallant](mailto:jamslam@gmail.com) | MIT OR Unlicense |
+| [ansi_term](https://github.com/ogham/rust-ansi-term) | 0.12.1 | ogham@bsago.me; [Ryan Scheel (Havvy)](mailto:ryan.havvy@gmail.com); [Josh Triplett](mailto:josh@joshtriplett.org) | MIT |
+| [anyhow](https://github.com/dtolnay/anyhow) | 1.0.51 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 OR MIT |
+| [argyle](https://github.com/Blobfolio/argyle) | 0.5.1 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
+| [atty](https://github.com/softprops/atty) | 0.2.14 | [softprops](mailto:d.tangren@gmail.com) | MIT |
+| [bashman_core](https://github.com/Blobfolio/bashman) | 0.3.0 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
+| [bitflags](https://github.com/bitflags/bitflags) | 1.3.2 | The Rust Project Developers | Apache-2.0 OR MIT |
+| [bstr](https://github.com/BurntSushi/bstr) | 0.2.17 | [Andrew Gallant](mailto:jamslam@gmail.com) | Apache-2.0 OR MIT |
+| [camino](https://github.com/withoutboats/camino) | 1.0.5 | [Without Boats](mailto:saoirse@without.boats); [Ashley Williams](mailto:ashley666ashley@gmail.com); [Steve Klabnik](mailto:steve@steveklabnik.com); [Rain](mailto:rain@sunshowers.io) | Apache-2.0 OR MIT |
+| [cargo-license](https://github.com/onur/cargo-license) | 0.4.2 | [Onur Aslan](mailto:onur@onur.im) | MIT |
+| [cargo-platform](https://github.com/rust-lang/cargo) | 0.1.2 | The Cargo Project Developers | Apache-2.0 OR MIT |
+| [cargo_metadata](https://github.com/oli-obk/cargo_metadata) | 0.14.1 | [Oliver Schneider](mailto:git-spam-no-reply9815368754983@oli-obk.de) | MIT |
+| [clap](https://github.com/clap-rs/clap) | 2.34.0 | [Kevin K.](mailto:kbknapp@gmail.com) | MIT |
+| [csv](https://github.com/BurntSushi/rust-csv) | 1.1.6 | [Andrew Gallant](mailto:jamslam@gmail.com) | MIT OR Unlicense |
+| [csv-core](https://github.com/BurntSushi/rust-csv) | 0.1.10 | [Andrew Gallant](mailto:jamslam@gmail.com) | MIT OR Unlicense |
+| [dactyl](https://github.com/Blobfolio/dactyl) | 0.2.1 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
+| [fyi_msg](https://github.com/Blobfolio/fyi) | 0.9.2 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
+| [getopts](https://github.com/rust-lang/getopts) | 0.2.21 | The Rust Project Developers | Apache-2.0 OR MIT |
+| [hashbrown](https://github.com/rust-lang/hashbrown) | 0.11.2 | [Amanieu d'Antras](mailto:amanieu@gmail.com) | Apache-2.0 OR MIT |
+| [heck](https://github.com/withoutboats/heck) | 0.3.3 | [Without Boats](mailto:woboats@gmail.com) | Apache-2.0 OR MIT |
+| [hermit-abi](https://github.com/hermitcore/libhermit-rs) | 0.1.19 | Stefan Lankes | Apache-2.0 OR MIT |
+| [indexmap](https://github.com/bluss/indexmap) | 1.7.0 | bluss; [Josh Stone](mailto:cuviper@gmail.com) | Apache-2.0 OR MIT |
+| [itoa](https://github.com/dtolnay/itoa) | 0.4.8 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 OR MIT |
+| [lazy_static](https://github.com/rust-lang-nursery/lazy-static.rs) | 1.4.0 | [Marvin Löbel](mailto:loebel.marvin@gmail.com) | Apache-2.0 OR MIT |
+| [libc](https://github.com/rust-lang/libc) | 0.2.108 | The Rust Project Developers | Apache-2.0 OR MIT |
+| [libdeflate-sys](https://github.com/adamkewley/libdeflater) | 0.7.3 | [Adam Kewley](mailto:contact@adamkewley.com) | Apache-2.0 |
+| [libdeflater](https://github.com/adamkewley/libdeflater) | 0.7.3 | [Adam Kewley](mailto:contact@adamkewley.com) | Apache-2.0 |
+| [memchr](https://github.com/BurntSushi/memchr) | 2.4.1 | [Andrew Gallant](mailto:jamslam@gmail.com); bluss | MIT OR Unlicense |
+| [num-traits](https://github.com/rust-num/num-traits) | 0.2.14 | The Rust Project Developers | Apache-2.0 OR MIT |
+| [proc-macro-error](https://gitlab.com/CreepySkeleton/proc-macro-error) | 1.0.4 | [CreepySkeleton](mailto:creepy-skeleton@yandex.ru) | Apache-2.0 OR MIT |
+| [proc-macro-error-attr](https://gitlab.com/CreepySkeleton/proc-macro-error) | 1.0.4 | [CreepySkeleton](mailto:creepy-skeleton@yandex.ru) | Apache-2.0 OR MIT |
+| [proc-macro2](https://github.com/dtolnay/proc-macro2) | 1.0.32 | [David Tolnay](mailto:dtolnay@gmail.com); [Alex Crichton](mailto:alex@alexcrichton.com) | Apache-2.0 OR MIT |
+| [quote](https://github.com/dtolnay/quote) | 1.0.10 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 OR MIT |
+| [regex](https://github.com/rust-lang/regex) | 1.5.4 | The Rust Project Developers | Apache-2.0 OR MIT |
+| [regex-automata](https://github.com/BurntSushi/regex-automata) | 0.1.10 | [Andrew Gallant](mailto:jamslam@gmail.com) | MIT OR Unlicense |
+| [regex-syntax](https://github.com/rust-lang/regex) | 0.6.25 | The Rust Project Developers | Apache-2.0 OR MIT |
+| [ryu](https://github.com/dtolnay/ryu) | 1.0.6 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 OR BSL-1.0 |
+| [semver](https://github.com/dtolnay/semver) | 1.0.4 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 OR MIT |
+| [serde](https://github.com/serde-rs/serde) | 1.0.130 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com); [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 OR MIT |
+| [serde_derive](https://github.com/serde-rs/serde) | 1.0.130 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com); [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 OR MIT |
+| [serde_json](https://github.com/serde-rs/json) | 1.0.72 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com); [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 OR MIT |
+| [strsim](https://github.com/dguo/strsim-rs) | 0.8.0 | [Danny Guo](mailto:dannyguo91@gmail.com) | MIT |
+| [structopt](https://github.com/TeXitoi/structopt) | 0.3.25 | [Guillaume Pinot](mailto:texitoi@texitoi.eu); others | Apache-2.0 OR MIT |
+| [structopt-derive](https://github.com/TeXitoi/structopt) | 0.4.18 | [Guillaume Pinot](mailto:texitoi@texitoi.eu) | Apache-2.0 OR MIT |
+| [syn](https://github.com/dtolnay/syn) | 1.0.82 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 OR MIT |
+| [textwrap](https://github.com/mgeisler/textwrap) | 0.11.0 | [Martin Geisler](mailto:martin@geisler.net) | MIT |
+| [toml](https://github.com/alexcrichton/toml-rs) | 0.5.8 | [Alex Crichton](mailto:alex@alexcrichton.com) | Apache-2.0 OR MIT |
+| [unicode-segmentation](https://github.com/unicode-rs/unicode-segmentation) | 1.8.0 | [kwantam](mailto:kwantam@gmail.com); [Manish Goregaokar](mailto:manishsmail@gmail.com) | Apache-2.0 OR MIT |
+| [unicode-width](https://github.com/unicode-rs/unicode-width) | 0.1.9 | [kwantam](mailto:kwantam@gmail.com); [Manish Goregaokar](mailto:manishsmail@gmail.com) | Apache-2.0 OR MIT |
+| [unicode-xid](https://github.com/unicode-rs/unicode-xid) | 0.2.2 | [erick.tryzelaar](mailto:erick.tryzelaar@gmail.com); [kwantam](mailto:kwantam@gmail.com); [Manish Goregaokar](mailto:manishsmail@gmail.com) | Apache-2.0 OR MIT |
+| [utc2k](https://github.com/Blobfolio/utc2k) | 0.3.1 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
+| [vec_map](https://github.com/contain-rs/vec-map) | 0.8.2 | [Alex Crichton](mailto:alex@alexcrichton.com); [Jorge Aparicio](mailto:japaricious@gmail.com); [Alexis Beingessner](mailto:a.beingessner@gmail.com); Brian Anderson; tbu-; Manish Goregaokar; [Aaron Turon](mailto:aturon@mozilla.com); Adolfo Ochagavía; Niko Matsakis; Steven Fackler; [Chase Southwood](mailto:csouth3@illinois.edu); Eduard Burtescu; Florian Wilkens; Félix Raimundo; Tibor Benke; [Markus Siemens](mailto:markus@m-siemens.de); [Josh Branchaud](mailto:jbranchaud@gmail.com); [Huon Wilson](mailto:dbau.pp@gmail.com); [Corey Farwell](mailto:coref@rwell.org); Aaron Liblong; [Nick Cameron](mailto:nrc@ncameron.org); [Patrick Walton](mailto:pcwalton@mimiga.net); Felix S Klock II; [Andrew Paseltiner](mailto:apaseltiner@gmail.com); [Sean McArthur](mailto:sean.monstar@gmail.com); Vadim Petrochenkov | Apache-2.0 OR MIT |
+| [winapi](https://github.com/retep998/winapi-rs) | 0.3.9 | [Peter Atashian](mailto:retep998@gmail.com) | Apache-2.0 OR MIT |
+| [winapi-i686-pc-windows-gnu](https://github.com/retep998/winapi-rs) | 0.4.0 | [Peter Atashian](mailto:retep998@gmail.com) | Apache-2.0 OR MIT |
+| [winapi-x86_64-pc-windows-gnu](https://github.com/retep998/winapi-rs) | 0.4.0 | [Peter Atashian](mailto:retep998@gmail.com) | Apache-2.0 OR MIT |

@@ -116,6 +116,26 @@ impl<'a> Raw<'a> {
 		}
 	}
 
+	/// # Credits Directory.
+	pub(super) fn credits_dir(&self, dir: &Path) -> Result<PathBuf, BashManError> {
+		let path: PathBuf = self.package.metadata.credits_dir
+			.map_or_else(|| dir.to_path_buf(), |path|
+				if path.starts_with('/') { PathBuf::from(path) }
+				else {
+					let mut tmp = dir.to_path_buf();
+					tmp.push(path);
+					tmp
+				}
+			);
+
+		if path.is_dir() {
+			std::fs::canonicalize(path).map_err(|_| BashManError::InvalidCreditsDir)
+		}
+		else {
+			Err(BashManError::InvalidCreditsDir)
+		}
+	}
+
 	/// # Man Directory.
 	pub(super) fn man_dir(&self, dir: &Path) -> Result<PathBuf, BashManError> {
 		let path: PathBuf = self.package.metadata.man_dir
@@ -212,6 +232,11 @@ struct RawBashMan<'a> {
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
 	man_dir: Option<&'a str>,
+
+	#[serde(rename = "credits-dir")]
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
+	credits_dir: Option<&'a str>,
 
 	#[serde(default)]
 	subcommands: Vec<RawSubCmd<'a>>,

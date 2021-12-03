@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/Blobfolio/bashman/workflows/Build/badge.svg)](https://github.com/Blobfolio/bashman/actions)
 [![Dependency Status](https://deps.rs/repo/github/blobfolio/bashman/status.svg)](https://deps.rs/repo/github/blobfolio/bashman)
 
-`BashMan` is a Cargo plugin that helps you generate BASH completions and/or MAN pages for your Rust apps using metadata from your projects' `Cargo.toml` manifests. It pairs well with the (unaffiliated) [cargo-deb](https://github.com/mmstick/cargo-deb).
+`BashMan` is a Cargo plugin that helps you generate BASH completions, MAN pages, and/or a `CREDITS.md` page for your Rust apps using metadata from your projects' `Cargo.toml` manifests. It pairs well with the (unaffiliated) [cargo-deb](https://github.com/mmstick/cargo-deb).
 
 (This can technically be used for non-Rust apps. It just parses the data out of a [TOML](https://en.wikipedia.org/wiki/TOML) file. Any TOML'll do.)
 
@@ -48,11 +48,13 @@ cargo build \
 
 ```bash
 # Generate the stuff for the thing:
-cargo bashman [-m/--manifest-path] /path/to/Cargo.toml
+cargo bashman [--manifest-path /path/to/Cargo.toml]
 
 # You can also pull up help via:
 cargo bashman [-h/--help]
 ```
+
+The flags `--no-bash`, `--no-man`, and `--no-credits` can be used to skip the generation of BASH completions, MAN pages, and/or `CREDITS.md` respectively.
 
 
 ## CONFIGURATION
@@ -66,18 +68,23 @@ For everything else, start by adding a section to your `Cargo.toml` manifest lik
 name = "Cargo BashMan"
 bash-dir = "../release/completions"
 man-dir = "../release/man"
+credits-dir = "../"
 ```
 
 | Key | Type | Description | Default |
 | --- | ---- | ----------- | ------- |
 | name | *string* | The proper name of your application. | If not provided, the binary name is used. |
 | bash-dir | *directory* | The output directory for BASH completions. This can be an absolute path, or a path relative to the manifest. | If not provided, the manifest's parent directory is used. |
+| credits-dir | *directory* | The output directory for the `CREDITS.md` dependency list. This can be an absolute path, or a path relative to the manifest. | If not provided, the manifest's parent directory is used. |
 | man-dir | *directory* | The output directory for MAN page(s). This can be an absolute path, or a path relative to the manifest. | If not provided, the manifest's parent directory is used. |
 | subcommands | *array* | An array of your app's subcommands, if any. | |
 | switches | *array* | An array of your app's true/false flags, if any. | |
 | options | *array* | An array of your app's key=value options, if any. | |
 | arguments | *array* | An array of any trailing arguments expected by your app. | |
 | sections | *array* | Arbitrary sections to append to the MAN page. | |
+
+While `bash-dir`, `man-dir`, and `credits-dir` are required, the actual content generation can be skipped by using the CLI flags `--no-bash`, `--no-man`, and/or `--no-credits` respectively.
+
 
 ### SUBCOMMANDS
 
@@ -98,6 +105,7 @@ name="Whale Talk"
 cmd="whale"
 description="Print an underwater message."
 ```
+
 
 ### SWITCHES
 
@@ -125,6 +133,7 @@ long = "--help"
 description = "Print help information."
 subcommands = [ "call", "text", "" ]
 ```
+
 
 ### OPTIONS
 
@@ -156,6 +165,7 @@ label = "<NUM>"
 subcommands = [ "print", "echo" ]
 ```
 
+
 ### ARGUMENTS
 
 A trailing argument is what comes after everything else.
@@ -173,6 +183,7 @@ label = "<FILE(s)…>"
 description = "Files and directories to search."
 subcommands = [ "search" ]
 ```
+
 
 ### SECTIONS
 
@@ -215,6 +226,7 @@ items = [
 ]
 ```
 
+
 ### ALL TOGETHER NOW
 
 Taking `BashMan` as an example, the `Cargo.toml` will end up containing something like:
@@ -230,6 +242,7 @@ description = "BashMan is a Cargo plugin that helps you generate BASH completion
 name = "Cargo BashMan"
 bash-dir = "../release/completions"
 man-dir = "../release/man"
+credits-dir = "../"
 
 [[package.metadata.bashman.switches]]
 short = "-h"
