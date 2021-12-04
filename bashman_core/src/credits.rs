@@ -150,3 +150,15 @@ fn strip_markdown(raw: &mut String) {
 		*raw = alt.into_owned();
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn t_strip_markdown() {
+		let mut raw: String = r" H(E)L[L]O <W>O|RLD ".to_string();
+		strip_markdown(&mut raw);
+		assert_eq!(raw, "HELLO WORLD");
+	}
+}
