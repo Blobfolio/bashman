@@ -5,14 +5,12 @@ This module contains the [`Command`] and related data structures produced from
 [`Raw`]. See that module for more information on why all the windiness.
 */
 
-use cargo_metadata::MetadataCommand;
 use crate::BashManError;
 use fyi_msg::Msg;
 use libdeflater::{
 	CompressionLvl,
 	Compressor,
 };
-use regex::Regex;
 use std::{
 	ffi::OsStr,
 	fs::File,
@@ -511,63 +509,9 @@ impl<'a> Command<'a> {
 /// # Credits.
 impl<'a> Command<'a> {
 	/// # Write Bash.
-	pub(crate) fn write_credits(&self, manifest: &Path, path: &Path, buf: &mut Vec<u8>) -> Result<(), BashManError> {
-		let re: Regex = Regex::new(r"([^\|]+?) <([^>]+)>").unwrap();
-
-		let meta = {
-			let mut tmp = MetadataCommand::new();
-			tmp.manifest_path(&manifest);
-			tmp
-		};
-
-		let mut raw: Vec<(String, String)> = cargo_license::get_dependencies_from_cargo_lock(
-			meta,
-			true,
-			true,
-		)
-			.map_err(|_| BashManError::InvalidManifest)?
-			.into_iter()
-			.filter_map(|x| {
-				let name = x.name.replace("|", "");
-				if name == self.bin {
-					return None;
-				}
-
-				let version = x.version.to_string().replace("|", "");
-				let author = x.authors.map_or_else(
-					String::new,
-					|y| {
-						let y = y.replace(" <>", "");
-						let z = re.replace_all(&y, "[$1](mailto:$2)");
-						z.replace("|", "; ")
-					},
-				);
-				let license = x.license.map_or_else(
-					|| String::from("Unknown"),
-					|y| y.replace("|", ""),
-				);
-
-				let line = x.repository.map_or_else(
-					|| format!(
-							"\n| {} | {} | {} | {} |",
-							name,
-							version,
-							author,
-							license,
-						),
-					|y| format!(
-							"\n| [{}]({}) | {} | {} | {} |",
-							name,
-							y.replace("|", ""),
-							version,
-							author,
-							license,
-						)
-				);
-
-				Some((name.to_ascii_lowercase(), line))
-			})
-			.collect();
+	pub(crate) fn write_credits(&self, manifest: &Path, dir: &Path, buf: &mut Vec<u8>) -> Result<(), BashManError> {
+		// Get the dependencies.
+		let raw = crate::credits::get_dependencies(manifest)?;
 
 		// Write the header.
 		buf.extend_from_slice(format!(
@@ -577,20 +521,41 @@ impl<'a> Command<'a> {
 			Utc2k::now().to_string(),
 		).as_bytes());
 
-		if raw.is_empty() {
-			buf.extend_from_slice(b"This package has no dependencies.\n");
+		// No dependencies.
+		if raw.len() < 2 {
+			buf.extend_from_slice(b"\nThis package has no dependencies.\n");
 		}
+		// Some dependencies.
 		else {
-			buf.extend_from_slice(b"\n| Package | Version | Author(s) | License |\n| ---- | ---- | ---- | ---- |");
-			raw.sort_by(|a, b| a.0.cmp(&b.0));
-			for (_, line) in raw {
-				buf.extend_from_slice(line.as_bytes());
-			}
+			buf.extend_from_slice(b"\n| Package | Version | Author(s) | License |\n| ---- | ---- | ---- | ---- |\n");
 
-			buf.push(b'\n');
+			for x in raw {
+				if x.name == self.bin { continue; }
+				if let Some(link) = x.link {
+					writeln!(
+						buf,
+						"| [{}]({}) | {} | {} | {} |",
+						x.name,
+						link,
+						x.version,
+						x.authors,
+						x.license,
+					).map_err(|_| BashManError::WriteCredits)?;
+				}
+				else {
+					writeln!(
+						buf,
+						"| {} | {} | {} | {} |",
+						x.name,
+						x.version,
+						x.authors,
+						x.license,
+					).map_err(|_| BashManError::WriteCredits)?;
+				}
+			}
 		}
 
-		let mut out = path.to_path_buf();
+		let mut out = dir.to_path_buf();
 		out.push("CREDITS.md");
 
 		// Write plain.

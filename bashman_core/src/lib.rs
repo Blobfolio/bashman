@@ -26,6 +26,7 @@
 
 
 
+pub(crate) mod credits;
 mod data;
 mod error;
 mod raw;
