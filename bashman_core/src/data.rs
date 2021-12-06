@@ -771,7 +771,7 @@ fn bash_subfname(parent: &[u8], bin: &[u8]) -> Box<str> {
 	v.push(b'_');
 	v.extend(bin.iter().map(|&b| bash_bytes(b)));
 
-	unsafe { String::from_utf8_unchecked(v).into_boxed_str() }
+	String::from_utf8_lossy(&v).into_owned().into_boxed_str()
 }
 
 /// # Bash Helper (Long/Short Conds)
