@@ -46,7 +46,6 @@ pub(super) struct Command<'a> {
 
 /// # Instantiation.
 impl<'a> Command<'a> {
-	#[allow(clippy::similar_names)] // It is what it is.
 	/// # New.
 	pub(crate) fn new(
 		name: &'a str,

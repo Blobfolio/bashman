@@ -61,7 +61,6 @@ pub const FLAG_ALL: u8 =     0b0111;
 
 
 
-#[allow(clippy::missing_panics_doc)] // This can't really panic; the path exists.
 /// # Parse.
 ///
 /// This is the sole public output of the entire library. It accepts a manifest
@@ -92,7 +91,7 @@ pub fn parse(manifest: PathBuf, flags: u8) -> Result<(), BashManError> {
 
 	// Get the manifest's parent directory in case we have any relative paths
 	// to deal with.
-	let dir = manifest.parent().unwrap().to_path_buf();
+	let dir = manifest.parent().ok_or(BashManError::InvalidManifest)?.to_path_buf();
 
 	// Write BASH.
 	if FLAG_BASH == flags & FLAG_BASH {
