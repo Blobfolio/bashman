@@ -30,7 +30,7 @@ rustflags   := "-C link-arg=-s"
 
 
 # Build Release!
-@build: clean
+@build:
 	# First let's build the Rust bit.
 	RUSTFLAGS="--emit asm {{ rustflags }}" cargo build \
 		--bin "{{ pkg_id }}" \
@@ -40,7 +40,7 @@ rustflags   := "-C link-arg=-s"
 
 
 # Build Debian package!
-@build-deb: build
+@build-deb: clean build
 	# Do completions/man.
 	{{ cargo_bin }} -m "{{ pkg_dir1 }}/Cargo.toml"
 
