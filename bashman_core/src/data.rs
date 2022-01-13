@@ -46,7 +46,6 @@ pub(super) struct Command<'a> {
 
 /// # Instantiation.
 impl<'a> Command<'a> {
-	#[allow(clippy::similar_names)] // It is what it is.
 	/// # New.
 	pub(crate) fn new(
 		name: &'a str,
@@ -518,7 +517,7 @@ impl<'a> Command<'a> {
 			"# Project Dependencies\n    Package:   {}\n    Version:   {}\n    Generated: {} UTC\n",
 			self.bin,
 			self.version,
-			Utc2k::now().to_string(),
+			Utc2k::now(),
 		).as_bytes());
 
 		// No dependencies.
@@ -771,7 +770,7 @@ fn bash_subfname(parent: &[u8], bin: &[u8]) -> Box<str> {
 	v.push(b'_');
 	v.extend(bin.iter().map(|&b| bash_bytes(b)));
 
-	unsafe { String::from_utf8_unchecked(v).into_boxed_str() }
+	String::from_utf8_lossy(&v).into_owned().into_boxed_str()
 }
 
 /// # Bash Helper (Long/Short Conds)
