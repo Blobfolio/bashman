@@ -517,7 +517,7 @@ impl<'a> Command<'a> {
 			"# Project Dependencies\n    Package:   {}\n    Version:   {}\n    Generated: {} UTC\n",
 			self.bin,
 			self.version,
-			Utc2k::now().to_string(),
+			Utc2k::now(),
 		).as_bytes());
 
 		// No dependencies.
