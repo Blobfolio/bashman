@@ -1,17 +1,17 @@
 # Project Dependencies
     Package:   cargo-bashman
-    Version:   0.3.2
-    Generated: 2022-01-13 19:39:19 UTC
+    Version:   0.3.3
+    Generated: 2022-01-21 04:29:00 UTC
 
 | Package | Version | Author(s) | License |
 | ---- | ---- | ---- | ---- |
 | [aho-corasick](https://github.com/BurntSushi/aho-corasick) | 0.7.18 | [Andrew Gallant](mailto:jamslam@gmail.com) | MIT or Unlicense |
 | [argyle](https://github.com/Blobfolio/argyle) | 0.5.2 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
-| [bashman_core](https://github.com/Blobfolio/bashman) | 0.3.2 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
-| [camino](https://github.com/withoutboats/camino) | 1.0.5 | [Without Boats](mailto:saoirse@without.boats), [Ashley Williams](mailto:ashley666ashley@gmail.com), [Steve Klabnik](mailto:steve@steveklabnik.com), and [Rain](mailto:rain@sunshowers.io) | Apache-2.0 or MIT |
+| [bashman_core](https://github.com/Blobfolio/bashman) | 0.3.3 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
+| [camino](https://github.com/camino-rs/camino) | 1.0.7 | [Without Boats](mailto:saoirse@without.boats), [Ashley Williams](mailto:ashley666ashley@gmail.com), [Steve Klabnik](mailto:steve@steveklabnik.com), and [Rain](mailto:rain@sunshowers.io) | Apache-2.0 or MIT |
 | [cargo-platform](https://github.com/rust-lang/cargo) | 0.1.2 | The Cargo Project Developers | Apache-2.0 or MIT |
 | [cargo_metadata](https://github.com/oli-obk/cargo_metadata) | 0.14.1 | [Oliver Schneider](mailto:git-spam-no-reply9815368754983@oli-obk.de) | MIT |
-| [dactyl](https://github.com/Blobfolio/dactyl) | 0.2.2 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
+| [dactyl](https://github.com/Blobfolio/dactyl) | 0.2.3 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
 | [fyi_msg](https://github.com/Blobfolio/fyi) | 0.9.2 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
 | [hashbrown](https://github.com/rust-lang/hashbrown) | 0.11.2 | [Amanieu d'Antras](mailto:amanieu@gmail.com) | Apache-2.0 or MIT |
 | [indexmap](https://github.com/bluss/indexmap) | 1.8.0 | bluss and [Josh Stone](mailto:cuviper@gmail.com) | Apache-2.0 or MIT |
@@ -30,8 +30,8 @@
 | [semver](https://github.com/dtolnay/semver) | 1.0.4 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or MIT |
 | [serde](https://github.com/serde-rs/serde) | 1.0.133 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or MIT |
 | [serde_derive](https://github.com/serde-rs/serde) | 1.0.133 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or MIT |
-| [serde_json](https://github.com/serde-rs/json) | 1.0.74 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or MIT |
-| [syn](https://github.com/dtolnay/syn) | 1.0.85 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or MIT |
+| [serde_json](https://github.com/serde-rs/json) | 1.0.75 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or MIT |
+| [syn](https://github.com/dtolnay/syn) | 1.0.86 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or MIT |
 | [toml](https://github.com/alexcrichton/toml-rs) | 0.5.8 | [Alex Crichton](mailto:alex@alexcrichton.com) | Apache-2.0 or MIT |
 | [unicode-xid](https://github.com/unicode-rs/unicode-xid) | 0.2.2 | [erick.tryzelaar](mailto:erick.tryzelaar@gmail.com), [kwantam](mailto:kwantam@gmail.com), and [Manish Goregaokar](mailto:manishsmail@gmail.com) | Apache-2.0 or MIT |
 | [utc2k](https://github.com/Blobfolio/utc2k) | 0.3.3 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
