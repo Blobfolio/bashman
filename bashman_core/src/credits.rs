@@ -90,7 +90,7 @@ pub(super) fn get_dependencies(src: &Path) -> Result<Vec<Dependency>, BashManErr
 			if out.insert(package_id) {
 				stack.extend(deps[package_id].iter().filter_map(
 					|NodeDep { pkg, dep_kinds, .. }|
-					if dep_kinds.iter().any(|DepKindInfo { kind, .. }| *kind == DependencyKind::Normal) {
+					if dep_kinds.iter().any(|DepKindInfo { kind, target, .. }| *kind == DependencyKind::Normal && target.is_none()) {
 						Some(pkg)
 					}
 					else { None }
