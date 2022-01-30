@@ -134,6 +134,19 @@ impl<'a> Command<'a> {
 			self.bash_subcommands(buf)?;
 		}
 
+		// We might be able to compress the output a bit by removing contiguous
+		// line breaks.
+		{
+			let mut last: u8 = b'?';
+			buf.retain(|&b|
+				if b == b'\n' && b == last { false }
+				else {
+					last = b;
+					true
+				}
+			);
+		}
+
 		// Write it to a file!
 		let mut out_file = path.to_path_buf();
 		out_file.push(self.bin.to_string() + ".bash");
