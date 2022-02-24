@@ -1,16 +1,16 @@
 # Project Dependencies
     Package:   cargo-bashman
-    Version:   0.3.4
-    Generated: 2022-01-30 20:48:09 UTC
+    Version:   0.3.5
+    Generated: 2022-02-24 17:29:24 UTC
 
 | Package | Version | Author(s) | License |
 | ---- | ---- | ---- | ---- |
 | [aho-corasick](https://github.com/BurntSushi/aho-corasick) | 0.7.18 | [Andrew Gallant](mailto:jamslam@gmail.com) | MIT or Unlicense |
 | [argyle](https://github.com/Blobfolio/argyle) | 0.5.2 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
-| [bashman_core](https://github.com/Blobfolio/bashman) | 0.3.4 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
+| [bashman_core](https://github.com/Blobfolio/bashman) | 0.3.5 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
 | [camino](https://github.com/camino-rs/camino) | 1.0.7 | [Without Boats](mailto:saoirse@without.boats), [Ashley Williams](mailto:ashley666ashley@gmail.com), [Steve Klabnik](mailto:steve@steveklabnik.com), and [Rain](mailto:rain@sunshowers.io) | Apache-2.0 or MIT |
 | [cargo-platform](https://github.com/rust-lang/cargo) | 0.1.2 | The Cargo Project Developers | Apache-2.0 or MIT |
-| [cargo_metadata](https://github.com/oli-obk/cargo_metadata) | 0.14.1 | [Oliver Schneider](mailto:git-spam-no-reply9815368754983@oli-obk.de) | MIT |
+| [cargo_metadata](https://github.com/oli-obk/cargo_metadata) | 0.14.2 | [Oliver Schneider](mailto:git-spam-no-reply9815368754983@oli-obk.de) | MIT |
 | [dactyl](https://github.com/Blobfolio/dactyl) | 0.2.4 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
 | [fyi_msg](https://github.com/Blobfolio/fyi) | 0.9.3 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
 | [hashbrown](https://github.com/rust-lang/hashbrown) | 0.11.2 | [Amanieu d'Antras](mailto:amanieu@gmail.com) | Apache-2.0 or MIT |
@@ -27,11 +27,11 @@
 | [regex](https://github.com/rust-lang/regex) | 1.5.4 | The Rust Project Developers | Apache-2.0 or MIT |
 | [regex-syntax](https://github.com/rust-lang/regex) | 0.6.25 | The Rust Project Developers | Apache-2.0 or MIT |
 | [ryu](https://github.com/dtolnay/ryu) | 1.0.9 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or BSL-1.0 |
-| [semver](https://github.com/dtolnay/semver) | 1.0.4 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or MIT |
+| [semver](https://github.com/dtolnay/semver) | 1.0.6 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or MIT |
 | [serde](https://github.com/serde-rs/serde) | 1.0.136 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or MIT |
 | [serde_derive](https://github.com/serde-rs/serde) | 1.0.136 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or MIT |
-| [serde_json](https://github.com/serde-rs/json) | 1.0.78 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or MIT |
+| [serde_json](https://github.com/serde-rs/json) | 1.0.79 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or MIT |
 | [syn](https://github.com/dtolnay/syn) | 1.0.86 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 or MIT |
 | [toml](https://github.com/alexcrichton/toml-rs) | 0.5.8 | [Alex Crichton](mailto:alex@alexcrichton.com) | Apache-2.0 or MIT |
 | [unicode-xid](https://github.com/unicode-rs/unicode-xid) | 0.2.2 | [erick.tryzelaar](mailto:erick.tryzelaar@gmail.com), [kwantam](mailto:kwantam@gmail.com), and [Manish Goregaokar](mailto:manishsmail@gmail.com) | Apache-2.0 or MIT |
-| [utc2k](https://github.com/Blobfolio/utc2k) | 0.3.3 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
+| [utc2k](https://github.com/Blobfolio/utc2k) | 0.3.4 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
