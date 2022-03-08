@@ -17,7 +17,7 @@ indexmap = "1.8.*"
 libdeflater = "0.7.*"
 once_cell = "1.10.*"
 oxford_join = "0.2.*"
-regex = "1.5.*"
+regex = "1.5.*, >=1.5.5"
 utc2k = "0.4.*"
 
 [dependencies.serde]
