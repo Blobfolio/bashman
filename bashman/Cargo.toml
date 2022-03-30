@@ -59,7 +59,7 @@ label = "<Cargo.toml>"
 path = true
 
 [dependencies]
-argyle = "0.5.*"
+argyle = "0.5.*, >=0.5.3"
 fyi_msg = "0.9.*"
 
 [dependencies.bashman_core]

@@ -46,11 +46,7 @@ use argyle::{
 	FLAG_VERSION,
 };
 use fyi_msg::Msg;
-use std::{
-	ffi::OsStr,
-	os::unix::ffi::OsStrExt,
-	path::PathBuf,
-};
+use std::path::PathBuf;
 
 
 
@@ -88,14 +84,12 @@ fn _main() -> Result<(), BashManError> {
 	}
 
 	bashman_core::parse(
-		args.option2(b"-m", b"--manifest-path")
-			.map_or_else(
-				|| std::env::current_dir().ok().map(|mut p| {
-					p.push("Cargo.toml");
-					p
-				}),
-				|b| Some(PathBuf::from(OsStr::from_bytes(b)))
-			)
+		args.option2_os(b"-m", b"--manifest-path")
+			.map(PathBuf::from)
+			.or_else(|| std::env::current_dir().ok().map(|mut p| {
+				p.push("Cargo.toml");
+				p
+			}))
 			.ok_or(BashManError::InvalidManifest)?,
 		flags,
 	)?;
