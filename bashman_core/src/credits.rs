@@ -86,19 +86,16 @@ pub(super) fn get_dependencies(src: &Path) -> Result<Vec<Dependency>, BashManErr
 	// Parse out all of the package IDs in the dependency tree, excluding dev-
 	// and build-deps.
 	let deps = {
-		let resolve = metadata.resolve.as_ref()
-			.ok_or(BashManError::InvalidManifest)?;
+		let resolve = metadata.resolve.as_ref().ok_or(BashManError::InvalidManifest)?;
 
 		// Pull dependencies by package.
-		let deps: HashMap<&PackageId, &Vec<NodeDep>> = resolve
-			.nodes
-			.iter()
-			.map(|Node { id, deps, .. }| (id, deps))
+		let deps: HashMap<&PackageId, &[NodeDep]> = resolve.nodes.iter()
+			.map(|Node { id, deps, .. }| (id, deps.as_slice()))
 			.collect();
 
 		// Build a list of all unique, normal dependencies.
 		let mut out: HashSet<&PackageId> = HashSet::new();
-		let stack = &mut resolve.root.as_ref()
+		let mut stack: Vec<_> = resolve.root.as_ref()
 			.map_or_else(
 				|| metadata.workspace_members.iter().collect(),
 				|root| vec![root]
@@ -106,13 +103,15 @@ pub(super) fn get_dependencies(src: &Path) -> Result<Vec<Dependency>, BashManErr
 
 		while let Some(package_id) = stack.pop() {
 			if out.insert(package_id) {
-				stack.extend(deps[package_id].iter().filter_map(
-					|NodeDep { pkg, dep_kinds, .. }|
-					if dep_kinds.iter().any(|DepKindInfo { kind, target, .. }| *kind == DependencyKind::Normal && target.is_none()) {
-						Some(pkg)
+				if let Some(d) = deps.get(package_id).copied() {
+					if ! d.is_empty() {
+						for NodeDep { pkg, dep_kinds, .. } in d {
+							if dep_kinds.iter().any(|DepKindInfo { kind, target, .. }| target.is_none() && *kind == DependencyKind::Normal) {
+								stack.push(pkg);
+							}
+						}
 					}
-					else { None }
-				));
+				}
 			}
 		}
 
@@ -122,24 +121,18 @@ pub(super) fn get_dependencies(src: &Path) -> Result<Vec<Dependency>, BashManErr
 	// One final time around to pull the relevant package details for each
 	// corresponding ID.
 	let mut out: Vec<Dependency> = metadata.packages.into_iter()
-        .filter(|p| deps.contains(&p.id))
-        .map(Dependency::from)
-        .collect();
+		.filter_map(|p|
+			if deps.contains(&p.id) { Some(Dependency::from(p)) }
+			else { None }
+		)
+		.collect();
 
 	out.sort_unstable();
 
 	Ok(out)
 }
 
-/// # Normalize Licenses.
-fn nice_license(raw: &str) -> String {
-	let mut raw = raw.replace(" OR ", "/");
-	strip_markdown(&mut raw);
-	let mut list: Vec<&str> = raw.split('/').map(str::trim).collect();
-	list.sort_unstable();
-	list.dedup();
-	list.oxford_or().into_owned()
-}
+
 
 /// # Normalize Authors.
 fn nice_author(mut raw: Vec<String>) -> String {
@@ -158,6 +151,17 @@ fn nice_author(mut raw: Vec<String>) -> String {
 	raw.oxford_and().into_owned()
 }
 
+/// # Normalize Licenses.
+fn nice_license(raw: &str) -> String {
+	let mut raw = raw.replace(" OR ", "/");
+	raw.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '(' | ')' | '|'));
+
+	let mut list: Vec<&str> = raw.split('/').map(str::trim).collect();
+	list.sort_unstable();
+	list.dedup();
+	list.oxford_or().into_owned()
+}
+
 /// # Lightly Sanitize.
 ///
 /// Remove `[] <> () |` to help with later markdown display.
@@ -165,6 +169,8 @@ fn strip_markdown(raw: &mut String) {
 	raw.trim_in_place();
 	raw.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '(' | ')' | '|'));
 }
+
+
 
 #[cfg(test)]
 mod tests {
