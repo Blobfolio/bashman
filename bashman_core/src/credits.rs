@@ -25,7 +25,7 @@ use std::{
 	},
 	path::Path,
 };
-
+use trim_in_place::TrimInPlace;
 
 
 
@@ -143,12 +143,8 @@ fn nice_author(raw: Vec<String>) -> String {
 ///
 /// Remove `[] <> () |` to help with later markdown display.
 fn strip_markdown(raw: &mut String) {
-	static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\[|\]|\||<|>|\(|\))").unwrap());
-
-	let alt = RE.replace_all(raw.trim(), "");
-	if raw != &alt {
-		*raw = alt.into_owned();
-	}
+	raw.trim_in_place();
+	raw.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '(' | ')' | '|'));
 }
 
 #[cfg(test)]
