@@ -124,19 +124,20 @@ fn nice_license(raw: &str) -> String {
 }
 
 /// # Normalize Authors.
-fn nice_author(raw: Vec<String>) -> String {
-	static RE1: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\[|\]|\||\(|\))").unwrap());
-	static RE2: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.+?) <([^>]+)>").unwrap());
+fn nice_author(mut raw: Vec<String>) -> String {
+	static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.+?) <([^>]+)>").unwrap());
 
-	let list: Vec<String> = raw.into_iter()
-		.map(|x| {
-			let y = RE1.replace_all(&x, "");
-			let z = RE2.replace_all(y.trim(), "[$1](mailto:$2)");
-			if x == z { x }
-			else { z.into_owned() }
-		})
-		.collect();
-	list.oxford_and().into_owned()
+	for x in &mut raw {
+		x.trim_in_place();
+		x.retain(|c| ! matches!(c, '[' | ']' | '(' | ')' | '|'));
+
+		let y = RE.replace_all(x, "[$1](mailto:$2)");
+		if *x != y {
+			*x = y.into_owned();
+		}
+	}
+
+	raw.oxford_and().into_owned()
 }
 
 /// # Lightly Sanitize.
