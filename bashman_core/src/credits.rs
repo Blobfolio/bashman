@@ -19,6 +19,7 @@ use once_cell::sync::Lazy;
 use oxford_join::OxfordJoin;
 use regex::Regex;
 use std::{
+	cmp::Ordering,
 	collections::{
 		HashMap,
 		HashSet,
@@ -39,6 +40,8 @@ pub(super) struct Dependency {
 	pub(super) link: Option<String>,
 }
 
+impl Eq for Dependency {}
+
 impl From<Package> for Dependency {
 	fn from(mut src: Package) -> Self {
 		strip_markdown(&mut src.name);
@@ -53,6 +56,21 @@ impl From<Package> for Dependency {
 			link: src.repository,
 		}
 	}
+}
+
+impl Ord for Dependency {
+	#[inline]
+	fn cmp(&self, other: &Self) -> Ordering { self.name.cmp(&other.name) }
+}
+
+impl PartialEq for Dependency {
+	#[inline]
+	fn eq(&self, other: &Self) -> bool { self.name == other.name }
+}
+
+impl PartialOrd for Dependency {
+	#[inline]
+	fn partial_cmp(&self, other: &Self) -> Option<Ordering> { Some(self.cmp(other)) }
 }
 
 
@@ -108,7 +126,7 @@ pub(super) fn get_dependencies(src: &Path) -> Result<Vec<Dependency>, BashManErr
         .map(Dependency::from)
         .collect();
 
-    out.sort_by(|a, b| a.name.to_ascii_lowercase().cmp(&b.name.to_ascii_lowercase()));
+	out.sort_unstable();
 
 	Ok(out)
 }
