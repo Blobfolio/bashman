@@ -32,18 +32,18 @@
 #![allow(clippy::module_name_repetitions)]
 
 
+use argyle::{
+	Argue,
+	ArgyleError,
+	FLAG_HELP,
+	FLAG_VERSION,
+};
 use bashman_core::{
 	BashManError,
 	FLAG_ALL,
 	FLAG_BASH,
 	FLAG_CREDITS,
 	FLAG_MAN,
-};
-use argyle::{
-	Argue,
-	ArgyleError,
-	FLAG_HELP,
-	FLAG_VERSION,
 };
 use fyi_msg::Msg;
 use std::path::PathBuf;
