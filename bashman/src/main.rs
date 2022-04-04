@@ -83,16 +83,17 @@ fn _main() -> Result<(), BashManError> {
 		flags &= ! FLAG_MAN;
 	}
 
-	bashman_core::parse(
-		args.option2_os(b"-m", b"--manifest-path")
-			.map(PathBuf::from)
-			.or_else(|| std::env::current_dir().ok().map(|mut p| {
-				p.push("Cargo.toml");
-				p
-			}))
-			.ok_or(BashManError::InvalidManifest)?,
-		flags,
-	)?;
+	let manifest =
+		if let Some(p) = args.option2_os(b"-m", b"--manifest-path") {
+			PathBuf::from(p)
+		}
+		else {
+			std::env::current_dir()
+				.map_err(|_| BashManError::InvalidManifest)?
+				.join("Cargo.toml")
+		};
+
+	bashman_core::parse(manifest, flags)?;
 
 	Ok(())
 }
