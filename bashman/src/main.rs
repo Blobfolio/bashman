@@ -32,6 +32,12 @@
 #![allow(clippy::module_name_repetitions)]
 
 
+use argyle::{
+	Argue,
+	ArgyleError,
+	FLAG_HELP,
+	FLAG_VERSION,
+};
 use bashman_core::{
 	BashManError,
 	FLAG_ALL,
@@ -39,18 +45,8 @@ use bashman_core::{
 	FLAG_CREDITS,
 	FLAG_MAN,
 };
-use argyle::{
-	Argue,
-	ArgyleError,
-	FLAG_HELP,
-	FLAG_VERSION,
-};
 use fyi_msg::Msg;
-use std::{
-	ffi::OsStr,
-	os::unix::ffi::OsStrExt,
-	path::PathBuf,
-};
+use std::path::PathBuf;
 
 
 
@@ -87,18 +83,17 @@ fn _main() -> Result<(), BashManError> {
 		flags &= ! FLAG_MAN;
 	}
 
-	bashman_core::parse(
-		args.option2(b"-m", b"--manifest-path")
-			.map_or_else(
-				|| std::env::current_dir().ok().map(|mut p| {
-					p.push("Cargo.toml");
-					p
-				}),
-				|b| Some(PathBuf::from(OsStr::from_bytes(b)))
-			)
-			.ok_or(BashManError::InvalidManifest)?,
-		flags,
-	)?;
+	let manifest =
+		if let Some(p) = args.option2_os(b"-m", b"--manifest-path") {
+			PathBuf::from(p)
+		}
+		else {
+			std::env::current_dir()
+				.map_err(|_| BashManError::InvalidManifest)?
+				.join("Cargo.toml")
+		};
+
+	bashman_core::parse(manifest, flags)?;
 
 	Ok(())
 }
