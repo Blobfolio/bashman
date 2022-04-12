@@ -26,7 +26,7 @@ use std::{
 	},
 	path::Path,
 };
-use trim_in_place::TrimInPlace;
+use trimothy::TrimMut;
 
 
 
@@ -139,7 +139,7 @@ fn nice_author(mut raw: Vec<String>) -> String {
 	static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.+?) <([^>]+)>").unwrap());
 
 	for x in &mut raw {
-		x.trim_in_place();
+		x.trim_mut();
 		x.retain(|c| ! matches!(c, '[' | ']' | '(' | ')' | '|'));
 
 		let y = RE.replace_all(x, "[$1](mailto:$2)");
@@ -166,7 +166,7 @@ fn nice_license(raw: &str) -> String {
 ///
 /// Remove `[] <> () |` to help with later markdown display.
 fn strip_markdown(raw: &mut String) {
-	raw.trim_in_place();
+	raw.trim_mut();
 	raw.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '(' | ')' | '|'));
 }
 
