@@ -26,5 +26,5 @@ version = "=1.0.136"
 features = [ "derive" ]
 
 [dependencies.toml]
-version = "=0.5.8"
+version = "=0.5.9"
 features = [ "preserve_order" ]
