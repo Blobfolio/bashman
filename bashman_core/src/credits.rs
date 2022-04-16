@@ -15,9 +15,7 @@ use cargo_metadata::{
 	PackageId,
 };
 use crate::BashManError;
-use once_cell::sync::Lazy;
 use oxford_join::OxfordJoin;
-use regex::Regex;
 use std::{
 	cmp::Ordering,
 	collections::{
@@ -136,15 +134,24 @@ pub(super) fn get_dependencies(src: &Path) -> Result<Vec<Dependency>, BashManErr
 
 /// # Normalize Authors.
 fn nice_author(mut raw: Vec<String>) -> String {
-	static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.+?) <([^>]+)>").unwrap());
-
 	for x in &mut raw {
 		x.trim_mut();
 		x.retain(|c| ! matches!(c, '[' | ']' | '(' | ')' | '|'));
 
-		let y = RE.replace_all(x, "[$1](mailto:$2)");
-		if *x != y {
-			*x = y.into_owned();
+		// Convert "Name <email>" into "[Name](mailto:email)", if that's how it
+		// is written. Note: we aren't validating the name or email components.
+		let bytes = x.as_bytes();
+		if let Some(start) = bytes.iter().position(|b| b'<'.eq(b)) {
+			if let Some(end) = bytes.iter().rposition(|b| b'>'.eq(b)).filter(|p| start.lt(p)) {
+				let mut new = String::with_capacity(bytes.len() + 10);
+				new.push('[');
+				new.push_str(x[..start].trim());
+				new.push_str("](mailto:");
+				new.push_str(x[start + 1..end].trim());
+				new.push(')');
+				std::mem::swap(x, &mut new);
+			}
+			else { x.truncate(0); }
 		}
 	}
 
