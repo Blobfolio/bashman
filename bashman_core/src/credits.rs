@@ -143,7 +143,7 @@ fn nice_author(mut raw: Vec<String>) -> String {
 		let bytes = x.as_bytes();
 		if let Some(start) = bytes.iter().position(|b| b'<'.eq(b)) {
 			if let Some(end) = bytes.iter().rposition(|b| b'>'.eq(b)).filter(|p| start.lt(p)) {
-				match (nice_name(x[..start].trim()), nice_email(x[start + 1..end].trim())) {
+				match (nice_name(x[..start].trim()), nice_email(&x[start + 1..end])) {
 					// [Name](mailto:email)
 					(Some(n), Some(e)) => {
 						x.truncate(0);
@@ -249,6 +249,8 @@ fn nice_license(raw: &str) -> String {
 /// This performs some light cleaning and trimming and returns the result if it
 /// is non-empty.
 fn nice_name(raw: &str) -> Option<String> {
+	// The name is unlikely to have < or >, but they should be stripped out if
+	// present.
 	let mut out: String = raw
 		.chars()
 		.filter(|c| '<'.ne(c) && '>'.ne(c))
