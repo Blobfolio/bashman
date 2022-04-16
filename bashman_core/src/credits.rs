@@ -232,7 +232,13 @@ fn nice_license(raw: &str) -> String {
 	let mut raw = raw.replace(" OR ", "/");
 	raw.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '(' | ')' | '|'));
 
-	let mut list: Vec<&str> = raw.split('/').map(str::trim).collect();
+	let mut list: Vec<&str> = raw.split('/')
+		.filter_map(|line| {
+			let line = line.trim();
+			if line.is_empty() { None }
+			else { Some(line) }
+		})
+		.collect();
 	list.sort_unstable();
 	list.dedup();
 	list.oxford_or().into_owned()
