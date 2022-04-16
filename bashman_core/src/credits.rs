@@ -263,8 +263,8 @@ fn nice_name(raw: &str) -> Option<String> {
 ///
 /// Remove `[] <> () |` to help with later markdown display.
 fn strip_markdown(raw: &mut String) {
-	raw.trim_mut();
 	raw.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '(' | ')' | '|'));
+	raw.trim_mut();
 }
 
 
@@ -275,7 +275,7 @@ mod tests {
 
 	#[test]
 	fn t_strip_markdown() {
-		let mut raw: String = r" H(E)L[L]O <W>O|RLD ".to_string();
+		let mut raw: String = r" H(E)L[L]O <W>O|RLD |".to_string();
 		strip_markdown(&mut raw);
 		assert_eq!(raw, "HELLO WORLD");
 	}
