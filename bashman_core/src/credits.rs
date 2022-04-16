@@ -168,15 +168,14 @@ fn nice_author(mut raw: Vec<String>) -> String {
 					(None, None) => { x.truncate(0); }
 				}
 			}
-			// Get rid of brackets (if any) and retrim. It isn't the sort of
-			// line we were looking for.
+			// Get rid of the brackets; they weren't used correctly.
 			else {
 				x.retain(|c| ! matches!(c, '<' | '>'));
 				x.trim_mut();
 			}
 		}
-		// Get rid of closing brackets (if any) and retrim. It isn't the sort
-		// of line we're looking for.
+		// There weren't any opening <, but there might be closing > we should
+		// remove.
 		else {
 			x.retain(|c| c != '>');
 			x.trim_mut();
