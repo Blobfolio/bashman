@@ -5,6 +5,7 @@ This is largely a trimmed-down version of `cargo_license`. Our needs are much
 narrower than theirs.
 */
 
+use adbyss_psl::Domain;
 use cargo_metadata::{
 	DependencyKind,
 	DepKindInfo,
@@ -135,27 +136,95 @@ pub(super) fn get_dependencies(src: &Path) -> Result<Vec<Dependency>, BashManErr
 /// # Normalize Authors.
 fn nice_author(mut raw: Vec<String>) -> String {
 	for x in &mut raw {
-		x.trim_mut();
 		x.retain(|c| ! matches!(c, '[' | ']' | '(' | ')' | '|'));
+		x.trim_mut();
 
-		// Convert "Name <email>" into "[Name](mailto:email)", if that's how it
-		// is written. Note: we aren't validating the name or email components.
+		// Reformat author line as markdown.
 		let bytes = x.as_bytes();
 		if let Some(start) = bytes.iter().position(|b| b'<'.eq(b)) {
 			if let Some(end) = bytes.iter().rposition(|b| b'>'.eq(b)).filter(|p| start.lt(p)) {
-				let mut new = String::with_capacity(bytes.len() + 10);
-				new.push('[');
-				new.push_str(x[..start].trim());
-				new.push_str("](mailto:");
-				new.push_str(x[start + 1..end].trim());
-				new.push(')');
-				std::mem::swap(x, &mut new);
+				match (nice_name(x[..start].trim()), nice_email(x[start + 1..end].trim())) {
+					// [Name](mailto:email)
+					(Some(n), Some(e)) => {
+						x.truncate(0);
+						x.push('[');
+						x.push_str(&n);
+						x.push_str("](mailto:");
+						x.push_str(&e);
+						x.push(')');
+					},
+					// Name
+					(Some(mut n), None) => { std::mem::swap(x, &mut n); },
+					// [email](mailto:email)
+					(None, Some(e)) => {
+						x.truncate(0);
+						x.push('[');
+						x.push_str(&e);
+						x.push_str("](mailto:");
+						x.push_str(&e);
+						x.push(')');
+					},
+					// Empty.
+					(None, None) => { x.truncate(0); }
+				}
 			}
-			else { x.truncate(0); }
+			// Get rid of brackets (if any) and retrim. It isn't the sort of
+			// line we were looking for.
+			else {
+				x.retain(|c| ! matches!(c, '<' | '>'));
+				x.trim_mut();
+			}
+		}
+		// Get rid of closing brackets (if any) and retrim. It isn't the sort
+		// of line we're looking for.
+		else {
+			x.retain(|c| c != '>');
+			x.trim_mut();
 		}
 	}
 
+	// One final thing: remove empties.
+	raw.retain(|x| ! x.is_empty());
+
+	// Done!
 	raw.oxford_and().into_owned()
+}
+
+/// # Validate email.
+///
+/// It's unclear if the Cargo author metadata is pre-sanitized. Just in case,
+/// this method performs semi-informed validation against suspected email
+/// addresses, making sure the user portion is lowercase alphanumeric (with `.`,
+/// `+`, `-`, and `_` allowed), and the host is ASCII with a valid public
+/// suffix. (The host domain itself may or may not exist, but that's fine.)
+///
+/// If any of the above conditions fail, `None` is returned, otherwise a fresh
+/// owned `String` is returned.
+fn nice_email(raw: &str) -> Option<String> {
+	let (user, host) = raw.trim_matches(|c: char| c.is_whitespace() || c == '<' || c == '>')
+		.split_once('@')?;
+
+	// We need both parts.
+	if user.is_empty() || host.is_empty() { return None; }
+
+	// Make sure the host is parseable.
+	let host = Domain::new(host)?;
+
+	// Let's start with the user.
+	let mut out = String::with_capacity(user.len() + host.len() + 1);
+	for c in user.chars() {
+		match c {
+			'a'..='z' | '0'..='9' | '.' | '+' | '-' | '_' => { out.push(c); },
+			'A'..='Z' => out.push(c.to_ascii_lowercase()),
+			_ => return None,
+		}
+	}
+
+	// Add the @ and host.
+	out.push('@');
+	out.push_str(host.as_str());
+
+	Some(out)
 }
 
 /// # Normalize Licenses.
@@ -167,6 +236,21 @@ fn nice_license(raw: &str) -> String {
 	list.sort_unstable();
 	list.dedup();
 	list.oxford_or().into_owned()
+}
+
+/// # Nice Name.
+///
+/// This performs some light cleaning and trimming and returns the result if it
+/// is non-empty.
+fn nice_name(raw: &str) -> Option<String> {
+	let mut out: String = raw
+		.chars()
+		.filter(|c| '<'.ne(c) && '>'.ne(c))
+		.collect();
+
+	out.trim_mut();
+	if out.is_empty() { None }
+	else { Some(out) }
 }
 
 /// # Lightly Sanitize.
@@ -188,5 +272,20 @@ mod tests {
 		let mut raw: String = r" H(E)L[L]O <W>O|RLD ".to_string();
 		strip_markdown(&mut raw);
 		assert_eq!(raw, "HELLO WORLD");
+	}
+
+	#[test]
+	fn t_nice_email() {
+		assert_eq!(
+			nice_email(" < JoSh@BloBfolio.com> "),
+			Some("josh@blobfolio.com".to_owned())
+		);
+
+		assert_eq!(nice_email(" < JoSh@BloBfolio.x> "), None);
+
+		assert_eq!(
+			nice_email("USER@♥.com"),
+			Some("user@xn--g6h.com".to_owned())
+		);
 	}
 }
