@@ -21,7 +21,7 @@ trimothy = "0.1.*"
 utc2k = "0.4.*"
 
 [dependencies.serde]
-version = "=1.0.136"
+version = "1.0.*"
 features = [ "derive" ]
 
 [dependencies.toml]
