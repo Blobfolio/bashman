@@ -472,7 +472,7 @@ impl<'a> Command<'a> {
 		write_section!("FLAGS:", flags);
 		write_section!("OPTIONS:", opts);
 
-		args.drain(..).try_for_each(|(label, data)| {
+		args.into_iter().try_for_each(|(label, data)| {
 			More {
 				label: &label,
 				indent: true,

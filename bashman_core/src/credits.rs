@@ -5,6 +5,7 @@ This is largely a trimmed-down version of `cargo_license`. Our needs are much
 narrower than theirs.
 */
 
+use adbyss_psl::Domain;
 use cargo_metadata::{
 	DependencyKind,
 	DepKindInfo,
@@ -15,9 +16,7 @@ use cargo_metadata::{
 	PackageId,
 };
 use crate::BashManError;
-use once_cell::sync::Lazy;
 use oxford_join::OxfordJoin;
-use regex::Regex;
 use std::{
 	cmp::Ordering,
 	collections::{
@@ -26,7 +25,7 @@ use std::{
 	},
 	path::Path,
 };
-use trim_in_place::TrimInPlace;
+use trimothy::TrimMut;
 
 
 
@@ -136,19 +135,95 @@ pub(super) fn get_dependencies(src: &Path) -> Result<Vec<Dependency>, BashManErr
 
 /// # Normalize Authors.
 fn nice_author(mut raw: Vec<String>) -> String {
-	static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(.+?) <([^>]+)>").unwrap());
-
 	for x in &mut raw {
-		x.trim_in_place();
 		x.retain(|c| ! matches!(c, '[' | ']' | '(' | ')' | '|'));
+		x.trim_mut();
 
-		let y = RE.replace_all(x, "[$1](mailto:$2)");
-		if *x != y {
-			*x = y.into_owned();
+		// Reformat author line as markdown.
+		let bytes = x.as_bytes();
+		if let Some(start) = bytes.iter().position(|b| b'<'.eq(b)) {
+			if let Some(end) = bytes.iter().rposition(|b| b'>'.eq(b)).filter(|p| start.lt(p)) {
+				match (nice_name(x[..start].trim()), nice_email(&x[start + 1..end])) {
+					// [Name](mailto:email)
+					(Some(n), Some(e)) => {
+						x.truncate(0);
+						x.push('[');
+						x.push_str(&n);
+						x.push_str("](mailto:");
+						x.push_str(&e);
+						x.push(')');
+					},
+					// Name
+					(Some(mut n), None) => { std::mem::swap(x, &mut n); },
+					// [email](mailto:email)
+					(None, Some(e)) => {
+						x.truncate(0);
+						x.push('[');
+						x.push_str(&e);
+						x.push_str("](mailto:");
+						x.push_str(&e);
+						x.push(')');
+					},
+					// Empty.
+					(None, None) => { x.truncate(0); }
+				}
+			}
+			// Get rid of the brackets; they weren't used correctly.
+			else {
+				x.retain(|c| ! matches!(c, '<' | '>'));
+				x.trim_mut();
+			}
+		}
+		// There weren't any opening <, but there might be closing > we should
+		// remove.
+		else {
+			x.retain(|c| c != '>');
+			x.trim_mut();
 		}
 	}
 
+	// One final thing: remove empties.
+	raw.retain(|x| ! x.is_empty());
+
+	// Done!
 	raw.oxford_and().into_owned()
+}
+
+/// # Validate email.
+///
+/// It's unclear if the Cargo author metadata is pre-sanitized. Just in case,
+/// this method performs semi-informed validation against suspected email
+/// addresses, making sure the user portion is lowercase alphanumeric (with `.`,
+/// `+`, `-`, and `_` allowed), and the host is ASCII with a valid public
+/// suffix. (The host domain itself may or may not exist, but that's fine.)
+///
+/// If any of the above conditions fail, `None` is returned, otherwise a fresh
+/// owned `String` is returned.
+fn nice_email(raw: &str) -> Option<String> {
+	let (user, host) = raw.trim_matches(|c: char| c.is_whitespace() || c == '<' || c == '>')
+		.split_once('@')?;
+
+	// We need both parts.
+	if user.is_empty() || host.is_empty() { return None; }
+
+	// Make sure the host is parseable.
+	let host = Domain::new(host)?;
+
+	// Let's start with the user.
+	let mut out = String::with_capacity(user.len() + host.len() + 1);
+	for c in user.chars() {
+		match c {
+			'a'..='z' | '0'..='9' | '.' | '+' | '-' | '_' => { out.push(c); },
+			'A'..='Z' => out.push(c.to_ascii_lowercase()),
+			_ => return None,
+		}
+	}
+
+	// Add the @ and host.
+	out.push('@');
+	out.push_str(host.as_str());
+
+	Some(out)
 }
 
 /// # Normalize Licenses.
@@ -156,18 +231,41 @@ fn nice_license(raw: &str) -> String {
 	let mut raw = raw.replace(" OR ", "/");
 	raw.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '(' | ')' | '|'));
 
-	let mut list: Vec<&str> = raw.split('/').map(str::trim).collect();
+	let mut list: Vec<&str> = raw.split('/')
+		.filter_map(|line| {
+			let line = line.trim();
+			if line.is_empty() { None }
+			else { Some(line) }
+		})
+		.collect();
 	list.sort_unstable();
 	list.dedup();
 	list.oxford_or().into_owned()
+}
+
+/// # Nice Name.
+///
+/// This performs some light cleaning and trimming and returns the result if it
+/// is non-empty.
+fn nice_name(raw: &str) -> Option<String> {
+	// The name is unlikely to have < or >, but they should be stripped out if
+	// present.
+	let mut out: String = raw
+		.chars()
+		.filter(|c| '<'.ne(c) && '>'.ne(c))
+		.collect();
+
+	out.trim_mut();
+	if out.is_empty() { None }
+	else { Some(out) }
 }
 
 /// # Lightly Sanitize.
 ///
 /// Remove `[] <> () |` to help with later markdown display.
 fn strip_markdown(raw: &mut String) {
-	raw.trim_in_place();
 	raw.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '(' | ')' | '|'));
+	raw.trim_mut();
 }
 
 
@@ -178,8 +276,23 @@ mod tests {
 
 	#[test]
 	fn t_strip_markdown() {
-		let mut raw: String = r" H(E)L[L]O <W>O|RLD ".to_string();
+		let mut raw: String = r" H(E)L[L]O <W>O|RLD |".to_string();
 		strip_markdown(&mut raw);
 		assert_eq!(raw, "HELLO WORLD");
+	}
+
+	#[test]
+	fn t_nice_email() {
+		assert_eq!(
+			nice_email(" < JoSh@BloBfolio.com> "),
+			Some("josh@blobfolio.com".to_owned())
+		);
+
+		assert_eq!(nice_email(" < JoSh@BloBfolio.x> "), None);
+
+		assert_eq!(
+			nice_email("USER@♥.com"),
+			Some("user@xn--g6h.com".to_owned())
+		);
 	}
 }
