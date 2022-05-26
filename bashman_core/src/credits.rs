@@ -80,6 +80,8 @@ pub(super) fn get_dependencies(src: &Path, features: Option<&str>) -> Result<Vec
 	let metadata = {
 		let mut cmd = MetadataCommand::new();
 		cmd.manifest_path(&src);
+
+		// Enable extra features?
 		if let Some(features) = features {
 			let features: Vec<String> = features.split(',')
 				.filter_map(|f| {
@@ -92,6 +94,7 @@ pub(super) fn get_dependencies(src: &Path, features: Option<&str>) -> Result<Vec
 				cmd.features(CargoOpt::SomeFeatures(features));
 			}
 		}
+
 		cmd.exec().map_err(|_| BashManError::InvalidManifest)?
 	};
 

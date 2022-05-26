@@ -60,12 +60,8 @@ fn main() {
 		Err(BashManError::Argue(ArgyleError::WantsVersion)) => {
 			println!(concat!("Cargo BashMan v", env!("CARGO_PKG_VERSION")));
 		},
-		Err(BashManError::Argue(ArgyleError::WantsHelp)) => {
-			helper();
-		},
-		Err(e) => {
-			Msg::error(e.to_string()).die(1);
-		},
+		Err(BashManError::Argue(ArgyleError::WantsHelp)) => { helper(); },
+		Err(e) => { Msg::error(e.to_string()).die(1); },
 	}
 }
 
