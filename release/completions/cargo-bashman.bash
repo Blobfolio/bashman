@@ -15,6 +15,10 @@ _basher___cargo_bashman() {
 		opts+=("-V")
 		opts+=("--version")
 	fi
+	if [[ ! " ${COMP_LINE} " =~ " -f " ]] && [[ ! " ${COMP_LINE} " =~ " --features " ]]; then
+		opts+=("-f")
+		opts+=("--features")
+	fi
 	if [[ ! " ${COMP_LINE} " =~ " -m " ]] && [[ ! " ${COMP_LINE} " =~ " --manifest-path " ]]; then
 		opts+=("-m")
 		opts+=("--manifest-path")

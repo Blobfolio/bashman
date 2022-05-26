@@ -1,15 +1,15 @@
 # Project Dependencies
     Package:   cargo-bashman
-    Version:   0.3.7
-    Generated: 2022-05-19 18:40:54 UTC
+    Version:   0.3.8
+    Generated: 2022-05-26 17:38:11 UTC
 
 | Package | Version | Author(s) | License |
 | ---- | ---- | ---- | ---- |
 | [adbyss_psl](https://github.com/Blobfolio/adbyss) | 0.7.4 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
 | [ahash](https://github.com/tkaitchuck/ahash) | 0.7.6 | [Tom Kaitchuck](mailto:tom.kaitchuck@gmail.com) | Apache-2.0 or MIT |
 | [argyle](https://github.com/Blobfolio/argyle) | 0.5.6 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
-| [bashman_core](https://github.com/Blobfolio/bashman) | 0.3.7 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
-| [camino](https://github.com/camino-rs/camino) | 1.0.8 | [Without Boats](mailto:saoirse@without.boats), [Ashley Williams](mailto:ashley666ashley@gmail.com), [Steve Klabnik](mailto:steve@steveklabnik.com), and [Rain](mailto:rain@sunshowers.io) | Apache-2.0 or MIT |
+| [bashman_core](https://github.com/Blobfolio/bashman) | 0.3.8 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
+| [camino](https://github.com/camino-rs/camino) | 1.0.9 | [Without Boats](mailto:saoirse@without.boats), [Ashley Williams](mailto:ashley666ashley@gmail.com), [Steve Klabnik](mailto:steve@steveklabnik.com), and [Rain](mailto:rain@sunshowers.io) | Apache-2.0 or MIT |
 | [cargo-platform](https://github.com/rust-lang/cargo) | 0.1.2 | The Cargo Project Developers | Apache-2.0 or MIT |
 | [cargo_metadata](https://github.com/oli-obk/cargo_metadata) | 0.14.2 | [Oliver Schneider](mailto:git-spam-no-reply9815368754983@oli-obk.de) | MIT |
 | [dactyl](https://github.com/Blobfolio/dactyl) | 0.3.4 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
