@@ -46,7 +46,10 @@ use bashman_core::{
 	FLAG_MAN,
 };
 use fyi_msg::Msg;
-use std::path::PathBuf;
+use std::{
+	ffi::OsStr,
+	path::PathBuf,
+};
 
 
 
@@ -57,12 +60,8 @@ fn main() {
 		Err(BashManError::Argue(ArgyleError::WantsVersion)) => {
 			println!(concat!("Cargo BashMan v", env!("CARGO_PKG_VERSION")));
 		},
-		Err(BashManError::Argue(ArgyleError::WantsHelp)) => {
-			helper();
-		},
-		Err(e) => {
-			Msg::error(e.to_string()).die(1);
-		},
+		Err(BashManError::Argue(ArgyleError::WantsHelp)) => { helper(); },
+		Err(e) => { Msg::error(e.to_string()).die(1); },
 	}
 }
 
@@ -83,6 +82,8 @@ fn _main() -> Result<(), BashManError> {
 		flags &= ! FLAG_MAN;
 	}
 
+	let features = args.option2_os(b"-f", b"--features").and_then(OsStr::to_str);
+
 	let manifest =
 		if let Some(p) = args.option2_os(b"-m", b"--manifest-path") {
 			PathBuf::from(p)
@@ -93,7 +94,7 @@ fn _main() -> Result<(), BashManError> {
 				.join("Cargo.toml")
 		};
 
-	bashman_core::parse(manifest, flags)?;
+	bashman_core::parse(manifest, flags, features)?;
 
 	Ok(())
 }
@@ -129,6 +130,8 @@ FLAGS:
     -V, --version               Prints version information.
 
 OPTIONS:
+    -f, --features <FEATURES>   Comma-separated list of optional features to
+                                include when generating CREDITS.md.
     -m, --manifest-path <FILE>  Read file paths from this list.
 "
     ));

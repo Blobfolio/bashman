@@ -7,6 +7,7 @@ narrower than theirs.
 
 use adbyss_psl::Domain;
 use cargo_metadata::{
+	CargoOpt,
 	DependencyKind,
 	DepKindInfo,
 	MetadataCommand,
@@ -75,10 +76,25 @@ impl PartialOrd for Dependency {
 
 
 /// # Get Dependencies.
-pub(super) fn get_dependencies(src: &Path) -> Result<Vec<Dependency>, BashManError> {
+pub(super) fn get_dependencies(src: &Path, features: Option<&str>) -> Result<Vec<Dependency>, BashManError> {
 	let metadata = {
 		let mut cmd = MetadataCommand::new();
 		cmd.manifest_path(&src);
+
+		// Enable extra features?
+		if let Some(features) = features {
+			let features: Vec<String> = features.split(',')
+				.filter_map(|f| {
+					let f = f.trim();
+					if f.is_empty() { None }
+					else { Some(f.to_owned()) }
+				})
+				.collect();
+			if ! features.is_empty() {
+				cmd.features(CargoOpt::SomeFeatures(features));
+			}
+		}
+
 		cmd.exec().map_err(|_| BashManError::InvalidManifest)?
 	};
 
