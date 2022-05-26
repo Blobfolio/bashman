@@ -525,9 +525,15 @@ impl<'a> Command<'a> {
 /// # Credits.
 impl<'a> Command<'a> {
 	/// # Write Bash.
-	pub(crate) fn write_credits(&self, manifest: &Path, dir: &Path, buf: &mut Vec<u8>) -> Result<(), BashManError> {
+	pub(crate) fn write_credits(
+		&self,
+		manifest: &Path,
+		features: Option<&str>,
+		dir: &Path,
+		buf: &mut Vec<u8>,
+	) -> Result<(), BashManError> {
 		// Get the dependencies.
-		let raw = crate::credits::get_dependencies(manifest)?;
+		let raw = crate::credits::get_dependencies(manifest, features)?;
 
 		// Write the header.
 		buf.extend_from_slice(format!(

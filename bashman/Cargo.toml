@@ -52,6 +52,13 @@ long = "--version"
 description = "Print application version."
 
 [[package.metadata.bashman.options]]
+short = "-f"
+long = "--features"
+description = "Comma-separated list of optional features to include when generating CREDITS.md."
+label = "<Cargo.toml>"
+path = false
+
+[[package.metadata.bashman.options]]
 short = "-m"
 long = "--manifest-path"
 description = "Path to the Cargo.toml file to use."

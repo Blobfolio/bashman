@@ -70,7 +70,7 @@ pub const FLAG_ALL: u8 =     0b0111;
 ///
 /// Returns an error if the BASH/Man output paths are invalid, or any other
 /// metadata parsing issues come up.
-pub fn parse(manifest: PathBuf, flags: u8) -> Result<(), BashManError> {
+pub fn parse(manifest: PathBuf, flags: u8, features: Option<&str>) -> Result<(), BashManError> {
 	// Clean up the manifest path.
 	let manifest = std::fs::canonicalize(manifest)
 		.map_err(|_| BashManError::InvalidManifest)?;
@@ -109,6 +109,7 @@ pub fn parse(manifest: PathBuf, flags: u8) -> Result<(), BashManError> {
 	if FLAG_CREDITS == flags & FLAG_CREDITS {
 		cmd.write_credits(
 			&manifest,
+			features,
 			&raw.credits_dir(&dir)?,
 			&mut buf
 		)?;
