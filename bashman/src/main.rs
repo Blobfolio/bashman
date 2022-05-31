@@ -46,10 +46,7 @@ use bashman_core::{
 	FLAG_MAN,
 };
 use fyi_msg::Msg;
-use std::{
-	ffi::OsStr,
-	path::PathBuf,
-};
+use std::path::PathBuf;
 
 
 
