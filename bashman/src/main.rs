@@ -46,10 +46,7 @@ use bashman_core::{
 	FLAG_MAN,
 };
 use fyi_msg::Msg;
-use std::{
-	ffi::OsStr,
-	path::PathBuf,
-};
+use std::path::PathBuf;
 
 
 
@@ -82,7 +79,7 @@ fn _main() -> Result<(), BashManError> {
 		flags &= ! FLAG_MAN;
 	}
 
-	let features = args.option2_os(b"-f", b"--features").and_then(OsStr::to_str);
+	let features = args.option2(b"-f", b"--features").and_then(|x| std::str::from_utf8(x).ok());
 
 	let manifest =
 		if let Some(p) = args.option2_os(b"-m", b"--manifest-path") {
