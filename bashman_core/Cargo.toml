@@ -12,7 +12,7 @@ publish = false
 [dependencies]
 adbyss_psl = "0.7.*"
 argyle = "0.6.*"
-cargo_metadata = "=0.14.2"
+cargo_metadata = "=0.15.0"
 fyi_msg = "0.9.*"
 indexmap = "=1.9.0"
 libdeflater = "=0.8.0"
