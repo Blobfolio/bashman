@@ -243,6 +243,7 @@ impl<'a> Command<'a> {
 	/// to allow per-command suggestions. The output is incorporated into the
 	/// value returned by [`Agree::bash`].
 	fn bash_subcommands(&self, buf: &mut Vec<u8>) -> Result<(), BashManError> {
+		use std::fmt::Write;
 		let (cmd, chooser) = std::iter::once((self.bin, &self.fname))
 			.chain(
 				self.data.iter()
@@ -256,19 +257,19 @@ impl<'a> Command<'a> {
 			.fold(
 				(String::new(), String::new()),
 				|(mut a, mut b), (c, d)| {
-					a.push_str(&format!("\
+					let _ = writeln!(a, "\
 						\t\t\t{})\n\
 						\t\t\t\tcmd=\"{}\"\n\
-						\t\t\t\t;;\n",
+						\t\t\t\t;;",
 						&c, &c
-					));
-					b.push_str(&format!("\
+					);
+					let _ = writeln!(b, "\
 						\t\t{})\n\
 						\t\t\t{}\n\
-						\t\t\t;;\n",
+						\t\t\t;;",
 						&c,
 						&d
-					));
+					);
 
 					(a, b)
 				}
