@@ -1,7 +1,9 @@
 # Cargo BashMan
 
-[![Build Status](https://github.com/Blobfolio/bashman/workflows/Build/badge.svg)](https://github.com/Blobfolio/bashman/actions)
-[![Dependency Status](https://deps.rs/repo/github/blobfolio/bashman/status.svg)](https://deps.rs/repo/github/blobfolio/bashman)
+[![ci](https://img.shields.io/github/workflow/status/Blobfolio/bashman/Build.svg?style=flat-square&label=ci)](https://github.com/Blobfolio/bashman/actions)
+[![deps.rs](https://deps.rs/repo/github/blobfolio/bashman/status.svg?style=flat-square&label=deps.rs)](https://deps.rs/repo/github/blobfolio/bashman)<br>
+[![license](https://img.shields.io/badge/license-wtfpl-ff1493?style=flat-square)](https://en.wikipedia.org/wiki/WTFPL)
+[![contributions welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square&label=contributions)](https://github.com/Blobfolio/bashman/issues)
 
 `BashMan` is a Cargo plugin that helps you generate BASH completions, MAN pages, and/or a `CREDITS.md` page for your Rust apps using metadata from your projects' `Cargo.toml` manifests. It pairs well with the (unaffiliated) [cargo-deb](https://github.com/mmstick/cargo-deb).
 
