@@ -79,7 +79,7 @@ impl PartialOrd for Dependency {
 pub(super) fn get_dependencies(src: &Path, features: Option<&str>) -> Result<Vec<Dependency>, BashManError> {
 	let metadata = {
 		let mut cmd = MetadataCommand::new();
-		cmd.manifest_path(&src);
+		cmd.manifest_path(src);
 
 		// Enable extra features?
 		if let Some(features) = features {
