@@ -357,7 +357,7 @@ impl<'a> Command<'a> {
 	/// # Write For Real.
 	fn _write_man(&self, path: &Path, data: &[u8]) -> Result<(), BashManError> {
 		// Write plain.
-		File::create(&path)
+		File::create(path)
 			.and_then(|mut f| f.write_all(data).and_then(|_| f.flush()))
 			.map_err(|_| BashManError::WriteSubMan(Box::from(self.bin)))?;
 
@@ -491,11 +491,10 @@ impl<'a> Command<'a> {
 
 	/// # Man usage.
 	fn man_usage(&self) -> String {
-		let mut out: String =
-			match self.parent {
-				Some(p) => format!("{} {}", p, self.bin),
-				None => self.bin.to_string(),
-			};
+		let mut out: String = self.parent.map_or_else(
+			|| self.bin.to_string(),
+			|p| format!("{} {}", p, self.bin),
+		);
 
 		if 0 != self.flags & FLAG_SUBCOMMANDS {
 			out.push_str(" [SUBCOMMAND]");
