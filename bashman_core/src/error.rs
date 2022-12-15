@@ -59,13 +59,13 @@ impl fmt::Display for BashManError {
 			Self::InvalidManDir => f.write_str("Invalid Man output directory."),
 			Self::InvalidManifest => f.write_str("Invalid manifest path."),
 			Self::InvalidSection => f.write_str("Sections cannot be empty."),
-			Self::InvalidSubCommand(s) => f.write_fmt(format_args!("Invalid subcommand: {:?}", s)),
+			Self::InvalidSubCommand(s) => f.write_fmt(format_args!("Invalid subcommand: {s:?}")),
 			Self::MissingSubCommand => f.write_str("Missing subcommand 'cmd' field."),
-			Self::ParseManifest(e) => f.write_fmt(format_args!("Unable to parse manifest: {:?}", e)),
+			Self::ParseManifest(e) => f.write_fmt(format_args!("Unable to parse manifest: {e:?}")),
 			Self::WriteBash => f.write_str("Unable to write BASH completions."),
 			Self::WriteCredits => f.write_str("Unable to write CREDITS.md."),
 			Self::WriteMan => f.write_str("Unable to write Manual(s)."),
-			Self::WriteSubMan(s) => f.write_fmt(format_args!("Unable to write Man for {:?}.", s)),
+			Self::WriteSubMan(s) => f.write_fmt(format_args!("Unable to write Man for {s:?}.")),
 		}
 	}
 }

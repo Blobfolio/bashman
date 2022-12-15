@@ -154,7 +154,7 @@ impl<'a> Command<'a> {
 			.and_then(|mut f| f.write_all(buf).and_then(|_| f.flush()))
 			.map_err(|_| BashManError::WriteBash)?;
 
-		Msg::success(format!("BASH completions written to: {:?}", path)).print();
+		Msg::success(format!("BASH completions written to: {path:?}")).print();
 		Ok(())
 	}
 
@@ -350,7 +350,7 @@ impl<'a> Command<'a> {
 			})?;
 		}
 
-		Msg::success(format!("Man page(s) written to: {:?}", path)).print();
+		Msg::success(format!("Man page(s) written to: {path:?}")).print();
 		Ok(())
 	}
 
@@ -493,7 +493,7 @@ impl<'a> Command<'a> {
 	fn man_usage(&self) -> String {
 		let mut out: String = self.parent.map_or_else(
 			|| self.bin.to_string(),
-			|p| format!("{} {}", p, self.bin),
+			|p| format!("{p} {}", self.bin),
 		);
 
 		if 0 != self.flags & FLAG_SUBCOMMANDS {
@@ -585,7 +585,7 @@ impl<'a> Command<'a> {
 			.and_then(|mut f| f.write_all(buf).and_then(|_| f.flush()))
 			.map_err(|_| BashManError::WriteCredits)?;
 
-		Msg::success(format!("Credits written to: {:?}", out)).print();
+		Msg::success(format!("Credits written to: {out:?}")).print();
 		Ok(())
 	}
 }
@@ -854,26 +854,26 @@ fn man_tagline(
 	match (short, long, value) {
 		// Option: long and short.
 		(Some(s), Some(l), Some(v)) => {
-			write!(buf, "\n.TP\n\\fB{}\\fR, \\fB{}\\fR {}", s, l, v)
+			write!(buf, "\n.TP\n\\fB{s}\\fR, \\fB{l}\\fR {v}")
 				.map_err(|_| BashManError::WriteMan)?;
 			Ok(true)
 		},
 		// Option: long or short.
 		(Some(k), None, Some(v)) | (None, Some(k), Some(v)) => {
-			write!(buf, "\n.TP\n\\fB{}\\fR {}", k, v)
+			write!(buf, "\n.TP\n\\fB{k}\\fR {v}")
 				.map_err(|_| BashManError::WriteMan)?;
 			Ok(true)
 		},
 		// Switch: long and short.
 		(Some(s), Some(l), None) => {
-			write!(buf, "\n.TP\n\\fB{}\\fR, \\fB{}\\fR", s, l)
+			write!(buf, "\n.TP\n\\fB{s}\\fR, \\fB{l}\\fR")
 				.map_err(|_| BashManError::WriteMan)?;
 			Ok(true)
 		},
 		// Switch: long or short.
 		// Key/Value.
 		(Some(k), None, None) | (None, Some(k), None) | (None, None, Some(k)) => {
-			write!(buf, "\n.TP\n\\fB{}\\fR", k)
+			write!(buf, "\n.TP\n\\fB{k}\\fR")
 				.map_err(|_| BashManError::WriteMan)?;
 			Ok(true)
 		},
