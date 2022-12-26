@@ -665,11 +665,13 @@ impl<'a> DataKind<'a> {
 				buf,
 				s.short,
 				s.long,
+				s.duplicate,
 			),
 			Self::Option(s) => bash_long_short_conds(
 				buf,
 				s.flag.short,
 				s.flag.long,
+				s.flag.duplicate,
 			),
 			Self::SubCommand(s) => writeln!(buf, "\topts+=(\"{}\")", s.bin)
 				.map_err(|_| BashManError::WriteBash),
@@ -750,6 +752,7 @@ pub(super) struct DataFlag<'a> {
 	pub(crate) short: Option<&'a str>,
 	pub(crate) long: Option<&'a str>,
 	pub(crate) description: &'a str,
+	pub(crate) duplicate: bool,
 }
 
 
@@ -800,25 +803,40 @@ fn bash_subfname(parent: &[u8], bin: &[u8]) -> Box<str> {
 fn bash_long_short_conds(
 	buf: &mut Vec<u8>,
 	short: Option<&str>,
-	long: Option<&str>
+	long: Option<&str>,
+	duplicate: bool,
 ) -> Result<(), BashManError> {
 	match (short, long) {
-		(Some(s), Some(l)) => write!(
-			buf,
-			r#"	if [[ ! " ${{COMP_LINE}} " =~ " {short} " ]] && [[ ! " ${{COMP_LINE}} " =~ " {long} " ]]; then
+		(Some(s), Some(l)) =>
+			if duplicate {
+				writeln!(
+					buf,
+					"\topts+=(\"{short}\")\n\topts+=(\"{long}\")",
+					short=s,
+					long=l,
+				)
+			}
+			else {
+				write!(
+					buf,
+					r#"	if [[ ! " ${{COMP_LINE}} " =~ " {short} " ]] && [[ ! " ${{COMP_LINE}} " =~ " {long} " ]]; then
 		opts+=("{short}")
 		opts+=("{long}")
 	fi
 "#,
-			short=s,
-			long=l
-		)
+					short=s,
+					long=l
+				)
+			}
 			.map_err(|_| BashManError::WriteBash),
-		(None, Some(k)) | (Some(k), None) => writeln!(
-			buf,
-			"\t[[ \" ${{COMP_LINE}} \" =~ \" {key} \" ]] || opts+=(\"{key}\")",
-			key=k
-		)
+		(None, Some(k)) | (Some(k), None) =>
+			if duplicate { writeln!(buf, "\topts+=(\"{k}\")") }
+			else {
+				writeln!(
+					buf,
+					"\t[[ \" ${{COMP_LINE}} \" =~ \" {k} \" ]] || opts+=(\"{k}\")",
+				)
+			}
 			.map_err(|_| BashManError::WriteBash),
 		(None, None) => Ok(()),
 	}

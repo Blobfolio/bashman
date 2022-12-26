@@ -120,6 +120,7 @@ Switches have the following fields:
 | short | *string* | A short key, like `-h`. |
 | long | *string* | A long key, like `--help`. |
 | description | *string* | A description for the flag. |
+| duplicate | *bool* | If `true`, the BASH completions will suggest this switch even if already present (so i.e. it can be supplied more than once). |
 | subcommands | *array* | If this switch applies to one or more subcommands, list the commands here. If a switch applies to the top-level app, omit this field, or include an empty `""` entry in the array. |
 
 Example:
@@ -147,6 +148,7 @@ An "option" is exactly like a "switch", except it takes a value. As such, they h
 | long | *string* | A long key, like `--help`. |
 | description | *string* | A description for the flag. |
 | label | *string* | A placeholder label for the value bit, like `<FILE>`. |
+| duplicate | *bool* | If `true`, the BASH completions will suggest this option even if already present (so i.e. it can be supplied more than once). |
 | path | *bool* | If `true`, the BASH completions will suggest files/directories as potential values. If `false`, no value suggestion will be hazarded. |
 | subcommands | *array* | If this option applies to one or more subcommands, list the commands here. If an option applies to the top-level app, omit this field, or include an empty `""` entry in the array. |
 
