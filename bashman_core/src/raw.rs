@@ -291,6 +291,9 @@ struct RawSwitch<'a> {
 	description: &'a str,
 
 	#[serde(default)]
+	duplicate: bool,
+
+	#[serde(default)]
 	subcommands: Vec<&'a str>,
 }
 
@@ -318,6 +321,9 @@ struct RawOption<'a> {
 
 	#[serde(default)]
 	path: bool,
+
+	#[serde(default)]
+	duplicate: bool,
 
 	#[serde(default)]
 	subcommands: Vec<&'a str>,
@@ -483,6 +489,7 @@ impl<'a> TryFrom<&'a RawSwitch<'a>> for DataKind<'a> {
 					short: src.short,
 					long: src.long,
 					description: src.description,
+					duplicate: src.duplicate,
 				}
 			))
 		}
@@ -503,9 +510,10 @@ impl<'a> TryFrom<&'a RawOption<'a>> for DataKind<'a> {
 						short: src.short,
 						long: src.long,
 						description: src.description,
+						duplicate: src.duplicate,
 					},
 					label: src.label.unwrap_or("<VAL>"),
-					path: src.path
+					path: src.path,
 				}
 			))
 		}
