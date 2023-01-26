@@ -1,6 +1,6 @@
 [package]
 name = "bashman_core"
-version = "0.3.16"
+version = "0.3.17"
 license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
 edition = "2021"
