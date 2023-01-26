@@ -809,23 +809,16 @@ fn bash_long_short_conds(
 	match (short, long) {
 		(Some(s), Some(l)) =>
 			if duplicate {
-				writeln!(
-					buf,
-					"\topts+=(\"{short}\")\n\topts+=(\"{long}\")",
-					short=s,
-					long=l,
-				)
+				writeln!(buf, "\topts+=(\"{s}\")\n\topts+=(\"{l}\")")
 			}
 			else {
 				write!(
 					buf,
-					r#"	if [[ ! " ${{COMP_LINE}} " =~ " {short} " ]] && [[ ! " ${{COMP_LINE}} " =~ " {long} " ]]; then
-		opts+=("{short}")
-		opts+=("{long}")
+					r#"	if [[ ! " ${{COMP_LINE}} " =~ " {s} " ]] && [[ ! " ${{COMP_LINE}} " =~ " {l} " ]]; then
+		opts+=("{s}")
+		opts+=("{l}")
 	fi
 "#,
-					short=s,
-					long=l
 				)
 			}
 			.map_err(|_| BashManError::WriteBash),
