@@ -47,8 +47,7 @@ impl<'a> TryFrom<&'a str> for Raw<'a> {
 	type Error = BashManError;
 
 	fn try_from(src: &'a str) -> Result<Self, Self::Error> {
-		Self::deserialize(toml::de::ValueDeserializer::new(src))
-			.map_err(|e| BashManError::ParseManifest(Box::from(e.to_string())))
+		toml::from_str(src).map_err(|e| BashManError::ParseManifest(Box::from(e.to_string())))
 	}
 }
 
