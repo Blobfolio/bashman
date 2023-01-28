@@ -31,6 +31,7 @@ use std::path::{
 	Path,
 	PathBuf,
 };
+use trimothy::TrimMut;
 
 
 
@@ -38,16 +39,16 @@ use std::path::{
 /// # Raw Data.
 ///
 /// The outermost struct.
-pub(super) struct Raw<'a> {
-	#[serde(borrow)]
-	package: RawPackage<'a>
+pub(super) struct Raw {
+	package: RawPackage
 }
 
-impl<'a> TryFrom<&'a str> for Raw<'a> {
+impl TryFrom<String> for Raw {
 	type Error = BashManError;
 
-	fn try_from(src: &'a str) -> Result<Self, Self::Error> {
-		toml::from_str(src).map_err(|e| BashManError::ParseManifest(Box::from(e.to_string())))
+	fn try_from(src: String) -> Result<Self, Self::Error> {
+		toml::from_str(&src)
+			.map_err(|e| BashManError::ParseManifest(Box::from(e.to_string())))
 	}
 }
 
@@ -55,11 +56,11 @@ impl<'a> TryFrom<&'a str> for Raw<'a> {
 ///
 /// Working around the static lifetimes is terrible, but this eventually gets
 /// there!
-impl<'a> Raw<'a> {
+impl Raw {
 	/// # Parse Single.
 	///
 	/// This parses without subcommand support.
-	fn parse_single(&'a self) -> Result<Command<'a>, BashManError> {
+	fn parse_single(&self) -> Result<Command<'_>, BashManError> {
 		// Switches.
 		let out_args: Vec<DataKind<'_>> = self.package.metadata.switches.iter()
 			.map(DataKind::try_from)
@@ -78,9 +79,9 @@ impl<'a> Raw<'a> {
 		Ok(Command::new(
 			self.name(),
 			None,
-			self.package.name,
-			self.package.version,
-			self.package.description,
+			&self.package.name,
+			&self.package.version,
+			&self.package.description,
 			out_args,
 			self.sections()?,
 		))
@@ -95,10 +96,11 @@ impl<'a> Raw<'a> {
 }
 
 /// # Getters.
-impl<'a> Raw<'a> {
+impl Raw {
 	/// # Bash Directory.
 	pub(super) fn bash_dir(&self, dir: &Path) -> Result<PathBuf, BashManError> {
 		let path: PathBuf = self.package.metadata.bash_dir
+			.as_ref()
 			.map_or_else(|| dir.to_path_buf(), |path|
 				if path.starts_with('/') { PathBuf::from(path) }
 				else {
@@ -119,6 +121,7 @@ impl<'a> Raw<'a> {
 	/// # Credits Directory.
 	pub(super) fn credits_dir(&self, dir: &Path) -> Result<PathBuf, BashManError> {
 		let path: PathBuf = self.package.metadata.credits_dir
+			.as_ref()
 			.map_or_else(|| dir.to_path_buf(), |path|
 				if path.starts_with('/') { PathBuf::from(path) }
 				else {
@@ -139,6 +142,7 @@ impl<'a> Raw<'a> {
 	/// # Man Directory.
 	pub(super) fn man_dir(&self, dir: &Path) -> Result<PathBuf, BashManError> {
 		let path: PathBuf = self.package.metadata.man_dir
+			.as_ref()
 			.map_or_else(|| dir.to_path_buf(), |path|
 				if path.starts_with('/') { PathBuf::from(path) }
 				else {
@@ -158,12 +162,12 @@ impl<'a> Raw<'a> {
 
 	#[must_use]
 	/// # Name.
-	fn name(&self) -> &'a str {
-		self.package.metadata.name.unwrap_or(self.package.name)
+	fn name(&self) -> &str {
+		self.package.metadata.name.as_deref().unwrap_or(&self.package.name)
 	}
 
 	/// # Sections.
-	fn sections(&'a self) -> Result<Vec<More<'a>>, BashManError> {
+	fn sections(&self) -> Result<Vec<More<'_>>, BashManError> {
 		self.package.metadata.sections.iter()
 			.map(More::try_from)
 			.try_fold(Vec::with_capacity(self.package.metadata.sections.len()), |mut v, a| {
@@ -179,18 +183,18 @@ impl<'a> Raw<'a> {
 /// # Raw Package Data.
 ///
 /// This is what is found under "package".
-struct RawPackage<'a> {
+struct RawPackage {
 	#[serde(deserialize_with = "deserialize_nonempty_str")]
-	name: &'a str,
+	name: String,
 
 	#[serde(deserialize_with = "deserialize_nonempty_str")]
-	version: &'a str,
+	version: String,
 
 	#[serde(deserialize_with = "deserialize_nonempty_str")]
-	description: &'a str,
+	description: String,
 
 	#[serde(with = "RawMeta")]
-	metadata: RawBashMan<'a>,
+	metadata: RawBashMan,
 }
 
 
@@ -218,58 +222,58 @@ impl<T> RawMeta<T> {
 /// # Raw Package Metadata (bashman).
 ///
 /// This is what is found under "package.metadata.bashman".
-struct RawBashMan<'a> {
+struct RawBashMan {
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
-	name: Option<&'a str>,
+	name: Option<String>,
 
 	#[serde(rename = "bash-dir")]
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
-	bash_dir: Option<&'a str>,
+	bash_dir: Option<String>,
 
 	#[serde(rename = "man-dir")]
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
-	man_dir: Option<&'a str>,
+	man_dir: Option<String>,
 
 	#[serde(rename = "credits-dir")]
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
-	credits_dir: Option<&'a str>,
+	credits_dir: Option<String>,
 
 	#[serde(default)]
-	subcommands: Vec<RawSubCmd<'a>>,
+	subcommands: Vec<RawSubCmd>,
 
 	#[serde(default)]
-	switches: Vec<RawSwitch<'a>>,
+	switches: Vec<RawSwitch>,
 
 	#[serde(default)]
-	options: Vec<RawOption<'a>>,
+	options: Vec<RawOption>,
 
 	#[serde(default)]
-	arguments: Vec<RawArg<'a>>,
+	arguments: Vec<RawArg>,
 
 	#[serde(default)]
-	sections: Vec<RawSection<'a>>,
+	sections: Vec<RawSection>,
 }
 
 
 
-#[derive(Debug, Copy, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 /// # Raw Subcommand.
 ///
 /// This is what is found under "package.metadata.bashman.subcommands".
-struct RawSubCmd<'a> {
+struct RawSubCmd {
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
-	name: Option<&'a str>,
+	name: Option<String>,
 
 	#[serde(deserialize_with = "deserialize_nonempty_str")]
-	cmd: &'a str,
+	cmd: String,
 
 	#[serde(deserialize_with = "deserialize_nonempty_str")]
-	description: &'a str,
+	description: String,
 }
 
 
@@ -278,23 +282,23 @@ struct RawSubCmd<'a> {
 /// # Raw Switch.
 ///
 /// This is what is found under "package.metadata.bashman.switches".
-struct RawSwitch<'a> {
+struct RawSwitch {
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
-	short: Option<&'a str>,
+	short: Option<String>,
 
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
-	long: Option<&'a str>,
+	long: Option<String>,
 
 	#[serde(deserialize_with = "deserialize_nonempty_str")]
-	description: &'a str,
+	description: String,
 
 	#[serde(default)]
 	duplicate: bool,
 
 	#[serde(default)]
-	subcommands: Vec<&'a str>,
+	subcommands: Vec<String>,
 }
 
 
@@ -303,21 +307,21 @@ struct RawSwitch<'a> {
 /// Raw Option.
 ///
 /// This is what is found under "package.metadata.bashman.options".
-struct RawOption<'a> {
+struct RawOption {
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
-	short: Option<&'a str>,
+	short: Option<String>,
 
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
-	long: Option<&'a str>,
+	long: Option<String>,
 
 	#[serde(deserialize_with = "deserialize_nonempty_str")]
-	description: &'a str,
+	description: String,
 
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
-	label: Option<&'a str>,
+	label: Option<String>,
 
 	#[serde(default)]
 	path: bool,
@@ -326,7 +330,7 @@ struct RawOption<'a> {
 	duplicate: bool,
 
 	#[serde(default)]
-	subcommands: Vec<&'a str>,
+	subcommands: Vec<String>,
 }
 
 
@@ -335,16 +339,16 @@ struct RawOption<'a> {
 /// # Raw Argument.
 ///
 /// This is what is found under "package.metadata.bashman.arguments".
-struct RawArg<'a> {
+struct RawArg {
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
-	label: Option<&'a str>,
+	label: Option<String>,
 
 	#[serde(deserialize_with = "deserialize_nonempty_str")]
-	description: &'a str,
+	description: String,
 
 	#[serde(default)]
-	subcommands: Vec<&'a str>,
+	subcommands: Vec<String>,
 }
 
 
@@ -353,18 +357,18 @@ struct RawArg<'a> {
 /// # Raw Section.
 ///
 /// This is what is found under "package.metadata.bashman.subcommands".
-struct RawSection<'a> {
+struct RawSection {
 	#[serde(deserialize_with = "deserialize_nonempty_str")]
-	name: &'a str,
+	name: String,
 
 	#[serde(default)]
 	inside: bool,
 
 	#[serde(default)]
-	lines: Vec<&'a str>,
+	lines: Vec<String>,
 
 	#[serde(default)]
-	items: Vec<[&'a str; 2]>
+	items: Vec<[String; 2]>
 }
 
 
@@ -372,9 +376,10 @@ struct RawSection<'a> {
 /// # Deserialize: Require Non-Empty Str
 ///
 /// This will return an error if a string is present but empty.
-fn deserialize_nonempty_str<'de, D>(deserializer: D) -> Result<&'de str, D::Error>
+fn deserialize_nonempty_str<'de, D>(deserializer: D) -> Result<String, D::Error>
 where D: Deserializer<'de> {
-	let wrapper = <&'de str as Deserialize>::deserialize(deserializer)?;
+	let mut wrapper = String::deserialize(deserializer)?;
+	wrapper.trim_mut();
 	if wrapper.is_empty() { Err(serde::de::Error::custom("Value cannot be empty.")) }
 	else { Ok(wrapper) }
 }
@@ -383,19 +388,23 @@ where D: Deserializer<'de> {
 /// # Deserialize: Require Non-Empty Str
 ///
 /// This will return `None` if the string is empty.
-fn deserialize_nonempty_opt_str<'de, D>(deserializer: D) -> Result<Option<&'de str>, D::Error>
+fn deserialize_nonempty_opt_str<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where D: Deserializer<'de> {
 	Ok(
-		Option::<&'de str>::deserialize(deserializer)
+		Option::<String>::deserialize(deserializer)
 			.ok()
 			.flatten()
-			.filter(|x| ! x.is_empty())
+			.and_then(|mut x| {
+				x.trim_mut();
+				if x.is_empty() { None }
+				else { Some(x) }
+			})
 	)
 }
 
 
 
-impl<'a> TryFrom<&'a Raw<'a>> for Command<'a> {
+impl<'a> TryFrom<&'a Raw> for Command<'a> {
 	type Error = BashManError;
 
 	fn try_from(src: &'a Raw) -> Result<Self, Self::Error> {
@@ -408,11 +417,11 @@ impl<'a> TryFrom<&'a Raw<'a>> for Command<'a> {
 		let mut subcmds: IndexMap<&'_ str, (&'_ str, &'_ str, &'_ str, Vec::<DataKind<'_>>)> = src.package.metadata.subcommands.iter()
 			.map(|y|
 				(
-					y.cmd,
+					y.cmd.as_str(),
 					(
-						y.name.unwrap_or(y.cmd),
-						y.description,
-						y.cmd,
+						y.name.as_deref().unwrap_or(&y.cmd),
+						y.description.as_str(),
+						y.cmd.as_str(),
 						Vec::new(),
 					)
 				)
@@ -439,8 +448,8 @@ impl<'a> TryFrom<&'a Raw<'a>> for Command<'a> {
 						if sub.is_empty() { out_args.push(arg.clone()); }
 						else {
 							subcmds
-								.get_mut(sub)
-								.ok_or_else(|| BashManError::InvalidSubCommand(Box::from(*sub)))?
+								.get_mut(sub.as_str())
+								.ok_or_else(|| BashManError::InvalidSubCommand(Box::from(sub.as_str())))?
 								.3
 								.push(arg.clone());
 						}
@@ -456,9 +465,9 @@ impl<'a> TryFrom<&'a Raw<'a>> for Command<'a> {
 			subcmds.drain(..).map(|(_, v)| {
 				DataKind::SubCommand(Command::new(
 					v.0,
-					Some(src.package.name),
+					Some(&src.package.name),
 					v.2,
-					src.package.version,
+					&src.package.version,
 					v.1,
 					v.3,
 					Vec::new(),
@@ -470,25 +479,25 @@ impl<'a> TryFrom<&'a Raw<'a>> for Command<'a> {
 		Ok(Command::new(
 			src.name(),
 			None,
-			src.package.name,
-			src.package.version,
-			src.package.description,
+			&src.package.name,
+			&src.package.version,
+			&src.package.description,
 			out_args,
 			src.sections()?,
 		))
 	}
 }
 
-impl<'a> TryFrom<&'a RawSwitch<'a>> for DataKind<'a> {
+impl<'a> TryFrom<&'a RawSwitch> for DataKind<'a> {
 	type Error = BashManError;
 
-	fn try_from(src: &'a RawSwitch<'a>) -> Result<Self, Self::Error> {
+	fn try_from(src: &'a RawSwitch) -> Result<Self, Self::Error> {
 		if src.short.is_some() || src.long.is_some() {
 			Ok(DataKind::Switch(
 				DataFlag {
-					short: src.short,
-					long: src.long,
-					description: src.description,
+					short: src.short.as_deref(),
+					long: src.long.as_deref(),
+					description: &src.description,
 					duplicate: src.duplicate,
 				}
 			))
@@ -499,20 +508,20 @@ impl<'a> TryFrom<&'a RawSwitch<'a>> for DataKind<'a> {
 	}
 }
 
-impl<'a> TryFrom<&'a RawOption<'a>> for DataKind<'a> {
+impl<'a> TryFrom<&'a RawOption> for DataKind<'a> {
 	type Error = BashManError;
 
-	fn try_from(src: &'a RawOption<'a>) -> Result<Self, Self::Error> {
+	fn try_from(src: &'a RawOption) -> Result<Self, Self::Error> {
 		if src.short.is_some() || src.long.is_some() {
 			Ok(DataKind::Option(
 				DataOption {
 					flag: DataFlag {
-						short: src.short,
-						long: src.long,
-						description: src.description,
+						short: src.short.as_deref(),
+						long: src.long.as_deref(),
+						description: &src.description,
 						duplicate: src.duplicate,
 					},
-					label: src.label.unwrap_or("<VAL>"),
+					label: src.label.as_deref().unwrap_or("<VAL>"),
 					path: src.path,
 				}
 			))
@@ -523,11 +532,11 @@ impl<'a> TryFrom<&'a RawOption<'a>> for DataKind<'a> {
 	}
 }
 
-impl<'a> From<&'a RawArg<'a>> for DataKind<'a> {
-	fn from(src: &'a RawArg<'a>) -> Self {
+impl<'a> From<&'a RawArg> for DataKind<'a> {
+	fn from(src: &'a RawArg) -> Self {
 		DataKind::Arg(DataItem {
-			label: src.label.unwrap_or("<VALUES>"),
-			description: src.description
+			label: src.label.as_deref().unwrap_or("<VALUES>"),
+			description: &src.description
 		})
 	}
 }
@@ -545,30 +554,35 @@ impl<'a> TryFrom<[&'a str; 2]> for DataKind<'a> {
 	}
 }
 
-impl<'a> TryFrom<&'a RawSection<'a>> for More<'a> {
+impl<'a> TryFrom<&'a RawSection> for More<'a> {
 	type Error = BashManError;
 
-	fn try_from(src: &'a RawSection<'a>) -> Result<Self, Self::Error> {
+	fn try_from(src: &'a RawSection) -> Result<Self, Self::Error> {
 		Ok(More {
-			label: src.name,
+			label: &src.name,
 			indent: src.inside,
 			data: match (src.lines.is_empty(), src.items.len()) {
 				// Neither.
 				(true, 0) => return Err(BashManError::InvalidSection),
 				// Just lines.
-				(false, 0) => vec![DataKind::Paragraph(src.lines.clone())],
+				(false, 0) => vec![DataKind::Paragraph(
+					src.lines.iter()
+						.map(String::as_str)
+						.collect()
+				)],
 				// Just items.
-				(true, len) => src.items.iter().try_fold(Vec::with_capacity(len), |mut v, &a| {
-					v.push(DataKind::try_from(a)?);
-					Ok(v)
-				})?,
+				(true, _) => src.items.iter().map(|[a, b]|
+					DataKind::try_from([a.as_str(), b.as_str()])
+				)
+					.collect::<Result<Vec<_>, _>>()?,
 				// Both.
-				(false, len) => std::iter::once(Ok(DataKind::Paragraph(src.lines.clone())))
-					.chain(src.items.iter().map(|&a| DataKind::try_from(a)))
-					.try_fold(Vec::with_capacity(len + 1), |mut v, a| {
-						v.push(a?);
-						Ok(v)
-					})?,
+				(false, _) => std::iter::once(Ok(DataKind::Paragraph(
+						src.lines.iter()
+						.map(String::as_str)
+						.collect()
+					)))
+					.chain(src.items.iter().map(|[a, b]| DataKind::try_from([a.as_str(), b.as_str()])))
+					.collect::<Result<Vec<_>, _>>()?,
 			}
 		})
 	}
