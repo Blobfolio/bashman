@@ -449,7 +449,7 @@ impl<'a> TryFrom<&'a Raw> for Command<'a> {
 
 		// Drain the subcommands into args.
 		out_args.extend(
-			subcmds.drain(..).map(|(_, v)| {
+			subcmds.into_values().map(|v| {
 				DataKind::SubCommand(Command::new(
 					v.0,
 					Some(&src.package.name),
