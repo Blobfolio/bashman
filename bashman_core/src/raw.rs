@@ -70,10 +70,7 @@ impl Raw {
 			.chain(
 				self.package.metadata.arguments.iter().map(|y| Ok(DataKind::from(y)))
 			)
-			.try_fold(Vec::with_capacity(self.count_args()), |mut v, a| {
-				v.push(a?);
-				Ok(v)
-			})?;
+			.collect::<Result<_, _>>()?;
 
 		// Finally return the whole thing!
 		Ok(Command::new(
@@ -85,13 +82,6 @@ impl Raw {
 			out_args,
 			self.sections()?,
 		))
-	}
-
-	/// # Arg Size Hint.
-	fn count_args(&self) -> usize {
-		self.package.metadata.switches.len() +
-		self.package.metadata.options.len() +
-		self.package.metadata.arguments.len()
 	}
 }
 
@@ -170,10 +160,7 @@ impl Raw {
 	fn sections(&self) -> Result<Vec<More<'_>>, BashManError> {
 		self.package.metadata.sections.iter()
 			.map(More::try_from)
-			.try_fold(Vec::with_capacity(self.package.metadata.sections.len()), |mut v, a| {
-				v.push(a?);
-				Ok(v)
-			})
+			.collect::<Result<_, _>>()
 	}
 }
 
@@ -574,7 +561,7 @@ impl<'a> TryFrom<&'a RawSection> for More<'a> {
 				(true, _) => src.items.iter().map(|[a, b]|
 					DataKind::try_from([a.as_str(), b.as_str()])
 				)
-					.collect::<Result<Vec<_>, _>>()?,
+					.collect::<Result<_, _>>()?,
 				// Both.
 				(false, _) => std::iter::once(Ok(DataKind::Paragraph(
 						src.lines.iter()
@@ -582,7 +569,7 @@ impl<'a> TryFrom<&'a RawSection> for More<'a> {
 						.collect()
 					)))
 					.chain(src.items.iter().map(|[a, b]| DataKind::try_from([a.as_str(), b.as_str()])))
-					.collect::<Result<Vec<_>, _>>()?,
+					.collect::<Result<_, _>>()?,
 			}
 		})
 	}
