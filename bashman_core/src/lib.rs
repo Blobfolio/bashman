@@ -80,12 +80,10 @@ pub fn parse(manifest: PathBuf, flags: u8, features: Option<&str>) -> Result<(),
 	let manifest = std::fs::canonicalize(manifest)
 		.map_err(|_| BashManError::InvalidManifest)?;
 
-	// Load it as a string.
-	let content = std::fs::read_to_string(&manifest)
-		.map_err(|_| BashManError::InvalidManifest)?;
-
-	// Parse the raw data.
-	let raw = Raw::try_from(content.as_str())?;
+	// Load and parse.
+	let raw = std::fs::read_to_string(&manifest)
+		.map_err(|_| BashManError::InvalidManifest)
+		.and_then(Raw::try_from)?;
 	let cmd = Command::try_from(&raw)?;
 
 	// Establish a shared buffer to use to write chunked Man/BASH output to
