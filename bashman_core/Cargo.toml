@@ -1,6 +1,6 @@
 [package]
 name = "bashman_core"
-version = "0.3.18"
+version = "0.3.19"
 license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
 edition = "2021"
@@ -12,10 +12,10 @@ publish = false
 [dependencies]
 adbyss_psl = "0.7.*"
 argyle = "0.6.*"
-cargo_metadata = "=0.15.3"
+cargo_metadata = "=0.15.4"
 fyi_msg = "0.10.*"
-indexmap = "=1.9.2"
-libdeflater = "=0.12.0"
+indexmap = "=1.9.3"
+libdeflater = "=0.13.0"
 oxford_join = "0.2.*"
 trimothy = "0.1.*"
 utc2k = "0.5.*"

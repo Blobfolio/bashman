@@ -257,13 +257,13 @@ impl<'a> Command<'a> {
 			.fold(
 				(String::new(), String::new()),
 				|(mut a, mut b), (c, d)| {
-					let _ = writeln!(a, "\
+					let _res = writeln!(a, "\
 						\t\t\t{})\n\
 						\t\t\t\tcmd=\"{}\"\n\
 						\t\t\t\t;;",
 						&c, &c
 					);
-					let _ = writeln!(b, "\
+					let _res = writeln!(b, "\
 						\t\t{})\n\
 						\t\t\t{}\n\
 						\t\t\t;;",
