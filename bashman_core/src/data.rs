@@ -12,10 +12,8 @@ use libdeflater::{
 	Compressor,
 };
 use std::{
-	ffi::OsStr,
 	fs::File,
 	io::Write,
-	os::unix::ffi::OsStrExt,
 	path::Path,
 };
 use utc2k::Utc2k;
@@ -371,7 +369,9 @@ impl<'a> Command<'a> {
 		buf.truncate(len);
 
 		// Toss ".gz" onto the original file path and write again!
-		File::create(OsStr::from_bytes(&[path.as_os_str().as_bytes(), b".gz"].concat()))
+		let mut dst = path.to_path_buf();
+		dst.as_mut_os_string().push(".gz");
+		File::create(dst)
 			.and_then(|mut f| f.write_all(&buf).and_then(|_| f.flush()))
 			.map_err(|_| BashManError::WriteSubMan(Box::from(self.bin)))
 	}
