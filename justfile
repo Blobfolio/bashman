@@ -56,16 +56,6 @@ release_dir := justfile_directory() + "/release"
 	mv "{{ justfile_directory() }}/target" "{{ cargo_dir }}"
 
 
-# Check Release!
-@check:
-	# First let's build the Rust bit.
-	cargo check \
-		--workspace \
-		--release \
-		--target x86_64-unknown-linux-gnu \
-		--target-dir "{{ cargo_dir }}"
-
-
 @clean:
 	# Most things go here.
 	[ ! -d "{{ cargo_dir }}" ] || rm -rf "{{ cargo_dir }}"
@@ -118,6 +108,10 @@ release_dir := justfile_directory() + "/release"
 # Unit tests!
 @test:
 	clear
+	cargo test \
+		--workspace \
+		--target x86_64-unknown-linux-gnu \
+		--target-dir "{{ cargo_dir }}"
 	cargo test \
 		--release \
 		--workspace \
