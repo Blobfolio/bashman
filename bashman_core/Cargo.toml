@@ -17,7 +17,7 @@ fyi_msg = "0.11.*"
 indexmap = "2.0.*"
 libdeflater = "=1.19.0"
 oxford_join = "0.2.*"
-trimothy = "0.1.*"
+trimothy = "0.2.*"
 utc2k = "0.6.*"
 
 [dependencies.serde]
