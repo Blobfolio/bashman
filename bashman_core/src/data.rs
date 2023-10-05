@@ -149,7 +149,7 @@ impl<'a> Command<'a> {
 		let mut out_file = path.to_path_buf();
 		out_file.push(self.bin.to_string() + ".bash");
 		File::create(&out_file)
-			.and_then(|mut f| f.write_all(buf).and_then(|_| f.flush()))
+			.and_then(|mut f| f.write_all(buf).and_then(|()| f.flush()))
 			.map_err(|_| BashManError::WriteBash)?;
 
 		Msg::success(format!("BASH completions written to: {path:?}")).print();
@@ -356,7 +356,7 @@ impl<'a> Command<'a> {
 	fn _write_man(&self, path: &Path, data: &[u8]) -> Result<(), BashManError> {
 		// Write plain.
 		File::create(path)
-			.and_then(|mut f| f.write_all(data).and_then(|_| f.flush()))
+			.and_then(|mut f| f.write_all(data).and_then(|()| f.flush()))
 			.map_err(|_| BashManError::WriteSubMan(Box::from(self.bin)))?;
 
 		// Write compressed.
@@ -372,7 +372,7 @@ impl<'a> Command<'a> {
 		let mut dst = path.to_path_buf();
 		dst.as_mut_os_string().push(".gz");
 		File::create(dst)
-			.and_then(|mut f| f.write_all(&buf).and_then(|_| f.flush()))
+			.and_then(|mut f| f.write_all(&buf).and_then(|()| f.flush()))
 			.map_err(|_| BashManError::WriteSubMan(Box::from(self.bin)))
 	}
 
@@ -582,7 +582,7 @@ impl<'a> Command<'a> {
 
 		// Write plain.
 		File::create(&out)
-			.and_then(|mut f| f.write_all(buf).and_then(|_| f.flush()))
+			.and_then(|mut f| f.write_all(buf).and_then(|()| f.flush()))
 			.map_err(|_| BashManError::WriteCredits)?;
 
 		Msg::success(format!("Credits written to: {out:?}")).print();

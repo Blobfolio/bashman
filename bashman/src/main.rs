@@ -49,7 +49,7 @@ use std::path::PathBuf;
 /// Main.
 fn main() {
 	match _main() {
-		Ok(_) => {},
+		Ok(()) => {},
 		Err(BashManError::Argue(ArgyleError::WantsVersion)) => {
 			println!(concat!("Cargo BashMan v", env!("CARGO_PKG_VERSION")));
 		},
