@@ -11,7 +11,7 @@ publish = false
 
 [dependencies]
 adbyss_psl = "0.9.*"
-argyle = "0.6.*"
+argyle = "0.7.*"
 cargo_metadata = "=0.18.1"
 fyi_msg = "0.11.*"
 indexmap = "2.1.*"
