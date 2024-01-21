@@ -21,7 +21,7 @@ pkg_dir1    := justfile_directory() + "/bashman"
 pkg_dir2    := justfile_directory() + "/bashman_core"
 
 cargo_dir   := "/tmp/" + pkg_id + "-cargo"
-cargo_bin   := cargo_dir + "/x86_64-unknown-linux-gnu/release/" + pkg_id
+cargo_bin   := cargo_dir + "/release/" + pkg_id
 doc_dir     := justfile_directory() + "/doc"
 release_dir := justfile_directory() + "/release"
 
@@ -35,7 +35,6 @@ export RUSTFLAGS := "-C target-cpu=x86-64-v3"
 	cargo build \
 		--bin "{{ pkg_id }}" \
 		--release \
-		--target x86_64-unknown-linux-gnu \
 		--target-dir "{{ cargo_dir }}"
 
 
@@ -77,24 +76,7 @@ export RUSTFLAGS := "-C target-cpu=x86-64-v3"
 	cargo clippy \
 		--workspace \
 		--release \
-		--target x86_64-unknown-linux-gnu \
 		--target-dir "{{ cargo_dir }}"
-
-
-# Build Docs.
-@doc:
-	# Make the docs.
-	cargo doc \
-		--workspace \
-		--release \
-		--no-deps \
-		--target x86_64-unknown-linux-gnu \
-		--target-dir "{{ cargo_dir }}"
-
-	# Move the docs and clean up ownership.
-	[ ! -d "{{ doc_dir }}" ] || rm -rf "{{ doc_dir }}"
-	mv "{{ cargo_dir }}/x86_64-unknown-linux-gnu/doc" "{{ justfile_directory() }}"
-	just _fix-chown "{{ doc_dir }}"
 
 
 # Test Run.
@@ -102,7 +84,6 @@ export RUSTFLAGS := "-C target-cpu=x86-64-v3"
 	cargo run \
 		--bin "{{ pkg_id }}" \
 		--release \
-		--target x86_64-unknown-linux-gnu \
 		--target-dir "{{ cargo_dir }}" \
 		-- {{ ARGS }}
 
@@ -112,12 +93,10 @@ export RUSTFLAGS := "-C target-cpu=x86-64-v3"
 	clear
 	cargo test \
 		--workspace \
-		--target x86_64-unknown-linux-gnu \
 		--target-dir "{{ cargo_dir }}"
 	cargo test \
 		--release \
 		--workspace \
-		--target x86_64-unknown-linux-gnu \
 		--target-dir "{{ cargo_dir }}"
 
 

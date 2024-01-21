@@ -18,7 +18,7 @@ depends = "$auto"
 extended-description = ""
 section = "rust"
 assets = [
-    ["../target/x86_64-unknown-linux-gnu/release/cargo-bashman", "usr/bin/", "755"],
+    ["../target/release/cargo-bashman", "usr/bin/", "755"],
     ["../release/completions/cargo-bashman.bash", "etc/bash_completion.d/", "644"],
     ["../release/man/cargo-bashman.1.gz", "usr/share/man/man1/", "644"],
 ]
