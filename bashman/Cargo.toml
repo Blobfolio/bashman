@@ -1,6 +1,6 @@
 [package]
 name = "cargo-bashman"
-version = "0.4.4"
+version = "0.4.5"
 license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
 edition = "2021"
@@ -11,14 +11,14 @@ publish = false
 
 [package.metadata.deb]
 maintainer = "Josh Stoik <hello@blobfolio.com>"
-copyright = "2022, Blobfolio, LLC <hello@blobfolio.com>"
+copyright = "2024, Blobfolio, LLC <hello@blobfolio.com>"
 license-file = ["../LICENSE", "0"]
 revision = "1"
 depends = "$auto"
 extended-description = ""
 section = "rust"
 assets = [
-    ["../target/x86_64-unknown-linux-gnu/release/cargo-bashman", "usr/bin/", "755"],
+    ["../target/release/cargo-bashman", "usr/bin/", "755"],
     ["../release/completions/cargo-bashman.bash", "etc/bash_completion.d/", "644"],
     ["../release/man/cargo-bashman.1.gz", "usr/share/man/man1/", "644"],
 ]
@@ -66,8 +66,8 @@ label = "<Cargo.toml>"
 path = true
 
 [dependencies]
-argyle = "0.6.*"
-fyi_msg = "0.11.*"
+argyle = "0.7.*"
+fyi_msg = "0.12.*"
 
 [dependencies.bashman_core]
 path = "../bashman_core"
