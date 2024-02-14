@@ -4,7 +4,6 @@ version = "0.4.5"
 license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
 edition = "2021"
-rust-version = "1.70"
 description = "The backing library for Cargo Bashman."
 repository = "https://github.com/Blobfolio/bashman"
 publish = false
