@@ -66,7 +66,7 @@ path = true
 
 [dependencies]
 argyle = "0.7.*"
-fyi_msg = "0.12.*"
+fyi_msg = "0.13.*"
 
 [dependencies.bashman_core]
 path = "../bashman_core"
