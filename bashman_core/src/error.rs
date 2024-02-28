@@ -17,6 +17,8 @@ pub enum BashManError {
 	InvalidBashDir,
 	/// # Invalid Credits output directory.
 	InvalidCreditsDir,
+	/// # Invalid CLI Option.
+	InvalidCli(Box<str>),
 	/// # Invalid flag.
 	InvalidFlag,
 	/// # Invalid item.
@@ -52,6 +54,7 @@ impl fmt::Display for BashManError {
 		match self {
 			Self::Argue(src) => f.write_str(src.as_str()),
 			Self::InvalidBashDir => f.write_str("Invalid BASH output directory."),
+			Self::InvalidCli(s) => f.write_fmt(format_args!("Invalid/unknown CLI option: {s}")),
 			Self::InvalidCreditsDir => f.write_str("Invalid credits output directory."),
 			Self::InvalidFlag => f.write_str("Flags require at least one short/long key."),
 			Self::InvalidItem => f.write_str("Items require a key and value."),

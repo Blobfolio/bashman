@@ -64,6 +64,14 @@ fn _main() -> Result<(), BashManError> {
 	// Parse CLI arguments.
 	let args = Argue::new(FLAG_HELP | FLAG_VERSION).map_err(BashManError::Argue)?;
 
+	// Check for invalid CLI options.
+	if let Some(boo) = args.check_keys(
+		&[b"--no-bash", b"--no-credits", b"--no-man"],
+		&[b"--features", b"--manifest-path", b"-f", b"-m"],
+	) {
+		return Err(BashManError::InvalidCli(String::from_utf8_lossy(boo).into()));
+	}
+
 	let mut flags: u8 = FLAG_ALL;
 	if args.switch(b"--no-bash") {
 		flags &= ! FLAG_BASH;
