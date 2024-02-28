@@ -7,9 +7,9 @@ This module contains the [`Command`] and related data structures produced from
 
 use crate::BashManError;
 use fyi_msg::Msg;
-use libdeflater::{
-	CompressionLvl,
-	Compressor,
+use flate2::{
+	Compression,
+	write::GzEncoder,
 };
 use std::{
 	fs::File,
@@ -359,14 +359,12 @@ impl<'a> Command<'a> {
 			.and_then(|mut f| f.write_all(data).and_then(|()| f.flush()))
 			.map_err(|_| BashManError::WriteSubMan(Box::from(self.bin)))?;
 
-		// Write compressed.
-		let mut writer = Compressor::new(CompressionLvl::best());
-		let mut buf: Vec<u8> = vec![0; writer.gzip_compress_bound(data.len())];
-
-		// Trim any excess now that we know the final length.
-		let len = writer.gzip_compress(data, &mut buf)
+		// Gzip it.
+		let mut writer = GzEncoder::new(Vec::new(), Compression::best());
+		let buf = writer.write_all(data)
+			.and_then(|()| writer.flush())
+			.and_then(|()| writer.finish())
 			.map_err(|_| BashManError::WriteSubMan(Box::from(self.bin)))?;
-		buf.truncate(len);
 
 		// Toss ".gz" onto the original file path and write again!
 		let mut dst = path.to_path_buf();
