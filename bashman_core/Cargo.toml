@@ -10,7 +10,7 @@ publish = false
 
 [dependencies]
 adbyss_psl = "0.12.*"
-argyle = "0.7.2"
+argyle = "0.8.*"
 cargo_metadata = "=0.18.1"
 flate2 = "1.0.*"
 fyi_msg = "0.13.*"
