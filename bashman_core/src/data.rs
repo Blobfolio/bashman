@@ -20,10 +20,19 @@ use utc2k::Utc2k;
 
 
 
+/// # Flag: Arguments.
 const FLAG_ARGUMENTS: u8 =    0b0000_0001;
+
+/// # Flag: Options.
 const FLAG_OPTIONS: u8 =      0b0000_0010;
+
+/// # Flag: Option Value is Path.
 const FLAG_PATH_OPTIONS: u8 = 0b0000_0110;
+
+/// # Flag: Subcommand.
 const FLAG_SUBCOMMANDS: u8 =  0b0000_1000;
+
+/// # Flag: Switch.
 const FLAG_SWITCHES: u8 =     0b0001_0000;
 
 
@@ -31,14 +40,31 @@ const FLAG_SWITCHES: u8 =     0b0001_0000;
 #[derive(Debug, Clone)]
 /// # Command Metadata.
 pub(super) struct Command<'a> {
+	/// # Name.
 	pub(crate) name: &'a str,
+
+	/// # Parent Command, if any.
 	pub(crate) parent: Option<&'a str>,
+
+	/// # Executable Name.
 	pub(crate) bin: &'a str,
+
+	/// # Version.
 	pub(crate) version: &'a str,
+
+	/// # Description.
 	pub(crate) description: &'a str,
+
+	/// # Data Sections.
 	pub(crate) data: Vec<DataKind<'a>>,
+
+	/// # Additional Sections.
 	pub(crate) more: Vec<More<'a>>,
+
+	/// # Flags.
 	flags: u8,
+
+	/// # Completion Function Name.
 	fname: Box<str>,
 }
 
@@ -147,7 +173,7 @@ impl<'a> Command<'a> {
 
 		// Write it to a file!
 		let mut out_file = path.to_path_buf();
-		out_file.push(self.bin.to_string() + ".bash");
+		out_file.push(self.bin.to_owned() + ".bash");
 		File::create(&out_file)
 			.and_then(|mut f| f.write_all(buf).and_then(|()| f.flush()))
 			.map_err(|_| BashManError::WriteBash)?;
@@ -323,7 +349,7 @@ impl<'a> Command<'a> {
 		man_escape(buf);
 
 		let mut out_file = path.to_path_buf();
-		out_file.push(self.bin.to_string() + ".1");
+		out_file.push(self.bin.to_owned() + ".1");
 		self._write_man(&out_file, buf)?;
 
 		// All the subcommands.
@@ -402,7 +428,7 @@ impl<'a> Command<'a> {
 		}
 			.map_err(|_| BashManError::WriteSubMan(Box::from(self.bin)))?;
 
-		// Helper: Generic section writer.
+		/// # Helper: Generic section writer.
 		macro_rules! write_section {
 			($label:expr, $indent:expr, $data:expr) => {
 				More { label: $label, indent: $indent, data: $data }.man(buf)?;
@@ -490,7 +516,7 @@ impl<'a> Command<'a> {
 	/// # Man usage.
 	fn man_usage(&self) -> String {
 		let mut out: String = self.parent.map_or_else(
-			|| self.bin.to_string(),
+			|| self.bin.to_owned(),
 			|p| format!("{p} {}", self.bin),
 		);
 
@@ -593,8 +619,13 @@ impl<'a> Command<'a> {
 #[derive(Debug, Clone)]
 /// # Misc Metadata Section.
 pub(super) struct More<'a> {
+	/// # Label.
 	pub(crate) label: &'a str,
+
+	/// # Indented?
 	pub(crate) indent: bool,
+
+	/// # Arguments, etc.
 	pub(crate) data: Vec<DataKind<'a>>,
 }
 
@@ -643,20 +674,26 @@ impl<'a> More<'a> {
 pub(super) enum DataKind<'a> {
 	/// # Trailing argument.
 	Arg(DataItem<'a>),
+
 	/// # Misc Item.
 	Item(DataItem<'a>),
+
 	/// # Option.
 	Option(DataOption<'a>),
+
 	/// # Paragraph.
 	Paragraph(Vec<&'a str>),
+
 	/// # Subcommand.
 	SubCommand(Command<'a>),
+
 	/// # Switch.
 	Switch(DataFlag<'a>),
 }
 
 /// # Bash.
 impl<'a> DataKind<'a> {
+	/// # Output Bash Completions.
 	fn write_bash(&self, buf: &mut Vec<u8>) -> Result<(), BashManError> {
 		match self {
 			Self::Switch(s) => bash_long_short_conds(
@@ -682,6 +719,7 @@ impl<'a> DataKind<'a> {
 impl<'a> DataKind<'a> {
 	/// # Manual.
 	fn man(&self, buf: &mut Vec<u8>, indent: bool) -> Result<(), BashManError> {
+		/// # Helper: Push Description.
 		macro_rules! push_desc {
 			($desc:expr) => {
 				if self.man_tagline(buf)? {
@@ -694,6 +732,7 @@ impl<'a> DataKind<'a> {
 				}
 			};
 		}
+
 		match self {
 			Self::Switch(i) => {
 				push_desc!(i.description);
@@ -747,9 +786,16 @@ impl<'a> DataKind<'a> {
 #[derive(Debug, Copy, Clone)]
 /// # Flag.
 pub(super) struct DataFlag<'a> {
+	/// # Short Key.
 	pub(crate) short: Option<&'a str>,
+
+	/// # Long Key.
 	pub(crate) long: Option<&'a str>,
+
+	/// # Description.
 	pub(crate) description: &'a str,
+
+	/// # Allow Duplicates?
 	pub(crate) duplicate: bool,
 }
 
@@ -758,7 +804,10 @@ pub(super) struct DataFlag<'a> {
 #[derive(Debug, Copy, Clone)]
 /// # Misc Item.
 pub(super) struct DataItem<'a> {
+	/// # Label.
 	pub(crate) label: &'a str,
+
+	/// # Description.
 	pub(crate) description: &'a str,
 }
 
@@ -767,8 +816,13 @@ pub(super) struct DataItem<'a> {
 #[derive(Debug, Copy, Clone)]
 /// # Option.
 pub(super) struct DataOption<'a> {
+	/// # Flag.
 	pub(crate) flag: DataFlag<'a>,
+
+	/// # Label.
 	pub(crate) label: &'a str,
+
+	/// # Value is Path?
 	pub(crate) path: bool,
 }
 

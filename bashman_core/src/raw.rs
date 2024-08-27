@@ -13,6 +13,8 @@ the number of allocations resulting from attempting the feat more directly.
 So be it.
 */
 
+#![expect(clippy::missing_docs_in_private_items, reason = "Unimportant.")]
+
 use crate::{
 	BashManError,
 	Command,
@@ -371,7 +373,7 @@ where D: Deserializer<'de> {
 	else { Ok(wrapper) }
 }
 
-#[allow(clippy::unnecessary_wraps)] // Not our structure to decide.
+#[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
 /// # Deserialize: Require Non-Empty Str
 ///
 /// This will return `None` if the string is empty.

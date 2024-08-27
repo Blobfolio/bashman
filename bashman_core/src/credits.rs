@@ -33,10 +33,19 @@ use trimothy::TrimMut;
 #[derive(Debug)]
 /// # Dependency.
 pub(super) struct Dependency {
+	/// # Name.
 	pub(super) name: String,
+
+	/// # Version.
 	pub(super) version: String,
+
+	/// # Author(s).
 	pub(super) authors: String,
+
+	/// # License.
 	pub(super) license: String,
+
+	/// # URL.
 	pub(super) link: Option<String>,
 }
 
@@ -292,7 +301,7 @@ mod tests {
 
 	#[test]
 	fn t_strip_markdown() {
-		let mut raw: String = r" H(E)L[L]O <W>O|RLD |".to_string();
+		let mut raw: String = " H(E)L[L]O <W>O|RLD |".to_owned();
 		strip_markdown(&mut raw);
 		assert_eq!(raw, "HELLO WORLD");
 	}
