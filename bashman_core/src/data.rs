@@ -11,6 +11,7 @@ use flate2::{
 	Compression,
 	write::GzEncoder,
 };
+use oxford_join::JoinFmt;
 use std::{
 	fs::File,
 	io::Write,
@@ -228,15 +229,17 @@ impl<'a> Command<'a> {
 	/// script for cases where the last option entered expects a path. It is
 	/// integrated into the main [`Agree::bash`] output.
 	fn bash_paths(&self, buf: &mut Vec<u8>) -> Result<(), BashManError> {
-		let keys: Vec<&str> = self.data.iter()
-			.filter_map(|o| o.and_path_option().and_then(|o| o.flag.short))
-			.chain(
-				self.data.iter()
-					.filter_map(|o| o.and_path_option().and_then(|o| o.flag.long))
-			)
+		// Collect all the keys corresponding to path options.
+		let mut keys: Vec<&str> = self.data.iter()
+			.filter_map(DataKind::and_path_option)
+			.flat_map(|o| o.flag.keys())
 			.collect();
 
+		// If there are any, add them to the completions.
 		if ! keys.is_empty() {
+			keys.sort_unstable();
+			keys.dedup();
+
 			write!(
 				buf,
 				r#"	case "${{prev}}" in
@@ -253,7 +256,7 @@ impl<'a> Command<'a> {
 			;;
 	esac
 "#,
-				&keys.join("|")
+				JoinFmt::new(keys.iter(), "|"),
 			)
 				.map_err(|_| BashManError::WriteBash)?;
 		}
@@ -734,15 +737,9 @@ impl<'a> DataKind<'a> {
 		}
 
 		match self {
-			Self::Switch(i) => {
-				push_desc!(i.description);
-			},
-			Self::Option(i) => {
-				push_desc!(i.flag.description);
-			},
-			Self::Arg(i) | Self::Item(i) => {
-				push_desc!(i.description);
-			},
+			Self::Switch(i) => { push_desc!(i.description); },
+			Self::Option(i) => { push_desc!(i.flag.description); },
+			Self::Arg(i) | Self::Item(i) => { push_desc!(i.description); },
 			Self::Paragraph(i) => {
 				if indent {
 					buf.extend_from_slice(b"\n.TP\n");
@@ -797,6 +794,53 @@ pub(super) struct DataFlag<'a> {
 
 	/// # Allow Duplicates?
 	pub(crate) duplicate: bool,
+}
+
+impl<'a> DataFlag<'a> {
+	/// # Keys.
+	const fn keys(&self) -> DataFlagKeys {
+		DataFlagKeys {
+			short: self.short,
+			long: self.long,
+		}
+	}
+}
+
+
+
+/// # Data Flag Iterator.
+///
+/// Iterate over the flag keys, if any, beginning with the shorter of the two.
+struct DataFlagKeys<'a> {
+	/// # Short Key.
+	short: Option<&'a str>,
+
+	/// # Long Key.
+	long: Option<&'a str>,
+}
+
+impl<'a> Iterator for DataFlagKeys<'a> {
+	type Item = &'a str;
+
+	fn next(&mut self) -> Option<Self::Item> {
+		self.short.take().or_else(|| self.long.take())
+	}
+
+	fn size_hint(&self) -> (usize, Option<usize>) {
+		let len = self.len();
+		(len, Some(len))
+	}
+}
+
+impl<'a> ExactSizeIterator for DataFlagKeys<'a> {
+	#[inline]
+	fn len(&self) -> usize {
+		match (self.short.is_some(), self.long.is_some()) {
+			(true, true) => 2,
+			(true, false) | (false, true) => 1,
+			(false, false) => 0,
+		}
+	}
 }
 
 
