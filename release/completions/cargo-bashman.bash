@@ -29,7 +29,7 @@ _basher___cargo_bashman() {
 		return 0
 	fi
 	case "${prev}" in
-		-m|--manifest-path)
+		--manifest-path|-m)
 			if [ -z "$( declare -f _filedir )" ]; then
 				COMPREPLY=( $( compgen -f "${cur}" ) )
 			else
