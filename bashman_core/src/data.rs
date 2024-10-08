@@ -13,6 +13,7 @@ use flate2::{
 };
 use oxford_join::JoinFmt;
 use std::{
+	borrow::Cow,
 	fs::File,
 	io::Write,
 	path::Path,
@@ -119,6 +120,26 @@ impl<'a> Command<'a> {
 	#[must_use]
 	/// # Description.
 	const fn description(&self) -> &'a str { self.description }
+
+	/// # Full Bin.
+	///
+	/// Return either "bin" or "parent bin", depending on context.
+	fn full_bin(&self) -> Cow<'a, str> {
+		self.parent.map_or_else(
+			|| Cow::Borrowed(self.bin()),
+			|p| Cow::Owned(format!("{p} {}", self.bin())),
+		)
+	}
+
+	/// # Full Name.
+	///
+	/// Return either "name" or "parent name", depending on context.
+	fn full_name(&self) -> Cow<'a, str> {
+		self.parent.map_or_else(
+			|| Cow::Borrowed(self.name()),
+			|p| Cow::Owned(format!("{p} {}", self.name())),
+		)
+	}
 
 	#[must_use]
 	/// # Name.
@@ -408,27 +429,16 @@ impl<'a> Command<'a> {
 		let now = utc2k::Utc2k::now();
 
 		// Start with the header.
-		match self.parent {
-			Some(p) => write!(
-				buf,
-				r#".TH "{} {}" "1" "{} {}" "{} v{}" "User Commands""#,
-				p.to_uppercase(),
-				self.name().to_uppercase(),
-				now.month_name(),
-				now.year(),
-				self.name(),
-				self.version(),
-			),
-			None => write!(
-				buf,
-				r#".TH "{}" "1" "{} {}" "{} v{}" "User Commands""#,
-				self.name().to_uppercase(),
-				now.month_name(),
-				now.year(),
-				self.name(),
-				self.version(),
-			),
-		}
+		let full_name = self.full_name();
+		let full_bin = self.full_bin();
+		write!(
+			buf,
+			r#".TH "{}" "1" "{} {}" "{full_bin} v{}" "User Commands""#,
+			full_name.to_uppercase(),
+			now.month_name(),
+			now.year(),
+			self.version(),
+		)
 			.map_err(|_| BashManError::WriteSubMan(Box::from(self.bin)))?;
 
 		/// # Helper: Generic section writer.
@@ -446,10 +456,9 @@ impl<'a> Command<'a> {
 			"NAME",
 			false,
 			vec![DataKind::Paragraph(vec![&format!(
-				"{} - Manual page for {} v{}.",
-				self.name(),
-				self.bin,
-				self.version()
+				"{} - Manual page for {full_bin} v{}.",
+				self.name().to_uppercase(),
+				self.version(),
 			)])]
 		);
 
