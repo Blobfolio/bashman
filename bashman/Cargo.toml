@@ -64,8 +64,11 @@ description = "Path to the Cargo.toml file to use."
 label = "<Cargo.toml>"
 path = true
 
+[build-dependencies]
+argyle = "0.10.*"
+
 [dependencies]
-argyle = "0.8.*"
+argyle = "0.10.*"
 fyi_msg = "1.1.*"
 
 [dependencies.bashman_core]

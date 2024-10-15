@@ -53,12 +53,7 @@
 
 
 
-use argyle::{
-	Argue,
-	ArgyleError,
-	FLAG_HELP,
-	FLAG_VERSION,
-};
+use argyle::Argument;
 use bashman_core::{
 	BashManError,
 	FLAG_ALL,
@@ -75,10 +70,10 @@ use std::path::PathBuf;
 fn main() {
 	match _main() {
 		Ok(()) => {},
-		Err(BashManError::Argue(ArgyleError::WantsVersion)) => {
+		Err(BashManError::PrintVersion) => {
 			println!(concat!("Cargo BashMan v", env!("CARGO_PKG_VERSION")));
 		},
-		Err(BashManError::Argue(ArgyleError::WantsHelp)) => { helper(); },
+		Err(BashManError::PrintHelp) => { helper(); },
 		Err(e) => { Msg::error(e.to_string()).die(1); },
 	}
 }
@@ -87,41 +82,41 @@ fn main() {
 /// # Actual main.
 fn _main() -> Result<(), BashManError> {
 	// Parse CLI arguments.
-	let args = Argue::new(FLAG_HELP | FLAG_VERSION).map_err(BashManError::Argue)?;
-
-	// Check for invalid CLI options.
-	if let Some(boo) = args.check_keys(
-		&[b"--no-bash", b"--no-credits", b"--no-man"],
-		&[b"--features", b"--manifest-path", b"-f", b"-m"],
-	) {
-		return Err(BashManError::InvalidCli(String::from_utf8_lossy(boo).into()));
-	}
+	let args = argyle::args()
+		.with_keywords(include!(concat!(env!("OUT_DIR"), "/argyle.rs")));
 
 	let mut flags: u8 = FLAG_ALL;
-	if args.switch(b"--no-bash") {
-		flags &= ! FLAG_BASH;
-	}
-	if args.switch(b"--no-credits") {
-		flags &= ! FLAG_CREDITS;
-	}
-	if args.switch(b"--no-man") {
-		flags &= ! FLAG_MAN;
-	}
+	let mut features = None;
+	let mut manifest = None;
+	for arg in args {
+		match arg {
+			Argument::Key("--no-bash") => { flags &= ! FLAG_BASH; },
+			Argument::Key("--no-credits") => { flags &= ! FLAG_CREDITS; },
+			Argument::Key("--no-man") => { flags &= ! FLAG_MAN; },
 
-	let features = args.option2(b"-f", b"--features").and_then(|x| std::str::from_utf8(x).ok());
+			Argument::Key("-h" | "--help") => return Err(BashManError::PrintHelp),
+			Argument::Key("-V" | "--version") => return Err(BashManError::PrintVersion),
 
-	let manifest =
-		if let Some(p) = args.option2_os(b"-m", b"--manifest-path") {
-			PathBuf::from(p)
+			Argument::KeyWithValue("-f" | "--features", s) => { features.replace(s); }
+			Argument::KeyWithValue("-m" | "--manifest-path", s) => {
+				manifest.replace(PathBuf::from(s));
+			},
+
+			// Nothing else is expected.
+			Argument::Other(s) => return Err(BashManError::InvalidCli(s.into_boxed_str())),
+			Argument::InvalidUtf8(s) => return Err(BashManError::InvalidCli(s.to_string_lossy().into_owned().into_boxed_str())),
+			_ => {},
 		}
-		else {
-			std::env::current_dir()
-				.map_err(|_| BashManError::InvalidManifest)?
-				.join("Cargo.toml")
-		};
+	}
 
-	bashman_core::parse(manifest, flags, features)?;
+	let manifest = match manifest {
+		Some(m) => m,
+		None => std::env::current_dir()
+			.map_err(|_| BashManError::InvalidManifest)?
+			.join("Cargo.toml"),
+	};
 
+	bashman_core::parse(manifest, flags, features.as_deref())?;
 	Ok(())
 }
 
