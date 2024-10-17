@@ -1,7 +1,7 @@
 # Project Dependencies
     Package:   cargo-bashman
-    Version:   0.5.1
-    Generated: 2024-10-17 20:05:20 UTC
+    Version:   0.5.2
+    Generated: 2024-10-17 20:26:26 UTC
 
 | Package | Version | Author(s) | License |
 | ---- | ---- | ---- | ---- |
@@ -9,7 +9,7 @@
 | [adler2](https://github.com/oyvindln/adler2) | 2.0.0 | [Jonas Schievink](mailto:jonasschievink@gmail.com) and [oyvindln](mailto:oyvindln@users.noreply.github.com) | 0BSD, Apache-2.0, or MIT |
 | [ahash](https://github.com/tkaitchuck/ahash) | 0.8.11 | [Tom Kaitchuck](mailto:tom.kaitchuck@gmail.com) | Apache-2.0 or MIT |
 | [argyle](https://github.com/Blobfolio/argyle) | 0.10.0 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
-| [bashman_core](https://github.com/Blobfolio/bashman) | 0.5.1 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
+| [bashman_core](https://github.com/Blobfolio/bashman) | 0.5.2 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
 | [camino](https://github.com/camino-rs/camino) | 1.1.9 | [Without Boats](mailto:saoirse@without.boats), [Ashley Williams](mailto:ashley666ashley@gmail.com), [Steve Klabnik](mailto:steve@steveklabnik.com), and [Rain](mailto:rain@sunshowers.io) | Apache-2.0 or MIT |
 | [cargo-platform](https://github.com/rust-lang/cargo) | 0.1.8 |  | Apache-2.0 or MIT |
 | [cargo_metadata](https://github.com/oli-obk/cargo_metadata) | 0.18.1 | [Oliver Schneider](mailto:git-spam-no-reply9815368754983@oli-obk.de) | MIT |
