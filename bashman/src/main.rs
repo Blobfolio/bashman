@@ -103,7 +103,9 @@ fn _main() -> Result<(), BashManError> {
 			},
 
 			// Nothing else is expected.
-			Argument::Other(s) => return Err(BashManError::InvalidCli(s.into_boxed_str())),
+			Argument::Other(s) => if s != "bashman" {
+				return Err(BashManError::InvalidCli(s.into_boxed_str()))
+			},
 			Argument::InvalidUtf8(s) => return Err(BashManError::InvalidCli(s.to_string_lossy().into_owned().into_boxed_str())),
 			_ => {},
 		}
