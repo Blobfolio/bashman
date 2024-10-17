@@ -24,14 +24,16 @@ use crate::{
 	DataOption,
 	More,
 };
-use indexmap::IndexMap;
 use serde::{
 	Deserialize,
 	Deserializer,
 };
-use std::path::{
-	Path,
-	PathBuf,
+use std::{
+	collections::BTreeMap,
+	path::{
+		Path,
+		PathBuf,
+	},
 };
 use trimothy::TrimMut;
 
@@ -403,7 +405,7 @@ impl<'a> TryFrom<&'a Raw> for Command<'a> {
 			return src.parse_single();
 		}
 
-		let mut subcmds: IndexMap<&'_ str, (&'_ str, &'_ str, &'_ str, Vec::<DataKind<'_>>)> = src.package.metadata.subcommands.iter()
+		let mut subcmds: BTreeMap<&'_ str, (&'_ str, &'_ str, &'_ str, Vec::<DataKind<'_>>)> = src.package.metadata.subcommands.iter()
 			.map(|y|
 				(
 					y.cmd.as_str(),
