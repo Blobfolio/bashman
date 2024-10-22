@@ -9,7 +9,7 @@ repository = "https://github.com/Blobfolio/bashman"
 publish = false
 
 [dependencies]
-adbyss_psl = "0.13.*"
+adbyss_psl = "0.14.*"
 cargo_metadata = "=0.18.1"
 flate2 = "1.0.*"
 fyi_msg = "1.1.*"
