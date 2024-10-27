@@ -7,17 +7,11 @@
 
 `BashMan` is a Cargo plugin that helps you generate BASH completions, MAN pages, and/or a `CREDITS.md` page for your Rust apps using metadata from your projects' `Cargo.toml` manifests. It pairs well with the (unaffiliated) [cargo-deb](https://github.com/mmstick/cargo-deb).
 
-(This can technically be used for non-Rust apps. It just parses the data out of a [TOML](https://en.wikipedia.org/wiki/TOML) file. Any TOML'll do.)
-
 BASH completions are sub-command aware — one level deep — and avoid making duplicate suggestions. For example, if the line already has `-h`, it will not suggest `-h` or its long variant `--help`.
 
 MAN pages are automatically populated with the primary sections — `NAME`, `DESCRIPTION`, `USAGE`, `SUBCOMMANDS`, `FLAGS`, `OPTIONS`, `ARGUMENTS` — and the top level page can be extended with additional arbitrary sections as needed. If subcommands are defined, additional pages for each are generated, showing their particular usage, flags, etc.
 
 MAN pages are saved in both plain ("app.1") and GZipped ("app.1.gz") states. Linux `man` can read either format, so just pick whichever you prefer for distribution purposes. (Though Gzip is smaller…)
-
-**This software is a work-in-progress.**
-
-Feel free to use it, but if something weird happens — or if you have ideas for improvement — please open an [issue](https://github.com/Blobfolio/bashman/issues)!
 
 
 
@@ -57,6 +51,8 @@ cargo bashman [-h/--help]
 ```
 
 The flags `--no-bash`, `--no-man`, and `--no-credits` can be used to skip the generation of BASH completions, MAN pages, and/or `CREDITS.md` respectively.
+
+Note that for the `CREDITS.md` feature, [Cargo](https://github.com/rust-lang/cargo) is required. (It pulls the dependency tree from the `cargo metadata` output.)
 
 
 ## CONFIGURATION

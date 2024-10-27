@@ -17,8 +17,6 @@
 
 pkg_id      := "cargo-bashman"
 pkg_name    := "Cargo BashMan"
-pkg_dir1    := justfile_directory() + "/bashman"
-pkg_dir2    := justfile_directory() + "/bashman_core"
 
 cargo_dir   := "/tmp/" + pkg_id + "-cargo"
 cargo_bin   := cargo_dir + "/release/" + pkg_id
@@ -41,7 +39,7 @@ export RUSTFLAGS := "-C target-cpu=x86-64-v3"
 # Build Debian package!
 @build-deb: clean build
 	# Do completions/man.
-	{{ cargo_bin }} -m "{{ pkg_dir1 }}/Cargo.toml"
+	{{ cargo_bin }} -m "{{ justfile_directory() }}/Cargo.toml"
 
 	# cargo-deb doesn't support target_dir flags yet.
 	[ ! -d "{{ justfile_directory() }}/target" ] || rm -rf "{{ justfile_directory() }}/target"
@@ -64,8 +62,6 @@ export RUSTFLAGS := "-C target-cpu=x86-64-v3"
 	# But some Cargo apps place shit in subdirectories even if they place
 	# *other* shit in the designated target dir. Haha.
 	[ ! -d "{{ justfile_directory() }}/target" ] || rm -rf "{{ justfile_directory() }}/target"
-	[ ! -d "{{ pkg_dir1 }}/target" ] || rm -rf "{{ pkg_dir1 }}/target"
-	[ ! -d "{{ pkg_dir2 }}/target" ] || rm -rf "{{ pkg_dir2 }}/target"
 
 	cargo update -w
 
@@ -105,7 +101,7 @@ version:
 	#!/usr/bin/env bash
 
 	# Current version.
-	_ver1="$( toml get "{{ pkg_dir1 }}/Cargo.toml" package.version | \
+	_ver1="$( toml get "{{ justfile_directory() }}/Cargo.toml" package.version | \
 		sed 's/"//g' )"
 
 	# Find out if we want to bump it.
@@ -119,8 +115,7 @@ version:
 	fyi success "Setting version to $_ver2."
 
 	# Set the release version!
-	just _version "{{ pkg_dir1 }}" "$_ver2"
-	just _version "{{ pkg_dir2 }}" "$_ver2"
+	just _version "{{ justfile_directory() }}" "$_ver2"
 
 
 # Set version for real.

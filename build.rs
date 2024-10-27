@@ -17,10 +17,7 @@ pub fn main() {
 		"--no-man",
 		"-V", "--version",
 	]);
-	builder.push_keys_with_values([
-		"-f", "--features",
-		"-m", "--manifest-path",
-	]);
+	builder.push_keys_with_values(["-m", "--manifest-path"]);
 	builder.save(out_path("argyle.rs"));
 }
 
