@@ -1,9 +1,91 @@
-[workspace]
-resolver = "2"
-members = [
-    "bashman",
-    "bashman_core",
+[package]
+name = "cargo-bashman"
+version = "0.6.0"
+license = "WTFPL"
+authors = ["Josh Stoik <josh@blobfolio.com>"]
+edition = "2021"
+description = "A Cargo plugin to generate bash completions, man pages, and/or crate credits."
+repository = "https://github.com/Blobfolio/bashman"
+publish = false
+
+[package.metadata.deb]
+maintainer = "Josh Stoik <hello@blobfolio.com>"
+copyright = "2024, Blobfolio, LLC <hello@blobfolio.com>"
+license-file = ["./LICENSE", "0"]
+revision = "1"
+depends = "$auto"
+extended-description = ""
+section = "rust"
+assets = [
+    ["./target/release/cargo-bashman", "usr/bin/", "755"],
+    ["./release/completions/cargo-bashman.bash", "etc/bash_completion.d/", "644"],
+    ["./release/man/cargo-bashman.1.gz", "usr/share/man/man1/", "644"],
 ]
+
+[package.metadata.bashman]
+name = "Cargo BashMan"
+bash-dir = "./release/completions"
+man-dir = "./release/man"
+credits-dir = "./"
+
+[[package.metadata.bashman.switches]]
+short = "-h"
+long = "--help"
+description = "Print help information."
+
+[[package.metadata.bashman.switches]]
+long = "--no-bash"
+description = "Do not generate BASH completions."
+
+[[package.metadata.bashman.switches]]
+long = "--no-credits"
+description = "Do not generate CREDITS.md."
+
+[[package.metadata.bashman.switches]]
+long = "--no-man"
+description = "Do not generate MAN page(s)."
+
+[[package.metadata.bashman.switches]]
+short = "-V"
+long = "--version"
+description = "Print application version."
+
+[[package.metadata.bashman.options]]
+short = "-m"
+long = "--manifest-path"
+description = "Path to the Cargo.toml file to use."
+label = "<Cargo.toml>"
+path = true
+
+[build-dependencies]
+argyle = "0.10.*"
+
+[dependencies]
+argyle = "0.10.*"
+adbyss_psl = "0.14.*"
+cargo_metadata = "=0.18.1"
+dactyl = "0.7.4"
+fyi_msg = "1.1.*"
+oxford_join = "0.4.*"
+trimothy = "0.3.*"
+utc2k = "0.11.*"
+write_atomic = "0.5.*"
+
+[dependencies.libdeflater]
+version = "=1.22.0"
+features = [ "freestanding" ]
+
+[dependencies.semver]
+version = "=1.0.*"
+features = [ "serde" ]
+
+[dependencies.serde]
+version = "1.0.*"
+features = [ "derive" ]
+
+[dependencies.toml]
+version = "0.8.*"
+features = [ "preserve_order" ]
 
 [profile.release]
 lto = true
