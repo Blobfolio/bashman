@@ -80,7 +80,10 @@ use parse::{
 	keyword::KeyWord,
 	Manifest,
 	OptionFlag,
-	pkg::PackageName,
+	pkg::{
+		Dependency,
+		PackageName,
+	},
 	Subcommand,
 	TrailingArg,
 };

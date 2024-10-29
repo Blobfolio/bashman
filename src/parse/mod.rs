@@ -4,12 +4,16 @@
 
 pub(super) mod keyword;
 pub(super) mod pkg;
+mod metadata;
 mod toml;
+mod util;
 
 use crate::{
 	BashManError,
+	Dependency,
 	KeyWord,
 };
+use semver::Version;
 use std::{
 	cmp::Ordering,
 	collections::{
@@ -45,6 +49,12 @@ pub(crate) struct Manifest {
 	/// # Credits Output Directory.
 	dir_credits: Option<PathBuf>,
 
+	/// # Package.
+	name: String,
+
+	/// # Version.
+	version: Version,
+
 	/// # Subcommands.
 	subcommands: Vec<Subcommand>,
 }
@@ -64,16 +74,14 @@ impl Manifest {
 		let toml::Raw { package } = toml::Raw::from_file(&src)?;
 		let toml::RawPackage { name, version, description, metadata } = package;
 		let toml::RawBashMan { nice_name, dir_bash, dir_man, dir_credits, subcommands, flags, options, args, sections } = metadata;
-		let version = version.to_string();
-		let name = KeyWord::from(name);
 
 		// Build the subcommands.
 		let mut subs = BTreeMap::<String, Subcommand>::new();
 		let main = Subcommand {
 			nice_name,
-			name,
+			name: KeyWord::from(name.clone()),
 			description,
-			version,
+			version: version.to_string(),
 			parent: None,
 			data: ManifestData::default(),
 		};
@@ -135,6 +143,8 @@ impl Manifest {
 			dir_man: dir_man.map(|v| dir.join(v)),
 			dir_credits: dir_credits.map(|v| dir.join(v)),
 			dir,
+			name: String::from(name),
+			version,
 			subcommands: subs.into_values().collect(),
 		})
 	}
@@ -196,6 +206,45 @@ impl Manifest {
 
 	/// # (Sub)commands.
 	pub(crate) fn subcommands(&self) -> &[Subcommand] { self.subcommands.as_slice() }
+}
+
+impl Manifest {
+	#[inline]
+	/// # Fetch Dependencies.
+	///
+	/// Run `cargo metadata` to figure out what all dependencies are in the
+	/// tree and return them, or an error if it fails.
+	pub(crate) fn dependencies(&self) -> Result<Vec<Dependency>, BashManError> {
+		let src: &Path = self.src();
+
+		// Fetch the required dependencies first.
+		let mut out = metadata::fetch_dependencies(src, false)?;
+
+		// Try again with all features enabled and add anything extra under
+		// the assumption that they're optional. If this fails, we'll stick
+		// with what we've already found.
+		if let Ok(all) = metadata::fetch_dependencies(src, true) {
+			if out.len() < all.len() {
+				for mut dep in all {
+					dep.context |= Dependency::FLAG_OPTIONAL;
+					out.insert(dep);
+				}
+			}
+		}
+
+		// Strip out the main entry.
+		out.remove(&Dependency {
+			name: self.name.clone(),
+			version: self.version.clone(),
+			license: None,
+			authors: Vec::new(),
+			url: None,
+			context: 0,
+		});
+
+		// Done!
+		Ok(out.into_iter().collect())
+	}
 }
 
 
