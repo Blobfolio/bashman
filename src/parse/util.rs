@@ -31,16 +31,18 @@ where D: Deserializer<'de> {
 
 #[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
 /// # Deserialize: Package License.
+///
+/// Note this removes problematic characters but does not strictly enforce SPDX
+/// formatting requirements or license names.
 pub(super) fn deserialize_license<'de, D>(deserializer: D) -> Result<String, D::Error>
 where D: Deserializer<'de> {
 	if let Ok(mut out) = <String>::deserialize(deserializer) {
-		out.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '(' | ')' | '|'));
+		out.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '|'));
 
-		// Replace joiners with simple semi-colons.
-		while let Some(pos) = out.find(" AND ") { out.replace_range(pos..pos + 5, "; "); }
-		while let Some(pos) = out.find(" OR ") { out.replace_range(pos..pos + 4, "; "); }
-		while let Some(pos) = out.find('/') { out.replace_range(pos..=pos, "; "); }
+		// Slash separators are deprecated.
+		while let Some(pos) = out.find('/') { out.replace_range(pos..=pos, " OR "); }
 
+		// Normalize and return.
 		normalize_string(&mut out);
 		return Ok(out);
 	}
