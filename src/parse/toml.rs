@@ -134,11 +134,11 @@ struct RawMeta<T> {
 }
 
 impl<T> RawMeta<T> {
+	#[inline]
 	/// # Deserialize.
 	fn deserialize<'de, D>(deserializer: D) -> Result<T, D::Error>
 	where T: Deserialize<'de>, D: Deserializer<'de> {
-		let wrapper = <Self as Deserialize>::deserialize(deserializer)?;
-		Ok(wrapper.bashman)
+		<Self as Deserialize>::deserialize(deserializer).map(|w| w.bashman)
 	}
 }
 
@@ -351,9 +351,7 @@ where D: Deserializer<'de> {
 fn deserialize_label<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where D: Deserializer<'de> {
 	Ok(
-		Option::<String>::deserialize(deserializer)
-			.ok()
-			.flatten()
+		<String>::deserialize(deserializer).ok()
 			.and_then(|mut x| {
 				util::normalize_string(&mut x);
 				if x.is_empty() { None }

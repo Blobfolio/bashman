@@ -75,11 +75,11 @@ struct RawNodes<T> {
 }
 
 impl<T> RawNodes<T> {
+	#[inline]
 	/// # Deserialize.
 	fn deserialize<'de, D>(deserializer: D) -> Result<T, D::Error>
 	where T: Deserialize<'de>, D: Deserializer<'de> {
-		let wrapper = <Self as Deserialize>::deserialize(deserializer)?;
-		Ok(wrapper.nodes)
+		<Self as Deserialize>::deserialize(deserializer).map(|w| w.nodes)
 	}
 }
 

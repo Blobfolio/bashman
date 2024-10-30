@@ -13,6 +13,7 @@ use std::{
 	cmp::Ordering,
 	fmt,
 };
+use trimothy::TrimMut;
 
 
 
@@ -179,7 +180,7 @@ impl<'de> de::Deserialize<'de> for PackageName {
 	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
 	where D: de::Deserializer<'de> {
 		let raw = <String>::deserialize(deserializer)?;
-		Self::try_from(raw.as_str()).map_err(|_| de::Error::custom("invalid package name"))
+		Self::try_from(raw).map_err(|_| de::Error::custom("invalid package name"))
 	}
 }
 
@@ -234,27 +235,26 @@ impl PartialOrd for PackageName {
 	fn partial_cmp(&self, other: &Self) -> Option<Ordering> { Some(self.cmp(other)) }
 }
 
-impl TryFrom<&str> for PackageName {
+impl TryFrom<String> for PackageName {
 	type Error = BashManError;
 
-	fn try_from(src: &str) -> Result<Self, Self::Error> {
-		let src = src.trim();
-		let mut name = String::with_capacity(src.len());
-		let mut hyphens = false;
-		for c in src.chars() {
-			match c {
-				'a'..='z' => { name.push(c); },
-				'A'..='Z' => { name.push(c.to_ascii_lowercase()); },
-				'0'..='9' | '-' | '_' if ! name.is_empty() => {
-					if c == '-' { hyphens = true; }
-					name.push(c);
-				},
-				_ => return Err(BashManError::PackageName(src.to_owned())),
+	fn try_from(mut name: String) -> Result<Self, Self::Error> {
+		name.trim_mut();
+		name.make_ascii_lowercase();
+		let bytes = name.as_bytes();
+		if ! bytes.is_empty() && bytes[0].is_ascii_alphabetic() {
+			let mut hyphens = false;
+			for b in bytes.iter().copied() {
+				if b == b'-' { hyphens = true; }
+				else if ! matches!(b, b'a'..=b'z' | b'0'..=b'9' | b'_') {
+					return Err(BashManError::PackageName(name));
+				}
 			}
+
+			return Ok(Self { name, hyphens });
 		}
 
-		if name.is_empty() { Err(BashManError::PackageName(src.to_owned())) }
-		else { Ok(Self { name, hyphens }) }
+		Err(BashManError::PackageName(name))
 	}
 }
 

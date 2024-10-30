@@ -31,9 +31,7 @@ where D: Deserializer<'de> {
 pub(super) fn deserialize_nonempty_opt_str<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where D: Deserializer<'de> {
 	Ok(
-		Option::<String>::deserialize(deserializer)
-			.ok()
-			.flatten()
+		<String>::deserialize(deserializer).ok()
 			.and_then(|mut x| {
 				x.trim_mut();
 				if x.is_empty() { None }
@@ -50,9 +48,7 @@ where D: Deserializer<'de> {
 pub(super) fn deserialize_nonempty_opt_str_normalized<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where D: Deserializer<'de> {
 	Ok(
-		Option::<String>::deserialize(deserializer)
-			.ok()
-			.flatten()
+		<String>::deserialize(deserializer).ok()
 			.and_then(|mut x| {
 				normalize_string(&mut x);
 				if x.is_empty() { None }
