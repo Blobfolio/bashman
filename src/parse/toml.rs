@@ -7,6 +7,7 @@ mess as much as possible. Haha.
 
 use crate::{
 	BashManError,
+	Dependency,
 	KeyWord,
 	PackageName,
 };
@@ -24,6 +25,7 @@ use std::{
 };
 use super::util;
 use trimothy::NormalizeWhitespace;
+use url::Url;
 
 
 
@@ -194,6 +196,10 @@ pub(super) struct RawBashMan {
 	#[serde(default)]
 	/// # Sections.
 	pub(super) sections: Vec<RawSection>,
+
+	#[serde(default)]
+	/// # Credits.
+	pub(super) credits: Vec<RawCredits>,
 }
 
 
@@ -326,6 +332,56 @@ pub(super) struct RawSection {
 	#[serde(deserialize_with = "deserialize_items")]
 	/// # Text Bullets.
 	pub(super) items: Vec<[String; 2]>
+}
+
+
+
+#[derive(Debug, Clone, Deserialize)]
+/// # Raw Switch.
+///
+/// This is what is found under "package.metadata.bashman.credits".
+pub(super) struct RawCredits {
+	/// # Name.
+	name: PackageName,
+
+	/// # Version.
+	version: Version,
+
+	#[serde(default)]
+	#[serde(deserialize_with = "util::deserialize_license")]
+	/// # License.
+	license: String,
+
+	#[serde(default)]
+	#[serde(deserialize_with = "util::deserialize_authors")]
+	/// # Author(s).
+	authors: Vec<String>,
+
+	#[serde(default)]
+	/// # Repository URL.
+	repository: Option<Url>,
+
+	#[serde(default)]
+	/// # Optional?
+	optional: bool,
+}
+
+impl From<RawCredits> for Dependency {
+	#[inline]
+	fn from(src: RawCredits) -> Self {
+		let context =
+			if src.optional { Self::FLAG_RUNTIME | Self::FLAG_OPTIONAL }
+			else { Self::FLAG_RUNTIME };
+
+		Self {
+			name: String::from(src.name),
+			version: src.version,
+			license: if src.license.is_empty() { None } else { Some(src.license) },
+			authors: src.authors,
+			url: src.repository.map(String::from),
+			context,
+		}
+	}
 }
 
 

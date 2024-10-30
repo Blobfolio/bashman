@@ -1,7 +1,7 @@
 # Project Dependencies
     Package:   cargo-bashman
     Version:   0.6.0
-    Generated: 2024-10-30 18:54:30 UTC
+    Generated: 2024-10-30 20:14:42 UTC
 
 | Package | Version | Author(s) | License | Context |
 | ---- | ---- | ---- | ---- | ---- |

@@ -57,6 +57,9 @@ pub(crate) struct Manifest {
 
 	/// # Subcommands.
 	subcommands: Vec<Subcommand>,
+
+	/// # Extra Credits?
+	credits: BTreeSet<Dependency>,
 }
 
 impl Manifest {
@@ -73,7 +76,7 @@ impl Manifest {
 		let (dir, src) = manifest_source(src.as_ref())?;
 		let toml::Raw { package } = toml::Raw::from_file(&src)?;
 		let toml::RawPackage { name, version, description, metadata } = package;
-		let toml::RawBashMan { nice_name, dir_bash, dir_man, dir_credits, subcommands, flags, options, args, sections } = metadata;
+		let toml::RawBashMan { nice_name, dir_bash, dir_man, dir_credits, subcommands, flags, options, args, sections, credits } = metadata;
 
 		// Build the subcommands.
 		let mut subs = BTreeMap::<String, Subcommand>::new();
@@ -146,6 +149,7 @@ impl Manifest {
 			name: String::from(name),
 			version,
 			subcommands: subs.into_values().collect(),
+			credits: credits.into_iter().map(Dependency::from).collect(),
 		})
 	}
 }
@@ -241,6 +245,9 @@ impl Manifest {
 			url: None,
 			context: 0,
 		});
+
+		// Add any custom entries.
+		out.extend(self.credits.iter().cloned());
 
 		// Done!
 		Ok(out.into_iter().collect())
