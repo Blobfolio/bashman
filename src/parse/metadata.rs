@@ -44,7 +44,7 @@ pub(super) fn fetch_dependencies<P: AsRef<Path>>(
 	src: P,
 	features: bool,
 	target: Option<TargetTriple>,
-) -> Result<BTreeSet<Dependency>, BashManError> {
+) -> Result<(BTreeSet<Dependency>, bool), BashManError> {
 	let raw = cargo_exec(src, features, target)?;
 	from_json(&raw, target.is_some())
 }
@@ -179,6 +179,11 @@ struct RawPackage<'a> {
 	#[serde(default)]
 	/// # Repository URL.
 	repository: Option<Url>,
+
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_features")]
+	/// # Has Features?
+	features: bool,
 }
 
 
@@ -250,6 +255,20 @@ where D: Deserializer<'de> {
 }
 
 #[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
+/// # Deserialize: Features.
+///
+/// We just want to know if there _are_ features.
+fn deserialize_features<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where D: Deserializer<'de> {
+	if let Ok(mut map) = <HashMap<String, Vec<Cow<str>>>>::deserialize(deserializer) {
+		map.remove("default");
+		return Ok(! map.is_empty());
+	}
+
+	Ok(false)
+}
+
+#[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
 /// # Deserialize: Dev Kind?
 fn deserialize_kind<'de, D>(deserializer: D) -> Result<bool, D::Error>
 where D: Deserializer<'de> {
@@ -278,41 +297,66 @@ where D: Deserializer<'de> {
 ///
 /// This is called by `Manifest::dependencies` twice, with and without
 /// features enabled to classify required/optional dependencies.
-fn from_json(raw: &[u8], targeted: bool) -> Result<BTreeSet<Dependency>, BashManError> {
-	let Raw { packages, resolve } = serde_json::from_slice(raw)
+fn from_json(raw: &[u8], targeted: bool)
+-> Result<(BTreeSet<Dependency>, bool), BashManError> {
+	let Raw { packages, mut resolve } = serde_json::from_slice(raw)
 		.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?;
 
-	// First let's figure out the contexts for each sub-dependency (build,
-	// target-specific, etc.). This requires looping loops of loops. Haha.
-	let mut flags = HashMap::<&str, u8>::with_capacity(packages.len());
-	for deps in resolve.nodes.iter().flat_map(|r| r.deps.iter()) {
-		match flags.entry(deps.id) {
-			Entry::Occupied(mut e) => { *e.get_mut() |= deps.dep_kinds; },
-			Entry::Vacant(e) => { e.insert(deps.dep_kinds); },
+	// Remove dev-only dependencies from the node list.
+	for node in &mut resolve.nodes {
+		node.deps.retain(|nd| Dependency::FLAG_DEV != nd.dep_kinds & Dependency::FLAG_CONTEXT);
+	}
+
+	// We don't want dev dependencies so have to build up the dependency tree
+	// manually. Let's start by reorganizing the nodes.
+	let nice_resolve: HashMap<&str, Vec<&str>> = resolve.nodes.iter()
+		.map(|n| {
+			(
+				n.id,
+				n.deps.iter().map(|nd| nd.id).collect()
+			)
+		})
+		.collect();
+
+	// Now let's build up a terrible queue to go back and forth for a while.
+	let mut used: HashSet<&str> = HashSet::with_capacity(packages.len());
+	let mut queue = vec![resolve.root];
+	while let Some(next) = queue.pop() {
+		if used.insert(next) {
+			if let Some(next) = nice_resolve.get(next) {
+				queue.extend_from_slice(next);
+			}
 		}
 	}
 
-	// Now build a list of all of the _used_ IDs (since the output contains
-	// potentially irrelevant shit).
-	let mut used: HashSet<&str> = resolve.nodes.iter().map(|n| n.id).collect();
+	// Now once through again to come up with the cumulative flags for all
+	// dependencies as they might appear multiple times.
+	let mut flags = HashMap::<&str, u8>::with_capacity(packages.len());
+	for dep in resolve.nodes.iter().flat_map(|r| r.deps.iter()) {
+		match flags.entry(dep.id) {
+			Entry::Occupied(mut e) => { *e.get_mut() |= dep.dep_kinds; },
+			Entry::Vacant(e) => { e.insert(dep.dep_kinds); },
+		}
+	}
 
-	// Strip the root node; this is about crediting _others_. Haha.
-	flags.remove(resolve.root);
-	used.remove(resolve.root);
-
-	// We aren't interested in development-only packages, so let's strip
-	// anything that isn't also used for build/runtime.
-	for (id, flag) in &mut flags {
+	// Perform a little cleanup.
+	for flag in flags.values_mut() {
 		// Strip target-specific flag if this search was targeted.
 		if targeted { *flag &= ! Dependency::FLAG_TARGET; }
-
-		if Dependency::FLAG_DEV == *flag & Dependency::FLAG_CONTEXT {
-			used.remove(id);
-		}
 
 		// The dev flag has served its purpose and can be removed.
 		*flag &= ! Dependency::FLAG_DEV;
 	}
+
+	// Does the root package have features?
+	let features = packages.iter().find_map(|p|
+		if p.id == resolve.root { Some(p.features) }
+		else { None }
+	).unwrap_or(false);
+
+	// Strip the root node; this is about crediting _others_. Haha.
+	flags.remove(resolve.root);
+	used.remove(resolve.root);
 
 	// All that's left to do is compile an authoritative set of the used
 	// dependencies in a friendly format.
@@ -341,7 +385,7 @@ fn from_json(raw: &[u8], targeted: bool) -> Result<BTreeSet<Dependency>, BashMan
 		)
 		.collect();
 
-	Ok(out)
+	Ok((out, features))
 }
 
 
@@ -354,8 +398,12 @@ mod tests {
 	fn t_from_json() {
 		let raw = std::fs::read("skel/metadata.json")
 			.expect("Missing skel/metadata.json");
-		let raw1 = from_json(&raw, false).expect("Failed to marse metadata.json");
-		let raw2 = from_json(&raw, true).expect("Failed to marse metadata.json");
+		let (raw1, feat1) = from_json(&raw, false).expect("Failed to marse metadata.json");
+		let (raw2, feat2) = from_json(&raw, true).expect("Failed to marse metadata.json");
+
+		// We don't have features.
+		assert!(! feat1);
+		assert!(! feat2);
 
 		// For now let's just count the results.
 		assert_eq!(raw1.len(), 86);

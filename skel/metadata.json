@@ -591,9 +591,118 @@
       "rust_version": "1.56.0"
     },
     {
+      "name": "brunch",
+      "version": "0.6.1",
+      "id": "registry+https://github.com/rust-lang/crates.io-index#brunch@0.6.1",
+      "license": "WTFPL",
+      "license_file": null,
+      "description": "A simple micro-benchmark runner.",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "dependencies": [
+        {
+          "name": "dactyl",
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "req": "0.7.*",
+          "kind": null,
+          "rename": null,
+          "optional": false,
+          "uses_default_features": true,
+          "features": [],
+          "target": null,
+          "registry": null
+        },
+        {
+          "name": "unicode-width",
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "req": "0.2.*",
+          "kind": null,
+          "rename": null,
+          "optional": false,
+          "uses_default_features": true,
+          "features": [],
+          "target": null,
+          "registry": null
+        },
+        {
+          "name": "quantogram",
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "req": "=0.4.4",
+          "kind": "dev",
+          "rename": null,
+          "optional": false,
+          "uses_default_features": true,
+          "features": [],
+          "target": null,
+          "registry": null
+        }
+      ],
+      "targets": [
+        {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "brunch",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/brunch-0.6.1/src/lib.rs",
+          "edition": "2021",
+          "doc": true,
+          "doctest": true,
+          "test": true
+        },
+        {
+          "kind": [
+            "bench"
+          ],
+          "crate_types": [
+            "bin"
+          ],
+          "name": "fn_fib",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/brunch-0.6.1/benches/fn_fib.rs",
+          "edition": "2021",
+          "doc": false,
+          "doctest": false,
+          "test": false
+        }
+      ],
+      "features": {},
+      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/brunch-0.6.1/Cargo.toml",
+      "metadata": {
+        "bashman": {
+          "bash-dir": "./",
+          "credits-dir": "./",
+          "man-dir": "./",
+          "name": "Brunch"
+        },
+        "docs": {
+          "rs": {
+            "default-target": "x86_64-unknown-linux-gnu"
+          }
+        }
+      },
+      "publish": null,
+      "authors": [
+        "Blobfolio, LLC. <hello@blobfolio.com>"
+      ],
+      "categories": [],
+      "keywords": [
+        "benchmark",
+        "profiling"
+      ],
+      "readme": "README.md",
+      "repository": "https://github.com/Blobfolio/brunch",
+      "homepage": null,
+      "documentation": null,
+      "edition": "2021",
+      "links": null,
+      "default_run": null,
+      "rust_version": "1.77"
+    },
+    {
       "name": "cargo-bashman",
-      "version": "0.6.0",
-      "id": "path+file:///share#cargo-bashman@0.6.0",
+      "version": "0.6.1",
+      "id": "path+file:///share#cargo-bashman@0.6.1",
       "license": "WTFPL",
       "license_file": null,
       "description": "A Cargo plugin to generate bash completions, man pages, and/or crate credits.",
@@ -778,6 +887,18 @@
           "registry": null
         },
         {
+          "name": "brunch",
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "req": "*",
+          "kind": "dev",
+          "rename": null,
+          "optional": false,
+          "uses_default_features": true,
+          "features": [],
+          "target": null,
+          "registry": null
+        },
+        {
           "name": "argyle",
           "source": "registry+https://github.com/rust-lang/crates.io-index",
           "req": "0.10.*",
@@ -835,6 +956,12 @@
               "long": "--manifest-path",
               "path": true,
               "short": "-m"
+            },
+            {
+              "description": "Limit CREDITS.md to dependencies used by the target <TRIPLE>, e.g. x86_64-unknown-linux-gnu. See --print-targets for the supported values.",
+              "label": "<TRIPLE>",
+              "long": "--target",
+              "short": "-t"
             }
           ],
           "switches": [
@@ -854,6 +981,10 @@
             {
               "description": "Do not generate MAN page(s).",
               "long": "--no-man"
+            },
+            {
+              "description": "Print the supported target triples (for use with -t/--target) to STDOUT and exit.",
+              "long": "--print-targets"
             },
             {
               "description": "Print application version.",
@@ -887,7 +1018,7 @@
             "./LICENSE",
             "0"
           ],
-          "maintainer": "Josh Stoik <hello@blobfolio.com>",
+          "maintainer": "Josh Stoik <josh@blobfolio.com>",
           "revision": "1",
           "section": "rust"
         }
@@ -12708,6 +12839,144 @@
       "rust_version": "1.36"
     },
     {
+      "name": "unicode-width",
+      "version": "0.2.0",
+      "id": "registry+https://github.com/rust-lang/crates.io-index#unicode-width@0.2.0",
+      "license": "MIT OR Apache-2.0",
+      "license_file": null,
+      "description": "Determine displayed width of `char` and `str` types\naccording to Unicode Standard Annex #11 rules.\n",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "dependencies": [
+        {
+          "name": "compiler_builtins",
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "req": "^0.1",
+          "kind": null,
+          "rename": null,
+          "optional": true,
+          "uses_default_features": true,
+          "features": [],
+          "target": null,
+          "registry": null
+        },
+        {
+          "name": "rustc-std-workspace-core",
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "req": "^1.0",
+          "kind": null,
+          "rename": "core",
+          "optional": true,
+          "uses_default_features": true,
+          "features": [],
+          "target": null,
+          "registry": null
+        },
+        {
+          "name": "rustc-std-workspace-std",
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "req": "^1.0",
+          "kind": null,
+          "rename": "std",
+          "optional": true,
+          "uses_default_features": true,
+          "features": [],
+          "target": null,
+          "registry": null
+        }
+      ],
+      "targets": [
+        {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "unicode_width",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/unicode-width-0.2.0/src/lib.rs",
+          "edition": "2021",
+          "doc": true,
+          "doctest": true,
+          "test": true
+        },
+        {
+          "kind": [
+            "test"
+          ],
+          "crate_types": [
+            "bin"
+          ],
+          "name": "tests",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/unicode-width-0.2.0/tests/tests.rs",
+          "edition": "2021",
+          "doc": false,
+          "doctest": false,
+          "test": true
+        },
+        {
+          "kind": [
+            "bench"
+          ],
+          "crate_types": [
+            "bin"
+          ],
+          "name": "benches",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/unicode-width-0.2.0/benches/benches.rs",
+          "edition": "2021",
+          "doc": false,
+          "doctest": false,
+          "test": false
+        }
+      ],
+      "features": {
+        "cjk": [],
+        "compiler_builtins": [
+          "dep:compiler_builtins"
+        ],
+        "core": [
+          "dep:core"
+        ],
+        "default": [
+          "cjk"
+        ],
+        "no_std": [],
+        "rustc-dep-of-std": [
+          "std",
+          "core",
+          "compiler_builtins"
+        ],
+        "std": [
+          "dep:std"
+        ]
+      },
+      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/unicode-width-0.2.0/Cargo.toml",
+      "metadata": null,
+      "publish": null,
+      "authors": [
+        "kwantam <kwantam@gmail.com>",
+        "Manish Goregaokar <manishsmail@gmail.com>"
+      ],
+      "categories": [
+        "command-line-interface",
+        "internationalization",
+        "no-std::no-alloc",
+        "text-processing"
+      ],
+      "keywords": [
+        "text",
+        "width",
+        "unicode"
+      ],
+      "readme": "README.md",
+      "repository": "https://github.com/unicode-rs/unicode-width",
+      "homepage": "https://github.com/unicode-rs/unicode-width",
+      "documentation": null,
+      "edition": "2021",
+      "links": null,
+      "default_run": null,
+      "rust_version": null
+    },
+    {
       "name": "url",
       "version": "2.5.2",
       "id": "registry+https://github.com/rust-lang/crates.io-index#url@2.5.2",
@@ -17496,10 +17765,10 @@
     }
   ],
   "workspace_members": [
-    "path+file:///share#cargo-bashman@0.6.0"
+    "path+file:///share#cargo-bashman@0.6.1"
   ],
   "workspace_default_members": [
-    "path+file:///share#cargo-bashman@0.6.0"
+    "path+file:///share#cargo-bashman@0.6.1"
   ],
   "resolve": {
     "nodes": [
@@ -17565,10 +17834,41 @@
         ]
       },
       {
-        "id": "path+file:///share#cargo-bashman@0.6.0",
+        "id": "registry+https://github.com/rust-lang/crates.io-index#brunch@0.6.1",
+        "dependencies": [
+          "registry+https://github.com/rust-lang/crates.io-index#dactyl@0.7.4",
+          "registry+https://github.com/rust-lang/crates.io-index#unicode-width@0.2.0"
+        ],
+        "deps": [
+          {
+            "name": "dactyl",
+            "pkg": "registry+https://github.com/rust-lang/crates.io-index#dactyl@0.7.4",
+            "dep_kinds": [
+              {
+                "kind": null,
+                "target": null
+              }
+            ]
+          },
+          {
+            "name": "unicode_width",
+            "pkg": "registry+https://github.com/rust-lang/crates.io-index#unicode-width@0.2.0",
+            "dep_kinds": [
+              {
+                "kind": null,
+                "target": null
+              }
+            ]
+          }
+        ],
+        "features": []
+      },
+      {
+        "id": "path+file:///share#cargo-bashman@0.6.1",
         "dependencies": [
           "registry+https://github.com/rust-lang/crates.io-index#adbyss_psl@0.14.0",
           "registry+https://github.com/rust-lang/crates.io-index#argyle@0.10.0",
+          "registry+https://github.com/rust-lang/crates.io-index#brunch@0.6.1",
           "registry+https://github.com/rust-lang/crates.io-index#dactyl@0.7.4",
           "registry+https://github.com/rust-lang/crates.io-index#fyi_msg@1.1.1",
           "registry+https://github.com/rust-lang/crates.io-index#libdeflater@1.22.0",
@@ -17603,6 +17903,16 @@
               },
               {
                 "kind": "build",
+                "target": null
+              }
+            ]
+          },
+          {
+            "name": "brunch",
+            "pkg": "registry+https://github.com/rust-lang/crates.io-index#brunch@0.6.1",
+            "dep_kinds": [
+              {
+                "kind": "dev",
                 "target": null
               }
             ]
@@ -19467,6 +19777,15 @@
         ]
       },
       {
+        "id": "registry+https://github.com/rust-lang/crates.io-index#unicode-width@0.2.0",
+        "dependencies": [],
+        "deps": [],
+        "features": [
+          "cjk",
+          "default"
+        ]
+      },
+      {
         "id": "registry+https://github.com/rust-lang/crates.io-index#url@2.5.2",
         "dependencies": [
           "registry+https://github.com/rust-lang/crates.io-index#form_urlencoded@1.2.1",
@@ -20066,7 +20385,7 @@
         "features": []
       }
     ],
-    "root": "path+file:///share#cargo-bashman@0.6.0"
+    "root": "path+file:///share#cargo-bashman@0.6.1"
   },
   "target_directory": "/share/target",
   "version": 1,

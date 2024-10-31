@@ -216,16 +216,18 @@ impl Manifest {
 		let src: &Path = self.src();
 
 		// Fetch the required dependencies first.
-		let mut out = metadata::fetch_dependencies(src, false, target)?;
+		let (mut out, features) = metadata::fetch_dependencies(src, false, target)?;
 
-		// Try again with all features enabled and add anything extra under
-		// the assumption that they're optional. If this fails, we'll stick
-		// with what we've already found.
-		if let Ok(all) = metadata::fetch_dependencies(src, true, target) {
-			if out.len() < all.len() {
-				for mut dep in all {
-					dep.context |= Dependency::FLAG_OPTIONAL;
-					out.insert(dep);
+		// If the root has features, refetch with everything enabled to figure
+		// out what is optional and what isn't. If this fails, we'll stick with
+		// what we have; no use crashing over missing milk.
+		if features {
+			if let Ok((all, _)) = metadata::fetch_dependencies(src, true, target) {
+				if out.len() < all.len() {
+					for mut dep in all {
+						dep.context |= Dependency::FLAG_OPTIONAL;
+						out.insert(dep);
+					}
 				}
 			}
 		}
