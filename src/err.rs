@@ -117,7 +117,7 @@ impl std::error::Error for BashManError {}
 impl fmt::Display for BashManError {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		let s = match self {
-			Self::Bash => "Unable to generate Bash completions.",
+			Self::Bash => "Unable to generate bash completions.",
 			Self::Cargo => "Unable to execute \x1b[2mcargo metadata\x1b[0m.",
 			Self::Credits => "Unable to generate crate credits.",
 			Self::Dir(k, v) => return write!(f, "Invalid {k} directory: {v}"),

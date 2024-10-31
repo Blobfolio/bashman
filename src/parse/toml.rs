@@ -118,6 +118,7 @@ pub(super) struct RawPackage {
 	/// # Package Description.
 	pub(super) description: String,
 
+	#[serde(default)]
 	#[serde(with = "RawMeta")]
 	/// # Bashman Metadata.
 	pub(super) metadata: RawBashMan,
@@ -125,17 +126,18 @@ pub(super) struct RawPackage {
 
 
 
-#[derive(Deserialize)]
+#[derive(Default, Deserialize)]
 /// # Raw Package Metadata (Wrapper).
 ///
 /// We don't care about metadata beyond "package.metadata.bashman"; this
 /// removes a level of complexity.
 struct RawMeta<T> {
+	#[serde(default)]
 	/// # Bashman Key.
 	bashman: T,
 }
 
-impl<T> RawMeta<T> {
+impl<T: Default> RawMeta<T> {
 	#[inline]
 	/// # Deserialize.
 	fn deserialize<'de, D>(deserializer: D) -> Result<T, D::Error>
@@ -146,7 +148,7 @@ impl<T> RawMeta<T> {
 
 
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 /// # Raw Package Metadata (bashman).
 ///
 /// This is what is found under "package.metadata.bashman".

@@ -153,7 +153,16 @@ impl Manifest {
 	/// Return the directory bash completions should be written to, or an error
 	/// if it doesn't exist or is not a directory.
 	pub(crate) fn dir_bash(&self) -> Result<PathBuf, BashManError> {
-		if let Some(dir) = self.dir_bash.as_ref() {
+		let has_data =
+			1 < self.subcommands.len() ||
+			self.subcommands.first().map_or(false, |s| {
+				! s.data.flags.is_empty() ||
+				! s.data.options.is_empty() ||
+				s.data.args.is_some()
+			});
+
+		if ! has_data { Err(BashManError::Noop) }
+		else if let Some(dir) = self.dir_bash.as_ref() {
 			if let Ok(dir) = std::fs::canonicalize(dir) {
 				if dir.is_dir() { return Ok(dir); }
 			}
@@ -183,7 +192,17 @@ impl Manifest {
 	/// Return the directory bash completions should be written to, or an error
 	/// if it doesn't exist or is not a directory.
 	pub(crate) fn dir_man(&self) -> Result<PathBuf, BashManError> {
-		if let Some(dir) = self.dir_man.as_ref() {
+		let has_data =
+			1 < self.subcommands.len() ||
+			self.subcommands.first().map_or(false, |s| {
+				! s.data.flags.is_empty() ||
+				! s.data.options.is_empty() ||
+				s.data.args.is_some() ||
+				! s.data.sections.is_empty()
+			});
+
+		if ! has_data { Err(BashManError::Noop) }
+		else if let Some(dir) = self.dir_man.as_ref() {
 			if let Ok(dir) = std::fs::canonicalize(dir) {
 				if dir.is_dir() { return Ok(dir); }
 			}
