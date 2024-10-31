@@ -70,10 +70,14 @@ impl Dependency {
 	/// # Feature-Specific.
 	pub(super) const FLAG_OPTIONAL: u8 = 0b0000_0001;
 
-	/// # Runtime Context.
+	/// # Build/Runtime Context.
+	///
+	/// This flag is only used during deserialization.
 	pub(super) const FLAG_RUNTIME: u8 =  0b0000_0010;
 
-	/// # Dev Context.
+	/// # Dev/Testing Context.
+	///
+	/// This flag is only used during deserialization.
 	pub(super) const FLAG_DEV: u8 =      0b0000_0100;
 
 	/// # Not Target-Specific.
@@ -83,6 +87,8 @@ impl Dependency {
 	pub(super) const FLAG_TARGET: u8 =   0b0001_0000;
 
 	/// # Context Flags.
+	///
+	/// This flag is only used during deserialization.
 	pub(super) const FLAG_CONTEXT: u8 = Self::FLAG_DEV | Self::FLAG_RUNTIME;
 
 	/// # Platform Flags.

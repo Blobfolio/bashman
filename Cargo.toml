@@ -26,7 +26,6 @@ assets = [
 name = "Cargo BashMan"
 bash-dir = "./release/completions"
 man-dir = "./release/man"
-credits-dir = "./"
 
 [[package.metadata.bashman.switches]]
 short = "-h"
