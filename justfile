@@ -39,7 +39,9 @@ export RUSTFLAGS := "-C target-cpu=x86-64-v3"
 # Build Debian package!
 @build-deb: clean build
 	# Do completions/man.
-	{{ cargo_bin }} -m "{{ justfile_directory() }}/Cargo.toml"
+	{{ cargo_bin }} \
+		-m "{{ justfile_directory() }}/Cargo.toml" \
+		-t x86_64-unknown-linux-gnu
 
 	# cargo-deb doesn't support target_dir flags yet.
 	[ ! -d "{{ justfile_directory() }}/target" ] || rm -rf "{{ justfile_directory() }}/target"

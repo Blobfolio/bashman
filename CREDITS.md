@@ -1,7 +1,8 @@
 # Project Dependencies
     Package:   cargo-bashman
     Version:   0.6.0
-    Generated: 2024-10-30 20:24:52 UTC
+    Target:    x86_64-unknown-linux-gnu
+    Generated: 2024-10-31 03:33:01 UTC
 
 | Package | Version | Author(s) | License | Context |
 | ---- | ---- | ---- | ---- | ---- |
@@ -66,7 +67,6 @@
 | [utc2k](https://github.com/Blobfolio/utc2k) | 0.11.0 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL | |
 | [utf16_iter](https://github.com/hsivonen/utf16_iter) | 1.0.5 | [Henri Sivonen](mailto:hsivonen@hsivonen.fi) | Apache-2.0 OR MIT | |
 | [utf8_iter](https://github.com/hsivonen/utf8_iter) | 1.0.4 | [Henri Sivonen](mailto:hsivonen@hsivonen.fi) | Apache-2.0 OR MIT | |
-| [windows-targets](https://github.com/microsoft/windows-rs) | 0.52.6 | Microsoft | MIT OR Apache-2.0 | |
 | [winnow](https://github.com/winnow-rs/winnow) | 0.6.20 |  | MIT | |
 | [write16](https://github.com/hsivonen/write16) | 1.0.0 |  | Apache-2.0 OR MIT | |
 | [write_atomic](https://github.com/Blobfolio/write_atomic) | 0.5.1 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL | |
@@ -81,13 +81,3 @@
 | [libc](https://github.com/rust-lang/libc) | 0.2.161 | The Rust Project Developers | MIT OR Apache-2.0 | target-specific |
 | [linux-raw-sys](https://github.com/sunfishcode/linux-raw-sys) | 0.4.14 | [Dan Gohman](mailto:dev@sunfishcode.online) | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT | target-specific |
 | [rustix](https://github.com/bytecodealliance/rustix) | 0.38.38 | [Dan Gohman](mailto:dev@sunfishcode.online) and [Jakub Konka](mailto:kubkon@jakubkonka.com) | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT | target-specific |
-| [windows-sys](https://github.com/microsoft/windows-rs) | 0.52.0 | Microsoft | MIT OR Apache-2.0 | target-specific |
-| [windows-sys](https://github.com/microsoft/windows-rs) | 0.59.0 | Microsoft | MIT OR Apache-2.0 | target-specific |
-| [windows_aarch64_gnullvm](https://github.com/microsoft/windows-rs) | 0.52.6 | Microsoft | MIT OR Apache-2.0 | target-specific |
-| [windows_aarch64_msvc](https://github.com/microsoft/windows-rs) | 0.52.6 | Microsoft | MIT OR Apache-2.0 | target-specific |
-| [windows_i686_gnu](https://github.com/microsoft/windows-rs) | 0.52.6 | Microsoft | MIT OR Apache-2.0 | target-specific |
-| [windows_i686_gnullvm](https://github.com/microsoft/windows-rs) | 0.52.6 | Microsoft | MIT OR Apache-2.0 | target-specific |
-| [windows_i686_msvc](https://github.com/microsoft/windows-rs) | 0.52.6 | Microsoft | MIT OR Apache-2.0 | target-specific |
-| [windows_x86_64_gnu](https://github.com/microsoft/windows-rs) | 0.52.6 | Microsoft | MIT OR Apache-2.0 | target-specific |
-| [windows_x86_64_gnullvm](https://github.com/microsoft/windows-rs) | 0.52.6 | Microsoft | MIT OR Apache-2.0 | target-specific |
-| [windows_x86_64_msvc](https://github.com/microsoft/windows-rs) | 0.52.6 | Microsoft | MIT OR Apache-2.0 | target-specific |

@@ -85,6 +85,7 @@ use parse::{
 		PackageName,
 	},
 	Subcommand,
+	target::TargetTriple,
 	TrailingArg,
 };
 use std::{
@@ -126,9 +127,18 @@ static CWD: LazyLock<Option<PathBuf>> = LazyLock::new(||
 fn main() {
 	match _main() {
 		Ok(()) => {},
-		Err(e @ (BashManError::PrintHelp | BashManError::PrintVersion)) => {
-			println!("{e}");
-		},
+		Err(BashManError::Target) => {
+			Msg::error("Target must be one of the following:")
+				.eprint();
+			eprintln!("\x1b[2m-----\x1b[0m");
+			println!("{}", BashManError::Target);
+			std::process::exit(1);
+		}
+		Err(e @ (
+			BashManError::PrintHelp |
+			BashManError::PrintTargets |
+			BashManError::PrintVersion
+		)) => { println!("{e}"); },
 		Err(e) => { Msg::error(e.to_string()).die(1); },
 	}
 }
@@ -145,6 +155,7 @@ fn _main() -> Result<(), BashManError> {
 
 	let mut flags: u8 = FLAG_ALL;
 	let mut manifest = None;
+	let mut target = None;
 	for arg in args {
 		match arg {
 			Argument::Key("--no-bash") => { flags &= ! FLAG_BASH; },
@@ -152,10 +163,14 @@ fn _main() -> Result<(), BashManError> {
 			Argument::Key("--no-man") => { flags &= ! FLAG_MAN; },
 
 			Argument::Key("-h" | "--help") => return Err(BashManError::PrintHelp),
+			Argument::Key("--print-targets") => return Err(BashManError::PrintTargets),
 			Argument::Key("-V" | "--version") => return Err(BashManError::PrintVersion),
 
 			Argument::KeyWithValue("-m" | "--manifest-path", s) => {
 				manifest.replace(PathBuf::from(s));
+			},
+			Argument::KeyWithValue("-t" | "--target", s) => {
+				target.replace(TargetTriple::try_from(s)?);
 			},
 
 			// Nothing else is expected.
@@ -211,7 +226,7 @@ fn _main() -> Result<(), BashManError> {
 
 	// Crate Credits.
 	if FLAG_CREDITS == flags & FLAG_CREDITS {
-		match CreditsWriter::try_from(&manifest).and_then(|w| w.write(&mut buf)) {
+		match CreditsWriter::new(&manifest, target).and_then(|w| w.write(&mut buf)) {
 			Ok(p) => {
 				good.push("credits");
 				files.push(p);

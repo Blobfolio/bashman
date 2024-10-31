@@ -9,7 +9,7 @@ repository = "https://github.com/Blobfolio/bashman"
 publish = false
 
 [package.metadata.deb]
-maintainer = "Josh Stoik <hello@blobfolio.com>"
+maintainer = "Josh Stoik <josh@blobfolio.com>"
 copyright = "2024, Blobfolio, LLC <hello@blobfolio.com>"
 license-file = ["./LICENSE", "0"]
 revision = "1"
@@ -46,6 +46,10 @@ long = "--no-man"
 description = "Do not generate MAN page(s)."
 
 [[package.metadata.bashman.switches]]
+long = "--print-targets"
+description = "Print the supported target triples (for use with -t/--target) to STDOUT and exit."
+
+[[package.metadata.bashman.switches]]
 short = "-V"
 long = "--version"
 description = "Print application version."
@@ -56,6 +60,12 @@ long = "--manifest-path"
 description = "Path to the Cargo.toml file to use."
 label = "<Cargo.toml>"
 path = true
+
+[[package.metadata.bashman.options]]
+short = "-t"
+long = "--target"
+description = "Limit CREDITS.md to dependencies used by the target <TRIPLE>, e.g. x86_64-unknown-linux-gnu. See --print-targets for the supported values."
+label = "<TRIPLE>"
 
 [build-dependencies]
 argyle = "0.10.*"

@@ -6,6 +6,7 @@ use crate::{
 	BashManError,
 	Dependency,
 	PackageName,
+	TargetTriple,
 };
 use semver::Version;
 use serde::{
@@ -39,9 +40,12 @@ use url::Url;
 ///
 /// Run `cargo metadata` and parse the results into a sorted and deduped list
 /// of dependencies.
-pub(super) fn fetch_dependencies<P: AsRef<Path>>(src: P, features: bool)
--> Result<BTreeSet<Dependency>, BashManError> {
-	let raw = cargo_exec(src, features)?;
+pub(super) fn fetch_dependencies<P: AsRef<Path>>(
+	src: P,
+	features: bool,
+	target: Option<TargetTriple>,
+) -> Result<BTreeSet<Dependency>, BashManError> {
+	let raw = cargo_exec(src, features, target)?;
 	from_json(&raw)
 }
 
@@ -198,27 +202,34 @@ fn cargo_cmd() -> Command {
 /// # Execute Cargo Metadata.
 ///
 /// Run `cargo metadata` and return the results (raw JSON) or an error.
-fn cargo_exec<P: AsRef<Path>>(src: P, features: bool)
+fn cargo_exec<P: AsRef<Path>>(src: P, features: bool, target: Option<TargetTriple>)
 -> Result<Vec<u8>, BashManError> {
+	// Populate the command arguments.
 	let src: &Path = src.as_ref();
-	let Output { stdout, .. } = cargo_cmd()
-		.args([
-			"metadata",
-			"--quiet",
-			"--color", "never",
-			"--format-version", "1",
-			if features { "--all-features" } else { "--no-default-features" },
-			"--manifest-path",
-		])
-		.arg(src)
+	let mut cmd = cargo_cmd();
+	cmd.args([
+		"metadata",
+		"--quiet",
+		"--color", "never",
+		"--format-version", "1",
+		if features { "--all-features" } else { "--no-default-features" },
+		"--manifest-path",
+	]);
+	cmd.arg(src);
+	if let Some(target) = target {
+		cmd.args(["--filter-platform", target.as_str()]);
+	}
+
+	// Run it and see what happens!
+	let Output { status, stdout, .. } = cmd
 		.stdin(Stdio::null())
 		.stdout(Stdio::piped())
 		.stderr(Stdio::null())
 		.output()
 		.map_err(|_| BashManError::Cargo)?;
 
-	if stdout.starts_with(br#"{"packages":["#) { Ok(stdout) }
-	else { Err(BashManError::Cargo) }
+	if status.success() && stdout.starts_with(br#"{"packages":["#) { Ok(stdout) }
+	else { Err(BashManError::Credits) }
 }
 
 /// # Default Dependency Kinds.
@@ -343,6 +354,6 @@ mod tests {
 		let raw = from_json(&raw).expect("Failed to marse metadata.json");
 
 		// For now let's just count the results.
-		assert_eq!(raw.len(), 87);
+		assert_eq!(raw.len(), 86);
 	}
 }

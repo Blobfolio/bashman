@@ -2,7 +2,10 @@
 # Cargo BashMan: Errors.
 */
 
-use crate::KeyWord;
+use crate::{
+	KeyWord,
+	TargetTriple,
+};
 use std::fmt;
 
 
@@ -32,10 +35,15 @@ FLAGS:
         --no-bash               Do not generate BASH completions.
         --no-credits            Do not generate CREDITS.md.
         --no-man                Do not generate MAN page(s).
+        --print-targets         Print the supported target triples (for use
+                                with -t/--target) to STDOUT and exit.
     -V, --version               Prints version information.
 
 OPTIONS:
     -m, --manifest-path <FILE>  Read file paths from this list.
+    -t, --target <TRIPLE>       Limit CREDITS.md to dependencies used by the
+                                target <TRIPLE>, e.g. x86_64-unknown-linux-gnu.
+                                See --print-targets for the supported values.
 ");
 
 
@@ -85,6 +93,9 @@ pub(super) enum BashManError {
 	/// # Read Error.
 	Read(String),
 
+	/// # Unknown Target Triple.
+	Target,
+
 	/// # Unknown Subcommand.
 	UnknownCommand(String),
 
@@ -93,6 +104,9 @@ pub(super) enum BashManError {
 
 	/// # Print Help (not really an error).
 	PrintHelp,
+
+	/// # Print Targets (not really an error).
+	PrintTargets,
 
 	/// # Print Version (not really an error).
 	PrintVersion,
@@ -131,6 +145,7 @@ impl fmt::Display for BashManError {
 			Self::UnknownCommand(s) => return write!(f, "Unknown (sub)command: {s}"),
 			Self::Write(s) => return write!(f, "Unable to write: {s}"),
 			Self::PrintHelp => HELP,
+			Self::Target | Self::PrintTargets => return TargetTriple::print(f),
 			Self::PrintVersion => concat!("Cargo BashMan v", env!("CARGO_PKG_VERSION")),
 		};
 		f.write_str(s)

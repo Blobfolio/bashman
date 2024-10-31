@@ -4,6 +4,7 @@
 
 pub(super) mod keyword;
 pub(super) mod pkg;
+pub(super) mod target;
 mod metadata;
 mod toml;
 mod util;
@@ -12,6 +13,7 @@ use crate::{
 	BashManError,
 	Dependency,
 	KeyWord,
+	TargetTriple,
 };
 use std::{
 	cmp::Ordering,
@@ -209,16 +211,17 @@ impl Manifest {
 	///
 	/// Run `cargo metadata` to figure out what all dependencies are in the
 	/// tree and return them, or an error if it fails.
-	pub(crate) fn dependencies(&self) -> Result<Vec<Dependency>, BashManError> {
+	pub(crate) fn dependencies(&self, target: Option<TargetTriple>)
+	-> Result<Vec<Dependency>, BashManError> {
 		let src: &Path = self.src();
 
 		// Fetch the required dependencies first.
-		let mut out = metadata::fetch_dependencies(src, false)?;
+		let mut out = metadata::fetch_dependencies(src, false, target)?;
 
 		// Try again with all features enabled and add anything extra under
 		// the assumption that they're optional. If this fails, we'll stick
 		// with what we've already found.
-		if let Ok(all) = metadata::fetch_dependencies(src, true) {
+		if let Ok(all) = metadata::fetch_dependencies(src, true, target) {
 			if out.len() < all.len() {
 				for mut dep in all {
 					dep.context |= Dependency::FLAG_OPTIONAL;

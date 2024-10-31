@@ -6,6 +6,7 @@ use crate::{
 	BashManError,
 	Dependency,
 	Manifest,
+	TargetTriple,
 };
 use std::{
 	fmt,
@@ -39,6 +40,9 @@ pub(super) struct CreditsWriter<'a> {
 	/// # Package Version.
 	version: &'a str,
 
+	/// # Target.
+	target: Option<TargetTriple>,
+
 	/// # Dependencies.
 	dependencies: Vec<Dependency>,
 }
@@ -48,17 +52,35 @@ impl<'a> fmt::Display for CreditsWriter<'a> {
 	///
 	/// This method writes a markdown table entry for the dependency.
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		writeln!(
-			f,
-			"# Project Dependencies
+		// With target.
+		if let Some(target) = self.target {
+			writeln!(
+				f,
+				"# Project Dependencies
+    Package:   {}
+    Version:   {}
+    Target:    {target}
+    Generated: {} UTC
+",
+				self.name,
+				self.version,
+				Utc2k::now(),
+			)?;
+		}
+		// Without target.
+		else {
+			writeln!(
+				f,
+				"# Project Dependencies
     Package:   {}
     Version:   {}
     Generated: {} UTC
 ",
-			self.name,
-			self.version,
-			Utc2k::now(),
-		)?;
+				self.name,
+				self.version,
+				Utc2k::now(),
+			)?;
+		}
 
 		// There may not be any dependencies.
 		let deps = self.dependencies.as_slice();
@@ -89,15 +111,15 @@ impl<'a> fmt::Display for CreditsWriter<'a> {
 	}
 }
 
-impl<'a> TryFrom<&'a Manifest> for CreditsWriter<'a> {
-	type Error = BashManError;
-
-	fn try_from(man: &'a Manifest) -> Result<Self, Self::Error> {
+impl<'a> CreditsWriter<'a> {
+	/// # New Instance.
+	pub(super) fn new(man: &'a Manifest, target: Option<TargetTriple>)
+	-> Result<Self, BashManError> {
 		let src = man.src();
 		let dst = man.dir_credits()?.join("CREDITS.md");
 		let cmd = man.main_cmd().ok_or(BashManError::Credits)?;
 		let name = cmd.bin();
-		let dependencies = man.dependencies()?;
+		let dependencies = man.dependencies(target)?;
 
 		// Done!
 		Ok(Self {
@@ -105,12 +127,11 @@ impl<'a> TryFrom<&'a Manifest> for CreditsWriter<'a> {
 			dst,
 			name,
 			version: cmd.version(),
+			target,
 			dependencies,
 		})
 	}
-}
 
-impl<'a> CreditsWriter<'a> {
 	/// # Write Credits!
 	///
 	/// This method is called by `main.rs` to generate and save the crate
