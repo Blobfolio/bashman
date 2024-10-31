@@ -11,6 +11,7 @@ _basher___cargo_bashman() {
 	[[ " ${COMP_LINE} " =~ " --no-bash " ]] || opts+=("--no-bash")
 	[[ " ${COMP_LINE} " =~ " --no-credits " ]] || opts+=("--no-credits")
 	[[ " ${COMP_LINE} " =~ " --no-man " ]] || opts+=("--no-man")
+	[[ " ${COMP_LINE} " =~ " --print-targets " ]] || opts+=("--print-targets")
 	if [[ ! " ${COMP_LINE} " =~ " -V " ]] && [[ ! " ${COMP_LINE} " =~ " --version " ]]; then
 		opts+=("-V")
 		opts+=("--version")
@@ -18,6 +19,10 @@ _basher___cargo_bashman() {
 	if [[ ! " ${COMP_LINE} " =~ " -m " ]] && [[ ! " ${COMP_LINE} " =~ " --manifest-path " ]]; then
 		opts+=("-m")
 		opts+=("--manifest-path")
+	fi
+	if [[ ! " ${COMP_LINE} " =~ " -t " ]] && [[ ! " ${COMP_LINE} " =~ " --target " ]]; then
+		opts+=("-t")
+		opts+=("--target")
 	fi
 	opts=" ${opts[@]} "
 	if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then

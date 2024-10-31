@@ -1,6 +1,6 @@
-.TH "CARGO BASHMAN" "1" "October 2024" "cargo\-bashman v0.6.0" "User Commands"
+.TH "CARGO BASHMAN" "1" "October 2024" "cargo\-bashman v0.6.1" "User Commands"
 .SH NAME
-CARGO BASHMAN \- Manual page for cargo\-bashman v0.6.0.
+CARGO BASHMAN \- Manual page for cargo\-bashman v0.6.1.
 .SH DESCRIPTION
 A Cargo plugin to generate bash completions, man pages, and/or crate credits.
 .SS USAGE:
@@ -20,9 +20,15 @@ Do not generate CREDITS.md.
 \fB\-\-no\-man\fR
 Do not generate MAN page(s).
 .TP
+\fB\-\-print\-targets\fR
+Print the supported target triples (for use with \-t/\-\-target) to STDOUT and exit.
+.TP
 \fB\-V\fR, \fB\-\-version\fR
 Print application version.
 .SS OPTIONS:
 .TP
 \fB\-m\fR, \fB\-\-manifest\-path\fR <Cargo.toml>
 Path to the Cargo.toml file to use.
+.TP
+\fB\-t\fR, \fB\-\-target\fR <TRIPLE>
+Limit CREDITS.md to dependencies used by the target <TRIPLE>, e.g. x86_64\-unknown\-linux\-gnu. See \-\-print\-targets for the supported values.

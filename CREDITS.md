@@ -1,8 +1,8 @@
 # Project Dependencies
     Package:   cargo-bashman
-    Version:   0.6.0
+    Version:   0.6.1
     Target:    x86_64-unknown-linux-gnu
-    Generated: 2024-10-31 03:33:01 UTC
+    Generated: 2024-10-31 05:58:06 UTC
 
 | Package | Version | Author(s) | License | Context |
 | ---- | ---- | ---- | ---- | ---- |
