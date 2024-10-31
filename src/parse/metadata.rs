@@ -54,31 +54,27 @@ struct Raw<'a> {
 	/// # Detailed Packages.
 	packages: Vec<RawPackage<'a>>,
 
-	#[serde(with = "RawNodes")]
 	#[serde(borrow)]
 	/// # Resolved Tree.
-	resolve: Vec<RawNode<'a>>,
+	resolve: RawNodes<'a>,
 }
 
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 /// # Raw Nodes (Wrapper).
 ///
-/// We only care about one of the components in `resolve`; this removes a level
-/// of complexity.
-struct RawNodes<T> {
+/// This is mostly just a wrapper around the list of nodes, but it also lets
+/// us know the ID of the main/root package.
+struct RawNodes<'a> {
+	#[serde(default)]
+	#[serde(borrow)]
 	/// # Nodes.
-	nodes: T,
-}
+	nodes: Vec<RawNode<'a>>,
 
-impl<T> RawNodes<T> {
-	#[inline]
-	/// # Deserialize.
-	fn deserialize<'de, D>(deserializer: D) -> Result<T, D::Error>
-	where T: Deserialize<'de>, D: Deserializer<'de> {
-		<Self as Deserialize>::deserialize(deserializer).map(|w| w.nodes)
-	}
+	#[serde(borrow)]
+	/// # Root.
+	root: &'a str,
 }
 
 
@@ -278,7 +274,7 @@ fn from_json(raw: &[u8]) -> Result<BTreeSet<Dependency>, BashManError> {
 	// First let's figure out the contexts for each sub-dependency (build,
 	// target-specific, etc.). This requires looping loops of loops. Haha.
 	let mut flags = HashMap::<&str, u8>::with_capacity(packages.len());
-	for deps in resolve.iter().flat_map(|r| r.deps.iter()) {
+	for deps in resolve.nodes.iter().flat_map(|r| r.deps.iter()) {
 		match flags.entry(deps.id) {
 			Entry::Occupied(mut e) => { *e.get_mut() |= deps.dep_kinds; },
 			Entry::Vacant(e) => { e.insert(deps.dep_kinds); },
@@ -287,7 +283,11 @@ fn from_json(raw: &[u8]) -> Result<BTreeSet<Dependency>, BashManError> {
 
 	// Now build a list of all of the _used_ IDs (since the output contains
 	// potentially irrelevant shit).
-	let mut used: HashSet<&str> = resolve.iter().map(|n| n.id).collect();
+	let mut used: HashSet<&str> = resolve.nodes.iter().map(|n| n.id).collect();
+
+	// Strip the root node; this is about crediting _others_. Haha.
+	flags.remove(resolve.root);
+	used.remove(resolve.root);
 
 	// We aren't interested in development-only packages, so let's strip
 	// anything that isn't also used for build/runtime.

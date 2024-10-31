@@ -13,7 +13,6 @@ use crate::{
 	Dependency,
 	KeyWord,
 };
-use semver::Version;
 use std::{
 	cmp::Ordering,
 	collections::{
@@ -49,12 +48,6 @@ pub(crate) struct Manifest {
 	/// # Credits Output Directory.
 	dir_credits: Option<PathBuf>,
 
-	/// # Package.
-	name: String,
-
-	/// # Version.
-	version: Version,
-
 	/// # Subcommands.
 	subcommands: Vec<Subcommand>,
 
@@ -82,7 +75,7 @@ impl Manifest {
 		let mut subs = BTreeMap::<String, Subcommand>::new();
 		let main = Subcommand {
 			nice_name,
-			name: KeyWord::from(name.clone()),
+			name: KeyWord::from(name),
 			description,
 			version: version.to_string(),
 			parent: None,
@@ -146,8 +139,6 @@ impl Manifest {
 			dir_man: dir_man.map(|v| dir.join(v)),
 			dir_credits: dir_credits.map(|v| dir.join(v)),
 			dir,
-			name: String::from(name),
-			version,
 			subcommands: subs.into_values().collect(),
 			credits: credits.into_iter().map(Dependency::from).collect(),
 		})
@@ -235,16 +226,6 @@ impl Manifest {
 				}
 			}
 		}
-
-		// Strip out the main entry.
-		out.remove(&Dependency {
-			name: self.name.clone(),
-			version: self.version.clone(),
-			license: None,
-			authors: Vec::new(),
-			url: None,
-			context: 0,
-		});
 
 		// Add any custom entries.
 		out.extend(self.credits.iter().cloned());
