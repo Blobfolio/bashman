@@ -46,7 +46,7 @@ pub(super) fn fetch_dependencies<P: AsRef<Path>>(
 	target: Option<TargetTriple>,
 ) -> Result<BTreeSet<Dependency>, BashManError> {
 	let raw = cargo_exec(src, features, target)?;
-	from_json(&raw)
+	from_json(&raw, target.is_some())
 }
 
 
@@ -278,7 +278,7 @@ where D: Deserializer<'de> {
 ///
 /// This is called by `Manifest::dependencies` twice, with and without
 /// features enabled to classify required/optional dependencies.
-fn from_json(raw: &[u8]) -> Result<BTreeSet<Dependency>, BashManError> {
+fn from_json(raw: &[u8], targeted: bool) -> Result<BTreeSet<Dependency>, BashManError> {
 	let Raw { packages, resolve } = serde_json::from_slice(raw)
 		.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?;
 
@@ -303,6 +303,9 @@ fn from_json(raw: &[u8]) -> Result<BTreeSet<Dependency>, BashManError> {
 	// We aren't interested in development-only packages, so let's strip
 	// anything that isn't also used for build/runtime.
 	for (id, flag) in &mut flags {
+		// Strip target-specific flag if this search was targeted.
+		if targeted { *flag &= ! Dependency::FLAG_TARGET; }
+
 		if Dependency::FLAG_DEV == *flag & Dependency::FLAG_CONTEXT {
 			used.remove(id);
 		}
@@ -348,12 +351,18 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn t_parse_raw() {
+	fn t_from_json() {
 		let raw = std::fs::read("skel/metadata.json")
 			.expect("Missing skel/metadata.json");
-		let raw = from_json(&raw).expect("Failed to marse metadata.json");
+		let raw1 = from_json(&raw, false).expect("Failed to marse metadata.json");
+		let raw2 = from_json(&raw, true).expect("Failed to marse metadata.json");
 
 		// For now let's just count the results.
-		assert_eq!(raw.len(), 86);
+		assert_eq!(raw1.len(), 86);
+		assert_eq!(raw2.len(), 86);
+
+		// And make sure the target-specific flags were conditionally applied.
+		assert!(raw1.iter().any(|d| d.context().contains("target-specific")));
+		assert!(raw2.iter().all(|d| ! d.context().contains("target-specific")));
 	}
 }
