@@ -2,7 +2,10 @@
 # Cargo BashMan: Errors.
 */
 
-use crate::KeyWord;
+use crate::{
+	KeyWord,
+	TargetTriple,
+};
 use std::fmt;
 
 
@@ -32,10 +35,15 @@ FLAGS:
         --no-bash               Do not generate BASH completions.
         --no-credits            Do not generate CREDITS.md.
         --no-man                Do not generate MAN page(s).
+        --print-targets         Print the supported target triples (for use
+                                with -t/--target) to STDOUT and exit.
     -V, --version               Prints version information.
 
 OPTIONS:
     -m, --manifest-path <FILE>  Read file paths from this list.
+    -t, --target <TRIPLE>       Limit CREDITS.md to dependencies used by the
+                                target <TRIPLE>, e.g. x86_64-unknown-linux-gnu.
+                                See --print-targets for the supported values.
 ");
 
 
@@ -45,6 +53,9 @@ OPTIONS:
 pub(super) enum BashManError {
 	/// # Bash Completions.
 	Bash,
+
+	/// # Cargo Failed.
+	Cargo,
 
 	/// # Credits Failed.
 	Credits,
@@ -73,11 +84,17 @@ pub(super) enum BashManError {
 	/// # Package Name.
 	PackageName(String),
 
+	/// # Cargo Metadata (JSON) Parsing Error.
+	ParseCargoMetadata(String),
+
 	/// # Cargo.toml Parsing Error.
 	ParseToml(String),
 
 	/// # Read Error.
 	Read(String),
+
+	/// # Unknown Target Triple.
+	Target,
 
 	/// # Unknown Subcommand.
 	UnknownCommand(String),
@@ -87,6 +104,9 @@ pub(super) enum BashManError {
 
 	/// # Print Help (not really an error).
 	PrintHelp,
+
+	/// # Print Targets (not really an error).
+	PrintTargets,
 
 	/// # Print Version (not really an error).
 	PrintVersion,
@@ -98,6 +118,7 @@ impl fmt::Display for BashManError {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		let s = match self {
 			Self::Bash => "Unable to generate Bash completions.",
+			Self::Cargo => "Unable to execute \x1b[2mcargo metadata\x1b[0m.",
 			Self::Credits => "Unable to generate crate credits.",
 			Self::Dir(k, v) => return write!(f, "Invalid {k} directory: {v}"),
 			Self::DuplicateKeyWord(k) => return write!(
@@ -118,11 +139,13 @@ impl fmt::Display for BashManError {
 			Self::PackageName(s) =>
 				if s.is_empty() { "Package name cannot be empty." }
 				else { return write!(f, "Invalid package name: {s}"); },
+			Self::ParseCargoMetadata(s) => return write!(f, "Cargo metadata parsing error: {s}"),
 			Self::ParseToml(s) => return write!(f, "Cargo.toml parsing error: {s}"),
 			Self::Read(s) => return write!(f, "Unable to read: {s}"),
 			Self::UnknownCommand(s) => return write!(f, "Unknown (sub)command: {s}"),
 			Self::Write(s) => return write!(f, "Unable to write: {s}"),
 			Self::PrintHelp => HELP,
+			Self::Target | Self::PrintTargets => return TargetTriple::print(f),
 			Self::PrintVersion => concat!("Cargo BashMan v", env!("CARGO_PKG_VERSION")),
 		};
 		f.write_str(s)

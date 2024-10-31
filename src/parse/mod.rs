@@ -4,11 +4,16 @@
 
 pub(super) mod keyword;
 pub(super) mod pkg;
+pub(super) mod target;
+mod metadata;
 mod toml;
+mod util;
 
 use crate::{
 	BashManError,
+	Dependency,
 	KeyWord,
+	TargetTriple,
 };
 use std::{
 	cmp::Ordering,
@@ -47,6 +52,9 @@ pub(crate) struct Manifest {
 
 	/// # Subcommands.
 	subcommands: Vec<Subcommand>,
+
+	/// # Extra Credits?
+	credits: BTreeSet<Dependency>,
 }
 
 impl Manifest {
@@ -63,17 +71,15 @@ impl Manifest {
 		let (dir, src) = manifest_source(src.as_ref())?;
 		let toml::Raw { package } = toml::Raw::from_file(&src)?;
 		let toml::RawPackage { name, version, description, metadata } = package;
-		let toml::RawBashMan { nice_name, dir_bash, dir_man, dir_credits, subcommands, flags, options, args, sections } = metadata;
-		let version = version.to_string();
-		let name = KeyWord::from(name);
+		let toml::RawBashMan { nice_name, dir_bash, dir_man, dir_credits, subcommands, flags, options, args, sections, credits } = metadata;
 
 		// Build the subcommands.
 		let mut subs = BTreeMap::<String, Subcommand>::new();
 		let main = Subcommand {
 			nice_name,
-			name,
+			name: KeyWord::from(name),
 			description,
-			version,
+			version: version.to_string(),
 			parent: None,
 			data: ManifestData::default(),
 		};
@@ -136,6 +142,7 @@ impl Manifest {
 			dir_credits: dir_credits.map(|v| dir.join(v)),
 			dir,
 			subcommands: subs.into_values().collect(),
+			credits: credits.into_iter().map(Dependency::from).collect(),
 		})
 	}
 }
@@ -196,6 +203,39 @@ impl Manifest {
 
 	/// # (Sub)commands.
 	pub(crate) fn subcommands(&self) -> &[Subcommand] { self.subcommands.as_slice() }
+}
+
+impl Manifest {
+	#[inline]
+	/// # Fetch Dependencies.
+	///
+	/// Run `cargo metadata` to figure out what all dependencies are in the
+	/// tree and return them, or an error if it fails.
+	pub(crate) fn dependencies(&self, target: Option<TargetTriple>)
+	-> Result<Vec<Dependency>, BashManError> {
+		let src: &Path = self.src();
+
+		// Fetch the required dependencies first.
+		let mut out = metadata::fetch_dependencies(src, false, target)?;
+
+		// Try again with all features enabled and add anything extra under
+		// the assumption that they're optional. If this fails, we'll stick
+		// with what we've already found.
+		if let Ok(all) = metadata::fetch_dependencies(src, true, target) {
+			if out.len() < all.len() {
+				for mut dep in all {
+					dep.context |= Dependency::FLAG_OPTIONAL;
+					out.insert(dep);
+				}
+			}
+		}
+
+		// Add any custom entries.
+		out.extend(self.credits.iter().cloned());
+
+		// Done!
+		Ok(out.into_iter().collect())
+	}
 }
 
 

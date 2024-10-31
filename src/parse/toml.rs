@@ -7,6 +7,7 @@ mess as much as possible. Haha.
 
 use crate::{
 	BashManError,
+	Dependency,
 	KeyWord,
 	PackageName,
 };
@@ -22,10 +23,9 @@ use std::{
 	},
 	path::Path,
 };
-use trimothy::{
-	TrimMut,
-	NormalizeWhitespace,
-};
+use super::util;
+use trimothy::NormalizeWhitespace;
+use url::Url;
 
 
 
@@ -114,7 +114,7 @@ pub(super) struct RawPackage {
 	/// # Package Version.
 	pub(super) version: Version,
 
-	#[serde(deserialize_with = "deserialize_nonempty_str_normalized")]
+	#[serde(deserialize_with = "util::deserialize_nonempty_str_normalized")]
 	/// # Package Description.
 	pub(super) description: String,
 
@@ -136,11 +136,11 @@ struct RawMeta<T> {
 }
 
 impl<T> RawMeta<T> {
+	#[inline]
 	/// # Deserialize.
 	fn deserialize<'de, D>(deserializer: D) -> Result<T, D::Error>
 	where T: Deserialize<'de>, D: Deserializer<'de> {
-		let wrapper = <Self as Deserialize>::deserialize(deserializer)?;
-		Ok(wrapper.bashman)
+		<Self as Deserialize>::deserialize(deserializer).map(|w| w.bashman)
 	}
 }
 
@@ -153,25 +153,25 @@ impl<T> RawMeta<T> {
 pub(super) struct RawBashMan {
 	#[serde(rename = "name")]
 	#[serde(default)]
-	#[serde(deserialize_with = "deserialize_nonempty_opt_str_normalized")]
+	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str_normalized")]
 	/// # Package Nice Name.
 	pub(super) nice_name: Option<String>,
 
 	#[serde(rename = "bash-dir")]
 	#[serde(default)]
-	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
+	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str")]
 	/// # Directory For Bash Completions.
 	pub(super) dir_bash: Option<String>,
 
 	#[serde(rename = "man-dir")]
 	#[serde(default)]
-	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
+	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str")]
 	/// # Directory for MAN pages.
 	pub(super) dir_man: Option<String>,
 
 	#[serde(rename = "credits-dir")]
 	#[serde(default)]
-	#[serde(deserialize_with = "deserialize_nonempty_opt_str")]
+	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str")]
 	/// # Directory for Credits.
 	pub(super) dir_credits: Option<String>,
 
@@ -196,6 +196,10 @@ pub(super) struct RawBashMan {
 	#[serde(default)]
 	/// # Sections.
 	pub(super) sections: Vec<RawSection>,
+
+	#[serde(default)]
+	/// # Credits.
+	pub(super) credits: Vec<RawCredits>,
 }
 
 
@@ -206,14 +210,14 @@ pub(super) struct RawBashMan {
 /// This is what is found under "package.metadata.bashman.subcommands".
 pub(super) struct RawSubCmd {
 	#[serde(default)]
-	#[serde(deserialize_with = "deserialize_nonempty_opt_str_normalized")]
+	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str_normalized")]
 	/// # Nice Name.
 	pub(super) name: Option<String>,
 
 	/// # (Sub)command.
 	pub(super) cmd: KeyWord,
 
-	#[serde(deserialize_with = "deserialize_nonempty_str_normalized")]
+	#[serde(deserialize_with = "util::deserialize_nonempty_str_normalized")]
 	/// # Description.
 	pub(super) description: String,
 }
@@ -233,7 +237,7 @@ pub(super) struct RawSwitch {
 	/// # Long Key.
 	pub(super) long: Option<KeyWord>,
 
-	#[serde(deserialize_with = "deserialize_nonempty_str_normalized")]
+	#[serde(deserialize_with = "util::deserialize_nonempty_str_normalized")]
 	/// # Description.
 	pub(super) description: String,
 
@@ -261,7 +265,7 @@ pub(super) struct RawOption {
 	/// # Long Key.
 	pub(super) long: Option<KeyWord>,
 
-	#[serde(deserialize_with = "deserialize_nonempty_str_normalized")]
+	#[serde(deserialize_with = "util::deserialize_nonempty_str_normalized")]
 	/// # Description.
 	pub(super) description: String,
 
@@ -295,7 +299,7 @@ pub(super) struct RawArg {
 	/// # Value Label.
 	pub(super) label: Option<String>,
 
-	#[serde(deserialize_with = "deserialize_nonempty_str_normalized")]
+	#[serde(deserialize_with = "util::deserialize_nonempty_str_normalized")]
 	/// # Description.
 	pub(super) description: String,
 
@@ -332,14 +336,64 @@ pub(super) struct RawSection {
 
 
 
+#[derive(Debug, Clone, Deserialize)]
+/// # Raw Switch.
+///
+/// This is what is found under "package.metadata.bashman.credits".
+pub(super) struct RawCredits {
+	/// # Name.
+	name: PackageName,
+
+	/// # Version.
+	version: Version,
+
+	#[serde(default)]
+	#[serde(deserialize_with = "util::deserialize_license")]
+	/// # License.
+	license: String,
+
+	#[serde(default)]
+	#[serde(deserialize_with = "util::deserialize_authors")]
+	/// # Author(s).
+	authors: Vec<String>,
+
+	#[serde(default)]
+	/// # Repository URL.
+	repository: Option<Url>,
+
+	#[serde(default)]
+	/// # Optional?
+	optional: bool,
+}
+
+impl From<RawCredits> for Dependency {
+	#[inline]
+	fn from(src: RawCredits) -> Self {
+		let context =
+			if src.optional { Self::FLAG_RUNTIME | Self::FLAG_OPTIONAL }
+			else { Self::FLAG_RUNTIME };
+
+		Self {
+			name: String::from(src.name),
+			version: src.version,
+			license: if src.license.is_empty() { None } else { Some(src.license) },
+			authors: src.authors,
+			url: src.repository.map(String::from),
+			context,
+		}
+	}
+}
+
+
+
 #[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
 /// # Deserialize: Section Items.
 fn deserialize_items<'de, D>(deserializer: D) -> Result<Vec<[String; 2]>, D::Error>
 where D: Deserializer<'de> {
 	let mut out = Vec::<[String; 2]>::deserialize(deserializer).unwrap_or_default();
 	out.retain_mut(|line| {
-		line[0] = line[0].normalized_control_and_whitespace().collect();
-		line[1] = line[1].normalized_control_and_whitespace().collect();
+		util::normalize_string(&mut line[0]);
+		util::normalize_string(&mut line[1]);
 		! line[0].is_empty() || ! line[1].is_empty()
 	});
 
@@ -353,11 +407,9 @@ where D: Deserializer<'de> {
 fn deserialize_label<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where D: Deserializer<'de> {
 	Ok(
-		Option::<String>::deserialize(deserializer)
-			.ok()
-			.flatten()
-			.and_then(|x| {
-				let mut x: String = x.normalized_control_and_whitespace().collect();
+		<String>::deserialize(deserializer).ok()
+			.and_then(|mut x| {
+				util::normalize_string(&mut x);
 				if x.is_empty() { None }
 				else {
 					if ! x.starts_with('<') { x.insert(0, '<'); }
@@ -375,7 +427,7 @@ where D: Deserializer<'de> {
 	let mut out = Vec::<String>::deserialize(deserializer).unwrap_or_default();
 	let mut any = false;
 	out.retain_mut(|line| {
-		*line = line.normalized_control_and_whitespace().collect();
+		util::normalize_string(line);
 		if line.is_empty() && ! any { false }
 		else {
 			any = true;
@@ -389,54 +441,6 @@ where D: Deserializer<'de> {
 	}
 
 	Ok(out)
-}
-
-/// # Deserialize: Require Non-Empty String, Normalized.
-///
-/// This will return an error if a string is present but empty.
-fn deserialize_nonempty_str_normalized<'de, D>(deserializer: D) -> Result<String, D::Error>
-where D: Deserializer<'de> {
-	let tmp = <String>::deserialize(deserializer)?;
-	let out: String = tmp.normalized_control_and_whitespace().collect();
-	if out.is_empty() { Err(serde::de::Error::custom("value cannot be empty")) }
-	else { Ok(out) }
-}
-
-#[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
-/// # Deserialize: Optional Non-Empty String.
-///
-/// This will return `None` if the string is empty.
-fn deserialize_nonempty_opt_str<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
-where D: Deserializer<'de> {
-	Ok(
-		Option::<String>::deserialize(deserializer)
-			.ok()
-			.flatten()
-			.and_then(|mut x| {
-				x.trim_mut();
-				if x.is_empty() { None }
-				else { Some(x) }
-			})
-	)
-}
-
-#[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
-/// # Deserialize: Optional None-Empty String, Normalized.
-///
-/// This will return `None` if the string is empty, normalizing whitespace and
-/// control characters along the way.
-fn deserialize_nonempty_opt_str_normalized<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
-where D: Deserializer<'de> {
-	Ok(
-		Option::<String>::deserialize(deserializer)
-			.ok()
-			.flatten()
-			.and_then(|x| {
-				let x: String = x.normalized_control_and_whitespace().collect();
-				if x.is_empty() { None }
-				else { Some(x) }
-			})
-	)
 }
 
 /// # Deserialize: Section Name.
