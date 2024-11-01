@@ -137,7 +137,7 @@ struct RawNodeDepKind {
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_target")]
 	/// # Target.
-	target: bool,
+	target: Option<bool>,
 }
 
 impl RawNodeDepKind {
@@ -145,10 +145,15 @@ impl RawNodeDepKind {
 	///
 	/// Convert the kind/target into the corresponding context flag used by
 	/// our `Dependency` struct.
+	///
+	/// Note that dev/impossible dependencies (without other uses) will get
+	/// stripped automatically during deserialization.
 	const fn as_flag(self) -> u8 {
-		if self.dev { Dependency::FLAG_DEV }
-		else if self.target { Dependency::FLAG_RUNTIME | Dependency::FLAG_TARGET }
-		else { Dependency::FLAG_RUNTIME | Dependency::FLAG_ANY }
+		match (self.dev, self.target) {
+			(true, _) | (_, Some(false)) => Dependency::FLAG_DEV,
+			(false, Some(true)) => Dependency::FLAG_RUNTIME | Dependency::FLAG_TARGET,
+			(false, None) => Dependency::FLAG_RUNTIME | Dependency::FLAG_ANY,
+		}
 	}
 }
 
@@ -243,8 +248,6 @@ fn cargo_exec<P: AsRef<Path>>(src: P, features: bool, target: Option<TargetTripl
 /// # Default Dependency Kinds.
 const fn default_depkinds() -> u8 { Dependency::FLAG_RUNTIME }
 
-
-
 #[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
 /// # Deserialize: Dependency Kinds.
 fn deserialize_depkinds<'de, D>(deserializer: D) -> Result<u8, D::Error>
@@ -294,15 +297,20 @@ where D: Deserializer<'de> {
 
 #[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
 /// # Deserialize: Target.
-fn deserialize_target<'de, D>(deserializer: D) -> Result<bool, D::Error>
+///
+/// Returns `None` if no cfg/target is specified, otherwise `Some(true)` if
+/// present.
+///
+/// `Some(false)` is used for impossible values like "cfg(any())"; we'll strip
+/// them out subsequently.
+fn deserialize_target<'de, D>(deserializer: D) -> Result<Option<bool>, D::Error>
 where D: Deserializer<'de> {
-	Ok(
-		<Cow<str>>::deserialize(deserializer).ok()
-		.map_or(
-			false,
-			|o| ! o.trim().is_empty()
-		)
-	)
+	Ok(<Cow<str>>::deserialize(deserializer).map_or(
+		None,
+		|cond|
+			if cond == "cfg(any())" { Some(false) }
+			else { Some(true) }
+	))
 }
 
 /// # Parse Dependencies.
@@ -432,42 +440,49 @@ mod tests {
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": null, "target": null}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
 		assert!(! kind.dev);
-		assert!(! kind.target);
+		assert!(kind.target.is_none());
 		assert_eq!(kind.as_flag(), Dependency::FLAG_RUNTIME | Dependency::FLAG_ANY);
 
 		// Build.
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": "build", "target": null}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
 		assert!(! kind.dev);
-		assert!(! kind.target);
+		assert!(kind.target.is_none());
 		assert_eq!(kind.as_flag(), Dependency::FLAG_RUNTIME | Dependency::FLAG_ANY);
 
 		// Build and Target.
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": "build", "target": "cfg(unix)"}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
 		assert!(! kind.dev);
-		assert!(kind.target);
+		assert_eq!(kind.target, Some(true));
 		assert_eq!(kind.as_flag(), Dependency::FLAG_RUNTIME | Dependency::FLAG_TARGET);
 
 		// Target.
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": null, "target": "cfg(target_os = \"hermit\")"}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
 		assert!(! kind.dev);
-		assert!(kind.target);
+		assert_eq!(kind.target, Some(true));
 		assert_eq!(kind.as_flag(), Dependency::FLAG_RUNTIME | Dependency::FLAG_TARGET);
+
+		// Bullshit target (should be treated as dev).
+		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": null, "target": "cfg(any())"}"#)
+			.expect("Failed to deserialize RawNodeDepKind");
+		assert!(! kind.dev);
+		assert_eq!(kind.target, Some(false));
+		assert_eq!(kind.as_flag(), Dependency::FLAG_DEV);
 
 		// Dev.
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": "dev", "target": null}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
 		assert!(kind.dev);
-		assert!(! kind.target);
+		assert!(kind.target.is_none());
 		assert_eq!(kind.as_flag(), Dependency::FLAG_DEV);
 
-		// Dev and target.
+		// Dev and target (should be treated as dev).
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": "dev", "target": "cfg(target_os = \"wasi\")"}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
 		assert!(kind.dev);
-		assert!(kind.target);
-		assert_eq!(kind.as_flag(), Dependency::FLAG_DEV); // Dev takes priority.
+		assert_eq!(kind.target, Some(true));
+		assert_eq!(kind.as_flag(), Dependency::FLAG_DEV);
 	}
 }
