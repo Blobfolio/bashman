@@ -146,6 +146,12 @@ fn main() {
 #[inline]
 /// # Actual main.
 fn _main() -> Result<(), BashManError> {
+	/// # Skipped Bash.
+	const SKIPPED_BASH: u8 = 0b0001;
+
+	/// # Skipped Man.
+	const SKIPPED_MAN: u8 =  0b0010;
+
 	// Keep track of the time.
 	let now = Instant::now();
 
@@ -199,6 +205,7 @@ fn _main() -> Result<(), BashManError> {
 	let mut buf = String::with_capacity(1024);
 
 	let mut bad = Vec::with_capacity(3);
+	let mut skipped = 0_u8;
 	let mut good = Vec::with_capacity(3);
 	let mut files = Vec::new();
 
@@ -209,6 +216,7 @@ fn _main() -> Result<(), BashManError> {
 				good.push("bash completions");
 				files.push(p);
 			},
+			Err(BashManError::Noop) => { skipped |= SKIPPED_BASH; },
 			Err(e) => { bad.push(e); }
 		}
 	}
@@ -217,9 +225,10 @@ fn _main() -> Result<(), BashManError> {
 	if FLAG_MAN == flags & FLAG_MAN {
 		match ManWriter::try_from(&manifest).and_then(|w| w.write(&mut buf)) {
 			Ok(mut p) => {
-				good.push("man pages");
+				good.push("man page(s)");
 				files.append(&mut p);
 			},
+			Err(BashManError::Noop) => { skipped |= SKIPPED_MAN; },
 			Err(e) => { bad.push(e); }
 		}
 	}
@@ -247,6 +256,20 @@ fn _main() -> Result<(), BashManError> {
 				"\n  ",
 			),
 		)).eprint();
+	}
+
+	// Print the skipped.
+	if skipped != 0 {
+		Msg::custom("Skipped", 11, &format!(
+			"{}; no corresponding bashman manifest sections found.",
+			match skipped {
+				SKIPPED_BASH => "Bash completions",
+				SKIPPED_MAN => "Man page(s)",
+				_ => "Bash completions and man page(s)",
+			}
+		))
+			.with_newline(true)
+			.eprint();
 	}
 
 	#[expect(clippy::option_if_let_else, reason = "Too messy.")]

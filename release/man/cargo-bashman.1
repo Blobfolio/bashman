@@ -1,6 +1,6 @@
-.TH "CARGO BASHMAN" "1" "October 2024" "cargo\-bashman v0.6.1" "User Commands"
+.TH "CARGO BASHMAN" "1" "November 2024" "cargo\-bashman v0.6.2" "User Commands"
 .SH NAME
-CARGO BASHMAN \- Manual page for cargo\-bashman v0.6.1.
+CARGO BASHMAN \- Manual page for cargo\-bashman v0.6.2.
 .SH DESCRIPTION
 A Cargo plugin to generate bash completions, man pages, and/or crate credits.
 .SS USAGE:
@@ -9,7 +9,7 @@ cargo\-bashman [FLAGS] [OPTIONS]
 .SS FLAGS:
 .TP
 \fB\-h\fR, \fB\-\-help\fR
-Print help information.
+Print help information to STDOUT and exit.
 .TP
 \fB\-\-no\-bash\fR
 Do not generate BASH completions.
@@ -24,7 +24,7 @@ Do not generate MAN page(s).
 Print the supported target triples (for use with \-t/\-\-target) to STDOUT and exit.
 .TP
 \fB\-V\fR, \fB\-\-version\fR
-Print application version.
+Print version information to STDOUT and exit.
 .SS OPTIONS:
 .TP
 \fB\-m\fR, \fB\-\-manifest\-path\fR <Cargo.toml>

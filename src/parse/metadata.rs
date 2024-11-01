@@ -44,9 +44,9 @@ pub(super) fn fetch_dependencies<P: AsRef<Path>>(
 	src: P,
 	features: bool,
 	target: Option<TargetTriple>,
-) -> Result<BTreeSet<Dependency>, BashManError> {
+) -> Result<(BTreeSet<Dependency>, bool), BashManError> {
 	let raw = cargo_exec(src, features, target)?;
-	from_json(&raw)
+	from_json(&raw, target.is_some())
 }
 
 
@@ -94,7 +94,10 @@ struct RawNode<'a> {
 
 	#[serde(default)]
 	#[serde(borrow)]
+	#[serde(deserialize_with = "deserialize_node_deps")]
 	/// # Dependency Details.
+	///
+	/// Note that dev-only dependencies are pruned during deserialization.
 	deps: Vec<RawNodeDep<'a>>,
 }
 
@@ -134,7 +137,7 @@ struct RawNodeDepKind {
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_target")]
 	/// # Target.
-	target: bool,
+	target: Option<bool>,
 }
 
 impl RawNodeDepKind {
@@ -142,10 +145,15 @@ impl RawNodeDepKind {
 	///
 	/// Convert the kind/target into the corresponding context flag used by
 	/// our `Dependency` struct.
+	///
+	/// Note that dev/impossible dependencies (without other uses) will get
+	/// stripped automatically during deserialization.
 	const fn as_flag(self) -> u8 {
-		if self.dev { Dependency::FLAG_DEV }
-		else if self.target { Dependency::FLAG_RUNTIME | Dependency::FLAG_TARGET }
-		else { Dependency::FLAG_RUNTIME | Dependency::FLAG_ANY }
+		match (self.dev, self.target) {
+			(true, _) | (_, Some(false)) => Dependency::FLAG_DEV,
+			(false, Some(true)) => Dependency::FLAG_RUNTIME | Dependency::FLAG_TARGET,
+			(false, None) => Dependency::FLAG_RUNTIME | Dependency::FLAG_ANY,
+		}
 	}
 }
 
@@ -179,6 +187,11 @@ struct RawPackage<'a> {
 	#[serde(default)]
 	/// # Repository URL.
 	repository: Option<Url>,
+
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_features")]
+	/// # Has Features?
+	features: bool,
 }
 
 
@@ -235,8 +248,6 @@ fn cargo_exec<P: AsRef<Path>>(src: P, features: bool, target: Option<TargetTripl
 /// # Default Dependency Kinds.
 const fn default_depkinds() -> u8 { Dependency::FLAG_RUNTIME }
 
-
-
 #[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
 /// # Deserialize: Dependency Kinds.
 fn deserialize_depkinds<'de, D>(deserializer: D) -> Result<u8, D::Error>
@@ -250,6 +261,20 @@ where D: Deserializer<'de> {
 }
 
 #[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
+/// # Deserialize: Features.
+///
+/// We just want to know if there _are_ features.
+fn deserialize_features<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where D: Deserializer<'de> {
+	if let Ok(mut map) = <HashMap<String, Vec<Cow<str>>>>::deserialize(deserializer) {
+		map.remove("default");
+		return Ok(! map.is_empty());
+	}
+
+	Ok(false)
+}
+
+#[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
 /// # Deserialize: Dev Kind?
 fn deserialize_kind<'de, D>(deserializer: D) -> Result<bool, D::Error>
 where D: Deserializer<'de> {
@@ -259,16 +284,33 @@ where D: Deserializer<'de> {
 }
 
 #[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
-/// # Deserialize: Target.
-fn deserialize_target<'de, D>(deserializer: D) -> Result<bool, D::Error>
+/// # Deserialize: Node Dependencies.
+///
+/// This method won't fail, but dev-only dependencies will be pruned before
+/// return.
+fn deserialize_node_deps<'de, D>(deserializer: D) -> Result<Vec<RawNodeDep<'de>>, D::Error>
 where D: Deserializer<'de> {
-	Ok(
-		<Cow<str>>::deserialize(deserializer).ok()
-		.map_or(
-			false,
-			|o| ! o.trim().is_empty()
-		)
-	)
+	let mut out = <Vec<RawNodeDep>>::deserialize(deserializer).unwrap_or_default();
+	out.retain(|nd| Dependency::FLAG_DEV != nd.dep_kinds & Dependency::FLAG_CONTEXT);
+	Ok(out)
+}
+
+#[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
+/// # Deserialize: Target.
+///
+/// Returns `None` if no cfg/target is specified, otherwise `Some(true)` if
+/// present.
+///
+/// `Some(false)` is used for impossible values like "cfg(any())"; we'll strip
+/// them out subsequently.
+fn deserialize_target<'de, D>(deserializer: D) -> Result<Option<bool>, D::Error>
+where D: Deserializer<'de> {
+	Ok(<Cow<str>>::deserialize(deserializer).map_or(
+		None,
+		|cond|
+			if cond == "cfg(any())" { Some(false) }
+			else { Some(true) }
+	))
 }
 
 /// # Parse Dependencies.
@@ -276,51 +318,67 @@ where D: Deserializer<'de> {
 /// Parse the raw JSON output from a `cargo metadata` command and return
 /// the relevant dependencies, deduped and sorted.
 ///
-/// This is called by `Manifest::dependencies` twice, with and without
-/// features enabled to classify required/optional dependencies.
-fn from_json(raw: &[u8]) -> Result<BTreeSet<Dependency>, BashManError> {
+/// This is called by `Manifest::dependencies` up to two times depending on
+/// whether or not the root has features (so we can figure out what is
+/// optional.)
+fn from_json(raw: &[u8], targeted: bool)
+-> Result<(BTreeSet<Dependency>, bool), BashManError> {
 	let Raw { packages, resolve } = serde_json::from_slice(raw)
 		.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?;
 
-	// First let's figure out the contexts for each sub-dependency (build,
-	// target-specific, etc.). This requires looping loops of loops. Haha.
-	let mut flags = HashMap::<&str, u8>::with_capacity(packages.len());
-	for deps in resolve.nodes.iter().flat_map(|r| r.deps.iter()) {
-		match flags.entry(deps.id) {
-			Entry::Occupied(mut e) => { *e.get_mut() |= deps.dep_kinds; },
-			Entry::Vacant(e) => { e.insert(deps.dep_kinds); },
+	// As we don't care about dev-only dependencies, we have to manually
+	// traverse the tree to figure out what is actually used. Before we do
+	// that, let's build a map of parent/child pairs to make all those lookups
+	// less terrible.
+	let nice_resolve: HashMap<&str, Vec<&str>> = resolve.nodes.iter()
+		.map(|n| (n.id, n.deps.iter().map(|nd| nd.id).collect()))
+		.collect();
+
+	// The traversal itself is simple if stupid: starting with the root
+	// package, enqueue its dependencies, then each of their dependencies, and
+	// so on until we run out of fresh references.
+	let mut used: HashSet<&str> = HashSet::with_capacity(packages.len());
+	let mut queue = vec![resolve.root];
+	while let Some(next) = queue.pop() {
+		// To prevent infinite recursion, only enqueue a given project's
+		// dependencies the first time it comes up.
+		if used.insert(next) {
+			if let Some(next) = nice_resolve.get(next) {
+				queue.extend_from_slice(next);
+			}
 		}
 	}
 
-	// Now build a list of all of the _used_ IDs (since the output contains
-	// potentially irrelevant shit).
-	let mut used: HashSet<&str> = resolve.nodes.iter().map(|n| n.id).collect();
+	// Dependencies can be shared and used in different contexts, so let's
+	// quickly calculate the combined values for each individual package.
+	let mut flags = HashMap::<&str, u8>::with_capacity(used.len());
+	for dep in resolve.nodes.iter().filter(|r| used.contains(r.id)).flat_map(|r| r.deps.iter()) {
+		match flags.entry(dep.id) {
+			Entry::Occupied(mut e) => { *e.get_mut() |= dep.dep_kinds; },
+			Entry::Vacant(e) => { e.insert(dep.dep_kinds); },
+		}
+	}
 
-	// Strip the root node; this is about crediting _others_. Haha.
-	flags.remove(resolve.root);
+	// The root node isn't needed in the output; the easiest way to filter it
+	// out is to pretend it wasn't used.
 	used.remove(resolve.root);
 
-	// We aren't interested in development-only packages, so let's strip
-	// anything that isn't also used for build/runtime.
-	for (id, flag) in &mut flags {
-		if Dependency::FLAG_DEV == *flag & Dependency::FLAG_CONTEXT {
-			used.remove(id);
-		}
-
-		// The dev flag has served its purpose and can be removed.
-		*flag &= ! Dependency::FLAG_DEV;
-	}
+	// The context flags aren't needed in the output either, and if we're doing
+	// a targeted lookup there's no point noting target-specificness. For now,
+	// let's just build the mask so it can be easily applied to the final
+	// assignment.
+	let antiflags =
+		if targeted { Dependency::FLAG_CONTEXT | Dependency::FLAG_TARGET }
+		else { Dependency::FLAG_CONTEXT };
 
 	// All that's left to do is compile an authoritative set of the used
 	// dependencies in a friendly format.
+	let mut features = false;
 	let out: BTreeSet<Dependency> = packages.into_iter()
 		.filter_map(|p|
 			if used.contains(p.id) {
 				// Figure out the context flags.
-				let mut context = flags.get(p.id).copied().unwrap_or(0);
-				if 0 == context & Dependency::FLAG_CONTEXT {
-					context |= Dependency::FLAG_RUNTIME;
-				}
+				let mut context = flags.remove(p.id).map_or(0, |f| f & ! antiflags);
 				if 0 == context & Dependency::FLAG_PLATFORM {
 					context |= Dependency::FLAG_ANY;
 				}
@@ -334,11 +392,16 @@ fn from_json(raw: &[u8]) -> Result<BTreeSet<Dependency>, BashManError> {
 					context,
 				})
 			}
-			else { None }
+			else {
+				// Before we throw away the root package, note whether or not
+				// it had crate features.
+				if p.id == resolve.root { features = p.features }
+				None
+			}
 		)
 		.collect();
 
-	Ok(out)
+	Ok((out, features))
 }
 
 
@@ -348,12 +411,78 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn t_parse_raw() {
+	fn t_from_json() {
 		let raw = std::fs::read("skel/metadata.json")
 			.expect("Missing skel/metadata.json");
-		let raw = from_json(&raw).expect("Failed to marse metadata.json");
+		let (raw1, feat1) = from_json(&raw, false).expect("Failed to marse metadata.json");
+		let (raw2, feat2) = from_json(&raw, true).expect("Failed to marse metadata.json");
+
+		// We don't have features.
+		assert!(! feat1);
+		assert!(! feat2);
 
 		// For now let's just count the results.
-		assert_eq!(raw.len(), 86);
+		assert_eq!(raw1.len(), 86);
+		assert_eq!(raw2.len(), 86);
+
+		// And make sure the target-specific flags were conditionally applied.
+		assert!(raw1.iter().any(|d| d.context().contains("target-specific")));
+		assert!(raw2.iter().all(|d| ! d.context().contains("target-specific")));
+	}
+
+	#[test]
+	/// # Node Dependency Kind Deserialization.
+	///
+	/// We're deviating quite a bit from the natural structure, so it's a good
+	/// idea to verify the data gets crunched correctly.
+	fn t_raw_dep_kind() {
+		// No values.
+		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": null, "target": null}"#)
+			.expect("Failed to deserialize RawNodeDepKind");
+		assert!(! kind.dev);
+		assert!(kind.target.is_none());
+		assert_eq!(kind.as_flag(), Dependency::FLAG_RUNTIME | Dependency::FLAG_ANY);
+
+		// Build.
+		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": "build", "target": null}"#)
+			.expect("Failed to deserialize RawNodeDepKind");
+		assert!(! kind.dev);
+		assert!(kind.target.is_none());
+		assert_eq!(kind.as_flag(), Dependency::FLAG_RUNTIME | Dependency::FLAG_ANY);
+
+		// Build and Target.
+		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": "build", "target": "cfg(unix)"}"#)
+			.expect("Failed to deserialize RawNodeDepKind");
+		assert!(! kind.dev);
+		assert_eq!(kind.target, Some(true));
+		assert_eq!(kind.as_flag(), Dependency::FLAG_RUNTIME | Dependency::FLAG_TARGET);
+
+		// Target.
+		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": null, "target": "cfg(target_os = \"hermit\")"}"#)
+			.expect("Failed to deserialize RawNodeDepKind");
+		assert!(! kind.dev);
+		assert_eq!(kind.target, Some(true));
+		assert_eq!(kind.as_flag(), Dependency::FLAG_RUNTIME | Dependency::FLAG_TARGET);
+
+		// Bullshit target (should be treated as dev).
+		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": null, "target": "cfg(any())"}"#)
+			.expect("Failed to deserialize RawNodeDepKind");
+		assert!(! kind.dev);
+		assert_eq!(kind.target, Some(false));
+		assert_eq!(kind.as_flag(), Dependency::FLAG_DEV);
+
+		// Dev.
+		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": "dev", "target": null}"#)
+			.expect("Failed to deserialize RawNodeDepKind");
+		assert!(kind.dev);
+		assert!(kind.target.is_none());
+		assert_eq!(kind.as_flag(), Dependency::FLAG_DEV);
+
+		// Dev and target (should be treated as dev).
+		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": "dev", "target": "cfg(target_os = \"wasi\")"}"#)
+			.expect("Failed to deserialize RawNodeDepKind");
+		assert!(kind.dev);
+		assert_eq!(kind.target, Some(true));
+		assert_eq!(kind.as_flag(), Dependency::FLAG_DEV);
 	}
 }

@@ -1,6 +1,6 @@
 [package]
 name = "cargo-bashman"
-version = "0.6.1"
+version = "0.6.2"
 license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
 edition = "2021"
@@ -26,12 +26,11 @@ assets = [
 name = "Cargo BashMan"
 bash-dir = "./release/completions"
 man-dir = "./release/man"
-credits-dir = "./"
 
 [[package.metadata.bashman.switches]]
 short = "-h"
 long = "--help"
-description = "Print help information."
+description = "Print help information to STDOUT and exit."
 
 [[package.metadata.bashman.switches]]
 long = "--no-bash"
@@ -52,7 +51,7 @@ description = "Print the supported target triples (for use with -t/--target) to 
 [[package.metadata.bashman.switches]]
 short = "-V"
 long = "--version"
-description = "Print application version."
+description = "Print version information to STDOUT and exit."
 
 [[package.metadata.bashman.options]]
 short = "-m"
