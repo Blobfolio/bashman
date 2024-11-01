@@ -1,8 +1,8 @@
 # Project Dependencies
     Package:   cargo-bashman
-    Version:   0.6.1
+    Version:   0.6.2
     Target:    x86_64-unknown-linux-gnu
-    Generated: 2024-10-31 19:36:40 UTC
+    Generated: 2024-11-01 03:19:24 UTC
 
 | Package | Version | Author(s) | License |
 | ---- | ---- | ---- | ---- |
@@ -54,7 +54,7 @@
 | [shlex](https://github.com/comex/rust-shlex) | 1.3.0 | [comex](mailto:comexk@gmail.com), [Fenhl](mailto:fenhl@fenhl.net), [Adrian Taylor](mailto:adetaylor@chromium.org), [Alex Touchet](mailto:alextouchet@outlook.com), [Daniel Parks](mailto:dp+git@oxidized.org), and [Garrett Berg](mailto:googberg@gmail.com) | MIT OR Apache-2.0 |
 | [smallvec](https://github.com/servo/rust-smallvec) | 1.13.2 | The Servo Project Developers | MIT OR Apache-2.0 |
 | [stable_deref_trait](https://github.com/storyyeller/stable_deref_trait) | 1.2.0 | [Robert Grosse](mailto:n210241048576@gmail.com) | MIT OR Apache-2.0 |
-| [syn](https://github.com/dtolnay/syn) | 2.0.85 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
+| [syn](https://github.com/dtolnay/syn) | 2.0.86 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
 | [synstructure](https://github.com/mystor/synstructure) | 0.13.1 | [Nika Layzell](mailto:nika@thelayzells.com) | MIT |
 | [tempfile](https://github.com/Stebalien/tempfile) | 3.13.0 | [Steven Allen](mailto:steven@stebalien.com), The Rust Project Developers, [Ashley Mannix](mailto:ashleymannix@live.com.au), and [Jason White](mailto:me@jasonwhite.io) | MIT OR Apache-2.0 |
 | [tinystr](https://github.com/unicode-org/icu4x) | 0.7.6 | The ICU4X Project Developers | Unicode-3.0 |
