@@ -1,5 +1,8 @@
 /*!
 # Cargo BashMan: Cargo Metadata Parsing.
+
+This module contains various deserialization helpers for extracting the
+relevant data from the JSON output of a `cargo metadata` command.
 */
 
 use crate::{
@@ -212,13 +215,7 @@ impl<'a> TryFrom<RawPackage<'a>> for RawMainPackage {
 	}
 }
 
-#[derive(Debug, Default, Deserialize)]
-/// # Raw Metadata.
-struct RawMetadata {
-	#[serde(default)]
-	/// # Bashman Metadata.
-	bashman: Option<RawBashMan>,
-}
+
 
 #[derive(Debug, Clone, Default, Deserialize)]
 /// # Raw Package Metadata (bashman).
@@ -276,6 +273,8 @@ pub(super) struct RawBashMan {
 	pub(super) credits: Vec<RawCredits>,
 }
 
+
+
 #[derive(Debug, Clone, Deserialize)]
 /// # Raw Subcommand.
 ///
@@ -293,6 +292,8 @@ pub(super) struct RawSubCmd {
 	/// # Description.
 	pub(super) description: String,
 }
+
+
 
 #[derive(Debug, Clone, Deserialize)]
 /// # Raw Switch.
@@ -319,6 +320,8 @@ pub(super) struct RawSwitch {
 	/// # Applicable (Sub)commands.
 	pub(super) subcommands: BTreeSet<String>,
 }
+
+
 
 #[derive(Debug, Clone, Deserialize)]
 /// Raw Option.
@@ -355,6 +358,8 @@ pub(super) struct RawOption {
 	pub(super) subcommands: BTreeSet<String>,
 }
 
+
+
 #[derive(Debug, Clone, Deserialize)]
 /// # Raw Argument.
 ///
@@ -374,6 +379,8 @@ pub(super) struct RawArg {
 	pub(super) subcommands: BTreeSet<String>,
 }
 
+
+
 #[derive(Debug, Clone, Deserialize)]
 /// # Raw Section.
 ///
@@ -381,22 +388,36 @@ pub(super) struct RawArg {
 pub(super) struct RawSection {
 	#[serde(deserialize_with = "deserialize_section_name")]
 	/// # Section Name.
-	pub(super) name: String,
+	name: String,
 
 	#[serde(default)]
 	/// # Indent?
-	pub(super) inside: bool,
+	inside: bool,
 
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_lines")]
 	/// # Text Lines.
-	pub(super) lines: Vec<String>,
+	lines: Vec<String>,
 
 	#[serde(default)]
 	#[serde(deserialize_with = "deserialize_items")]
 	/// # Text Bullets.
-	pub(super) items: Vec<[String; 2]>
+	items: Vec<[String; 2]>
 }
+
+impl From<RawSection> for super::Section {
+	#[inline]
+	fn from(raw: RawSection) -> Self {
+		Self {
+			name: raw.name,
+			inside: raw.inside,
+			lines: if raw.lines.is_empty() { String::new() } else { raw.lines.join("\n.RE\n") },
+			items: raw.items,
+		}
+	}
+}
+
+
 
 #[derive(Debug, Clone, Deserialize)]
 /// # Raw Credits.
@@ -444,7 +465,6 @@ impl From<RawCredits> for Dependency {
 
 
 
-
 #[derive(Debug, Deserialize)]
 /// # Top-Level Structure.
 ///
@@ -464,6 +484,8 @@ struct Raw<'a> {
 	/// # Resolved Nodes.
 	resolve: RawResolve<'a>,
 }
+
+
 
 #[derive(Debug, Deserialize)]
 /// # Package.
@@ -512,6 +534,21 @@ struct RawPackage<'a> {
 	metadata: Option<&'a RawValue>,
 }
 
+
+
+#[derive(Debug, Default, Deserialize)]
+/// # Raw Metadata.
+///
+/// This is just a simple intermediary structure; we'll only end up keeping
+/// what's inside.
+struct RawMetadata {
+	#[serde(default)]
+	/// # Bashman Metadata.
+	bashman: Option<RawBashMan>,
+}
+
+
+
 #[derive(Debug, Deserialize)]
 /// # Resolved Nodes.
 struct RawResolve<'a> {
@@ -544,12 +581,14 @@ impl<'a> RawResolve<'a> {
 		}
 
 		if targeted {
-			for flag in out.values_mut() { *flag &= ! RawNodeDepKind::TARGET_CFG; }
+			for flag in out.values_mut() { *flag &= ! Dependency::FLAG_TARGET_CFG; }
 		}
 
 		out
 	}
 }
+
+
 
 #[derive(Debug, Deserialize)]
 /// # Node.
@@ -563,6 +602,8 @@ struct RawNode<'a> {
 	/// # Dependent Nodes.
 	deps: Vec<RawNodeDep<'a>>,
 }
+
+
 
 #[derive(Debug, Clone, Copy, Deserialize)]
 /// # Node Dependency.
@@ -581,6 +622,8 @@ struct RawNodeDep<'a> {
 	dep_kinds: u8,
 }
 
+
+
 #[derive(Debug, Clone, Copy, Default, Deserialize)]
 #[serde(default)]
 /// # Node Dependency Context.
@@ -596,9 +639,6 @@ struct RawNodeDep<'a> {
 /// representation is just an always/sometimes/never trit.
 struct RawNodeDepKind {
 	/// # Where (Build, Dev, or Runtime).
-	///
-	/// All three are represented by the enum for clarity, but `Dev` is the
-	/// only actionable variant
 	kind: NodeDepKind,
 
 	/// # Who/When (Target Conditions).
@@ -606,17 +646,6 @@ struct RawNodeDepKind {
 }
 
 impl RawNodeDepKind {
-	/// # Referenced.
-	///
-	/// A dependency referenced in release builds, i.e. not "dev".
-	const USED: u8 =       0b1000_0000;
-
-	/// # All Targets.
-	const TARGET_ANY: u8 = Dependency::FLAG_TARGET_ANY;
-
-	/// # Select Targets.
-	const TARGET_CFG: u8 = Dependency::FLAG_TARGET_CFG;
-
 	/// # As `Dependency` Flag.
 	///
 	/// If either the kind is "dev" or the target unsatisfiable, zero will be
@@ -627,28 +656,28 @@ impl RawNodeDepKind {
 	/// knowable at this stage.
 	const fn as_flag(self) -> u8 {
 		if matches!(self.kind, NodeDepKind::Dev) || matches!(self.target, NodeDepTarget::None) { 0 }
-		else { Self::USED | (self.target as u8) }
+		else { (self.kind as u8) | (self.target as u8) }
 	}
 }
+
+
 
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq)]
 /// # Node Dependency Context: Kind.
 ///
-/// This trit differentiates between the types of dependency declarations. In
-/// practice `Normal` and `Build` are treated the same and kept separate merely
-/// for readability. (Hopefully the compiler will recognize that and treat this
-/// more like a bool.)
+/// This trit differentiates between the `dependencies`, `build-dependencies`,
+/// and `dev-dependencies`.
 enum NodeDepKind {
+	/// # Dev Dependency.
+	Dev = 0_u8,
+
 	#[default]
 	/// # Normal Runtime Usage.
-	Normal,
+	Normal = Dependency::FLAG_CTX_NORMAL,
 
 	/// # Build Dependency.
-	Build,
-
-	/// # Dev Dependency.
-	Dev,
+	Build = Dependency::FLAG_CTX_BUILD,
 }
 
 impl<'de> Deserialize<'de> for NodeDepKind {
@@ -661,6 +690,8 @@ impl<'de> Deserialize<'de> for NodeDepKind {
 		}
 	}
 }
+
+
 
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq)]
@@ -675,10 +706,10 @@ enum NodeDepTarget {
 
 	#[default]
 	/// # For Any Target.
-	Any = RawNodeDepKind::TARGET_ANY,
+	Any = Dependency::FLAG_TARGET_ANY,
 
 	/// # For Some Targets.
-	Cfg = RawNodeDepKind::TARGET_CFG,
+	Cfg = Dependency::FLAG_TARGET_CFG,
 }
 
 impl<'de> Deserialize<'de> for NodeDepTarget {
@@ -723,7 +754,7 @@ where D: Deserializer<'de> {
 	Ok(<Vec<RawNodeDep<'de>>>::deserialize(deserializer).map_or_else(
 		|_| Vec::new(),
 		|mut v| {
-			v.retain(|nd| RawNodeDepKind::USED == nd.dep_kinds & RawNodeDepKind::USED);
+			v.retain(|nd| 0 != nd.dep_kinds & Dependency::FLAG_CTX);
 			v
 		}
 	))
@@ -872,7 +903,6 @@ where D: Deserializer<'de> {
 mod test {
 	use super::*;
 
-
 	#[test]
 	fn t_raw_node_dep_kind() {
 		// No values.
@@ -880,28 +910,28 @@ mod test {
 			.expect("Failed to deserialize RawNodeDepKind");
 		assert!(matches!(kind.kind, NodeDepKind::Normal));
 		assert!(matches!(kind.target, NodeDepTarget::Any));
-		assert_eq!(kind.as_flag(), RawNodeDepKind::USED | RawNodeDepKind::TARGET_ANY);
+		assert_eq!(kind.as_flag(), Dependency::FLAG_CTX_NORMAL | Dependency::FLAG_TARGET_ANY);
 
 		// Build.
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": "build", "target": null}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
 		assert!(matches!(kind.kind, NodeDepKind::Build));
 		assert!(matches!(kind.target, NodeDepTarget::Any));
-		assert_eq!(kind.as_flag(), RawNodeDepKind::USED | RawNodeDepKind::TARGET_ANY);
+		assert_eq!(kind.as_flag(), Dependency::FLAG_CTX_BUILD | Dependency::FLAG_TARGET_ANY);
 
 		// Build and Target.
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": "build", "target": "cfg(unix)"}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
 		assert!(matches!(kind.kind, NodeDepKind::Build));
 		assert!(matches!(kind.target, NodeDepTarget::Cfg));
-		assert_eq!(kind.as_flag(), RawNodeDepKind::USED | RawNodeDepKind::TARGET_CFG);
+		assert_eq!(kind.as_flag(), Dependency::FLAG_CTX_BUILD | Dependency::FLAG_TARGET_CFG);
 
 		// Target.
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": null, "target": "cfg(target_os = \"hermit\")"}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
 		assert!(matches!(kind.kind, NodeDepKind::Normal));
 		assert!(matches!(kind.target, NodeDepTarget::Cfg));
-		assert_eq!(kind.as_flag(), RawNodeDepKind::USED | RawNodeDepKind::TARGET_CFG);
+		assert_eq!(kind.as_flag(), Dependency::FLAG_CTX_NORMAL | Dependency::FLAG_TARGET_CFG);
 
 		// Bullshit target (should be treated as dev).
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": null, "target": "cfg(any())"}"#)

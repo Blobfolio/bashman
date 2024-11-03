@@ -562,18 +562,6 @@ pub(crate) struct Section {
 	items: Vec<[String; 2]>,
 }
 
-impl From<cargo::RawSection> for Section {
-	#[inline]
-	fn from(raw: cargo::RawSection) -> Self {
-		Self {
-			name: raw.name,
-			inside: raw.inside,
-			lines: if raw.lines.is_empty() { String::new() } else { raw.lines.join("\n.RE\n") },
-			items: raw.items,
-		}
-	}
-}
-
 impl Section {
 	/// # Inside?
 	pub(super) const fn inside(&self) -> bool { self.inside }

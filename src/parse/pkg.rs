@@ -76,6 +76,16 @@ impl Dependency {
 	/// # Target-Specific.
 	pub(super) const FLAG_TARGET_CFG: u8 = 0b0000_0100;
 
+	/// # Normal Context.
+	pub(super) const FLAG_CTX_NORMAL: u8 = 0b0000_1000;
+
+	/// # Build Context.
+	pub(super) const FLAG_CTX_BUILD: u8 =  0b0001_0000;
+
+	/// # Context Flags.
+	pub(super) const FLAG_CTX: u8 =
+		Self::FLAG_CTX_NORMAL | Self::FLAG_CTX_BUILD;
+
 	/// # Platform Flags.
 	pub(super) const FLAG_TARGET: u8 = Self::FLAG_TARGET_ANY | Self::FLAG_TARGET_CFG;
 }
@@ -103,6 +113,11 @@ impl Dependency {
 		Self::FLAG_OPTIONAL == self.context & Self::FLAG_OPTIONAL
 	}
 
+	/// # Build-Only?
+	pub(crate) const fn build(&self) -> bool {
+		Self::FLAG_CTX_BUILD == self.context & Self::FLAG_CTX
+	}
+
 	/// # Target-Specific?
 	pub(crate) const fn target_specific(&self) -> bool {
 		Self::FLAG_TARGET_CFG == self.context & Self::FLAG_TARGET
@@ -112,7 +127,7 @@ impl Dependency {
 	///
 	/// Returns `true` if optional or target specific.
 	pub(crate) const fn conditional(&self) -> bool {
-		self.optional() || self.target_specific()
+		self.optional() || self.build() || self.target_specific()
 	}
 
 	/// # Context Flags as String Slice.
@@ -121,11 +136,15 @@ impl Dependency {
 	/// are only a few combinations so this is pretty easy to construct
 	/// manually.
 	pub(crate) const fn context(&self) -> &'static str {
-		match (self.optional(), self.target_specific()) {
-			(true, true) => "optional, target-specific",
-			(true, false) => "optional",
-			(false, true) => "target-specific",
-			(false, false) => "",
+		match (self.optional(), self.build(), self.target_specific()) {
+			(true, true, true) => "optional, build, target-specific",
+			(true, true, false) => "optional, build",
+			(true, false, true) => "optional, target-specific",
+			(false, true, true) => "build, target-specific",
+			(true, false, false) => "optional",
+			(false, true, false) => "build",
+			(false, false, true) => "target-specific",
+			(false, false, false) => "",
 		}
 	}
 }
