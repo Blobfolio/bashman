@@ -2,7 +2,7 @@
     Package:   cargo-bashman
     Version:   0.6.3
     Target:    x86_64-unknown-linux-gnu
-    Generated: 2024-11-03 09:46:42 UTC
+    Generated: 2024-11-04 02:47:29 UTC
 
 | Package | Version | Author(s) | License | Context |
 | ---- | ---- | ---- | ---- | ---- |
@@ -46,7 +46,6 @@
 | [serde](https://github.com/serde-rs/serde) | 1.0.214 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 | |
 | [serde_derive](https://github.com/serde-rs/serde) | 1.0.214 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 | |
 | [serde_json](https://github.com/serde-rs/json) | 1.0.132 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 | |
-| [shlex](https://github.com/comex/rust-shlex) | 1.3.0 | [comex](mailto:comexk@gmail.com), [Fenhl](mailto:fenhl@fenhl.net), [Adrian Taylor](mailto:adetaylor@chromium.org), [Alex Touchet](mailto:alextouchet@outlook.com), [Daniel Parks](mailto:dp+git@oxidized.org), and [Garrett Berg](mailto:googberg@gmail.com) | MIT OR Apache-2.0 | |
 | [smallvec](https://github.com/servo/rust-smallvec) | 1.13.2 | The Servo Project Developers | MIT OR Apache-2.0 | |
 | [stable_deref_trait](https://github.com/storyyeller/stable_deref_trait) | 1.2.0 | [Robert Grosse](mailto:n210241048576@gmail.com) | MIT OR Apache-2.0 | |
 | [syn](https://github.com/dtolnay/syn) | 2.0.87 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 | |
@@ -73,3 +72,4 @@
 | [zerovec](https://github.com/unicode-org/icu4x) | 0.10.4 | The ICU4X Project Developers | Unicode-3.0 | |
 | [zerovec-derive](https://github.com/unicode-org/icu4x) | 0.10.3 | [Manish Goregaokar](mailto:manishsmail@gmail.com) | Unicode-3.0 | |
 | [cc](https://github.com/rust-lang/cc-rs) | 1.1.34 | [Alex Crichton](mailto:alex@alexcrichton.com) | MIT OR Apache-2.0 | build |
+| [shlex](https://github.com/comex/rust-shlex) | 1.3.0 | [comex](mailto:comexk@gmail.com), [Fenhl](mailto:fenhl@fenhl.net), [Adrian Taylor](mailto:adetaylor@chromium.org), [Alex Touchet](mailto:alextouchet@outlook.com), [Daniel Parks](mailto:dp+git@oxidized.org), and [Garrett Berg](mailto:googberg@gmail.com) | MIT OR Apache-2.0 | build |

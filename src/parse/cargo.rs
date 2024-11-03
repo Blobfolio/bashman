@@ -662,8 +662,6 @@ impl<'a> RawResolve<'a> {
 	/// returning an orderly lookup map of the results.
 	fn flags(&self, targeted: bool) -> HashMap<&str, u8> {
 		let mut out = HashMap::<&str, u8>::with_capacity(self.nodes.len());
-
-		// For this, we only want to loop the children.
 		for RawNodeDep { id, dep_kinds } in self.nodes.values().flat_map(|n| n.iter().copied()) {
 			match out.entry(id) {
 				Entry::Occupied(mut e) => { *e.get_mut() |= dep_kinds; },
@@ -671,6 +669,7 @@ impl<'a> RawResolve<'a> {
 			}
 		}
 
+		// If we're targeting specifically, unset the specific target bit.
 		if targeted {
 			for flag in out.values_mut() { *flag &= ! Dependency::FLAG_TARGET_CFG; }
 		}
@@ -939,7 +938,10 @@ where D: Deserializer<'de> {
 	Ok(<Vec<RawNodeDep<'de>>>::deserialize(deserializer).map_or_else(
 		|_| Vec::new(),
 		|mut v| {
-			v.retain(|nd| 0 != nd.dep_kinds & Dependency::FLAG_CTX);
+			v.retain(|nd|
+				(0 != nd.dep_kinds & Dependency::MASK_CTX) &&
+				(0 != nd.dep_kinds & Dependency::MASK_TARGET)
+			);
 			v
 		}
 	))
@@ -1035,15 +1037,16 @@ where D: Deserializer<'de> {
 
 /// # Deserialize: Resolve.
 ///
-/// This rebuilds the node list so that only _used_ dependencies are included.
+/// This rebuilds the node list so that only _used_ dependencies are included,
+/// and makes sure that sub-dependencies inherit the sins of their fathers.
 fn deserialize_resolve<'de, D>(deserializer: D)
 -> Result<RawResolve<'de>, D::Error>
 where D: Deserializer<'de> {
 	let mut resolve = <RawResolve<'de>>::deserialize(deserializer)?;
 
-	// To figure out which dependencies are actually used, we need to traverse
-	// the root node's child dependencies, then traverse each of their
-	// dependencies, and so on. A simple push/pop queue will suffice!
+	// First things first, let's figure out which dependencies are actually
+	// _used_ by starting with the root and its dependencies, then each of
+	// their dependencies, and so on.
 	let mut used: HashSet<&str> = HashSet::with_capacity(resolve.nodes.len());
 	let mut queue = vec![resolve.root];
 	while let Some(next) = queue.pop() {
@@ -1057,8 +1060,58 @@ where D: Deserializer<'de> {
 		}
 	}
 
-	// And with that, let's prune the unused nodes.
+	// And with that, let's remove all unused node chains entirely.
 	resolve.nodes.retain(|k, _| used.contains(k));
+
+	// Now let's do something similar, this time building up a list of "normal"
+	// runtime dependencies. We'll use this to mark the direct children of any
+	// non-normal node parents as build-only.
+	used.clear();
+	queue.push(resolve.root);
+	while let Some(next) = queue.pop() {
+		if used.insert(next) {
+			// Add its children, if any.
+			if let Some(next) = resolve.nodes.get(next) {
+				for nd in next {
+					if Dependency::FLAG_CTX_NORMAL == nd.dep_kinds & Dependency::FLAG_CTX_NORMAL {
+						queue.push(nd.id);
+					}
+				}
+			}
+		}
+	}
+	for (k, v) in &mut resolve.nodes {
+		if ! used.contains(k) {
+			for nd in v {
+				nd.dep_kinds = (nd.dep_kinds & ! Dependency::MASK_CTX) | Dependency::FLAG_CTX_BUILD;
+			}
+		}
+	}
+
+	// One more time around! Here, we're looking for "any" targets so that we
+	// can mark the direct children of non-any targets as being
+	// target-specific.
+	used.clear();
+	queue.push(resolve.root);
+	while let Some(next) = queue.pop() {
+		if used.insert(next) {
+			// Add its children, if any.
+			if let Some(next) = resolve.nodes.get(next) {
+				for nd in next {
+					if Dependency::FLAG_TARGET_ANY == nd.dep_kinds & Dependency::FLAG_TARGET_ANY {
+						queue.push(nd.id);
+					}
+				}
+			}
+		}
+	}
+	for (k, v) in &mut resolve.nodes {
+		if ! used.contains(k) {
+			for nd in v {
+				nd.dep_kinds = (nd.dep_kinds & ! Dependency::MASK_TARGET) | Dependency::FLAG_TARGET_CFG;
+			}
+		}
+	}
 
 	// Done!
 	Ok(resolve)
