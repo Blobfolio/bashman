@@ -5,8 +5,7 @@
 pub(super) mod keyword;
 pub(super) mod pkg;
 pub(super) mod target;
-mod metadata;
-mod toml;
+mod cargo;
 mod util;
 
 use crate::{
@@ -17,10 +16,7 @@ use crate::{
 };
 use std::{
 	cmp::Ordering,
-	collections::{
-		BTreeMap,
-		BTreeSet,
-	},
+	collections::BTreeSet,
 	path::{
 		Path,
 		PathBuf,
@@ -53,8 +49,11 @@ pub(crate) struct Manifest {
 	/// # Subcommands.
 	subcommands: Vec<Subcommand>,
 
-	/// # Extra Credits?
-	credits: BTreeSet<Dependency>,
+	/// # Target (For Credits).
+	target: Option<TargetTriple>,
+
+	/// # Dependencies.
+	dependencies: Vec<Dependency>,
 }
 
 impl Manifest {
@@ -66,73 +65,15 @@ impl Manifest {
 	/// This is, of course, monstrous, but nothing compared to the raw
 	/// deserialization we had the foresight to separate out into its own
 	/// module. Haha.
-	pub(crate) fn from_file<P: AsRef<Path>>(src: P) -> Result<Self, BashManError> {
-		// Unpack a ton of shit.
+	pub(crate) fn from_file<P: AsRef<Path>>(src: P, target: Option<TargetTriple>)
+	-> Result<Self, BashManError> {
+		// Unpack a bunch of shit.
 		let (dir, src) = manifest_source(src.as_ref())?;
-		let toml::Raw { package } = toml::Raw::from_file(&src)?;
-		let toml::RawPackage { name, version, description, metadata } = package;
-		let toml::RawBashMan { nice_name, dir_bash, dir_man, dir_credits, subcommands, flags, options, args, sections, credits } = metadata;
+		let cargo::RawManifest { main, mut deps } = cargo::RawManifest::new(&src, target)?;
+		let cargo::RawMainPackage { dir_bash, dir_man, dir_credits, subcommands, credits } = main;
 
-		// Build the subcommands.
-		let mut subs = BTreeMap::<String, Subcommand>::new();
-		let main = Subcommand {
-			nice_name,
-			name: KeyWord::from(name),
-			description,
-			version: version.to_string(),
-			parent: None,
-			data: ManifestData::default(),
-		};
-		for raw in subcommands {
-			let sub = Subcommand::from_raw(
-				raw,
-				main.version.clone(),
-				Some((main.nice_name().to_owned(), main.name.clone())),
-			);
-			subs.insert(sub.name.as_str().to_owned(), sub);
-		}
-		subs.insert(String::new(), main);
-
-		// Add Flags.
-		for (flag, mut subcommands) in flags.into_iter().map(Flag::from_raw) {
-			// Process the last subcommand separately so we can save a clone.
-			if let Some(last) = subcommands.pop_last() {
-				for s in subcommands {
-					add_subcommand_flag(&mut subs, s, flag.clone())?;
-				}
-				add_subcommand_flag(&mut subs, last, flag)?;
-			}
-		}
-
-		// Add Options.
-		for (flag, mut subcommands) in options.into_iter().map(OptionFlag::from_raw) {
-			// Process the last subcommand separately so we can save a clone.
-			if let Some(last) = subcommands.pop_last() {
-				for s in subcommands {
-					add_subcommand_option(&mut subs, s, flag.clone())?;
-				}
-				add_subcommand_option(&mut subs, last, flag)?;
-			}
-		}
-
-		// Add Args.
-		for (flag, mut subcommands) in args.into_iter().map(TrailingArg::from_raw) {
-			// Process the last subcommand separately so we can save a clone.
-			if let Some(last) = subcommands.pop_last() {
-				for s in subcommands {
-					add_subcommand_arg(&mut subs, s, flag.clone())?;
-				}
-				add_subcommand_arg(&mut subs, last, flag)?;
-			}
-		}
-
-		// Sections go everywhere.
-		if ! sections.is_empty() {
-			let sections: Vec<_> = sections.into_iter().map(Section::from).collect();
-			for s in subs.values_mut() {
-				s.data.sections.extend_from_slice(&sections);
-			}
-		}
+		// Abosrb the extra credits into the real dependencies.
+		deps.extend(credits);
 
 		// Finally!
 		Ok(Self {
@@ -141,13 +82,17 @@ impl Manifest {
 			dir_man: dir_man.map(|v| dir.join(v)),
 			dir_credits: dir_credits.map(|v| dir.join(v)),
 			dir,
-			subcommands: subs.into_values().collect(),
-			credits: credits.into_iter().map(Dependency::from).collect(),
+			subcommands,
+			target,
+			dependencies: deps.into_iter().collect(),
 		})
 	}
 }
 
 impl Manifest {
+	/// # Dependencies.
+	pub(crate) fn dependencies(&self) -> &[Dependency] { &self.dependencies }
+
 	/// # Bash Directory.
 	///
 	/// Return the directory bash completions should be written to, or an error
@@ -222,41 +167,9 @@ impl Manifest {
 
 	/// # (Sub)commands.
 	pub(crate) fn subcommands(&self) -> &[Subcommand] { self.subcommands.as_slice() }
-}
 
-impl Manifest {
-	#[inline]
-	/// # Fetch Dependencies.
-	///
-	/// Run `cargo metadata` to figure out what all dependencies are in the
-	/// tree and return them, or an error if it fails.
-	pub(crate) fn dependencies(&self, target: Option<TargetTriple>)
-	-> Result<Vec<Dependency>, BashManError> {
-		let src: &Path = self.src();
-
-		// Fetch the required dependencies first.
-		let (mut out, features) = metadata::fetch_dependencies(src, false, target)?;
-
-		// If the root has features, refetch with everything enabled to figure
-		// out what is optional and what isn't. If this fails, we'll stick with
-		// what we have; no use crashing over missing milk.
-		if features {
-			if let Ok((all, _)) = metadata::fetch_dependencies(src, true, target) {
-				if out.len() < all.len() {
-					for mut dep in all {
-						dep.context |= Dependency::FLAG_OPTIONAL;
-						out.insert(dep);
-					}
-				}
-			}
-		}
-
-		// Add any custom entries.
-		out.extend(self.credits.iter().cloned());
-
-		// Done!
-		Ok(out.into_iter().collect())
-	}
+	/// # Target?
+	pub(crate) const fn target(&self) -> Option<TargetTriple> { self.target }
 }
 
 
@@ -315,21 +228,6 @@ pub(crate) struct Subcommand {
 
 	/// # Data.
 	data: ManifestData,
-}
-
-impl Subcommand {
-	/// # From Raw.
-	fn from_raw(raw: toml::RawSubCmd, version: String, parent: Option<(String, KeyWord)>)
-	-> Self {
-		Self {
-			nice_name: raw.name,
-			name: raw.cmd,
-			description: raw.description,
-			version,
-			parent,
-			data: ManifestData::default(),
-		}
-	}
 }
 
 impl Subcommand {
@@ -408,14 +306,6 @@ impl PartialOrd for Flag {
 }
 
 impl Flag {
-	/// # From Raw.
-	///
-	/// Return self along with whatever subcommands apply, if any.
-	fn from_raw(raw: toml::RawSwitch) -> (Self, BTreeSet<String>) {
-		let toml::RawSwitch { short, long, description, duplicate, subcommands } = raw;
-		(Self { short, long, description, duplicate }, subcommands)
-	}
-
 	/// # Sort Key.
 	///
 	/// Return the non-dashed portion of the short or long key to give us
@@ -475,23 +365,6 @@ impl PartialOrd for OptionFlag {
 }
 
 impl OptionFlag {
-	/// # From Raw.
-	///
-	/// Return self along with whatever subcommands apply, if any.
-	fn from_raw(raw: toml::RawOption) -> (Self, BTreeSet<String>) {
-		let toml::RawOption { short, long, description, label, path, duplicate, subcommands } = raw;
-		(
-			Self {
-				flag: Flag { short, long, description, duplicate },
-				label: label.unwrap_or_else(|| "<VAL>".to_owned()),
-				path,
-			},
-			subcommands,
-		)
-	}
-}
-
-impl OptionFlag {
 	/// # Duplicate?
 	pub(crate) const fn duplicate(&self) -> bool { self.flag.duplicate() }
 
@@ -541,22 +414,6 @@ impl PartialOrd for TrailingArg {
 }
 
 impl TrailingArg {
-	/// # From Raw.
-	///
-	/// Return self along with whatever subcommands apply, if any.
-	fn from_raw(raw: toml::RawArg) -> (Self, BTreeSet<String>) {
-		let toml::RawArg { label, description, subcommands } = raw;
-		(
-			Self {
-				label: label.unwrap_or_else(|| "<ARG(S)…>".to_owned()),
-				description,
-			},
-			subcommands,
-		)
-	}
-}
-
-impl TrailingArg {
 	/// # Description.
 	pub(super) fn description(&self) -> &str { &self.description }
 
@@ -582,18 +439,6 @@ pub(crate) struct Section {
 	items: Vec<[String; 2]>,
 }
 
-impl From<toml::RawSection> for Section {
-	#[inline]
-	fn from(raw: toml::RawSection) -> Self {
-		Self {
-			name: raw.name,
-			inside: raw.inside,
-			lines: if raw.lines.is_empty() { String::new() } else { raw.lines.join("\n.RE\n") },
-			items: raw.items,
-		}
-	}
-}
-
 impl Section {
 	/// # Inside?
 	pub(super) const fn inside(&self) -> bool { self.inside }
@@ -615,48 +460,6 @@ impl Section {
 }
 
 
-
-/// # Add Subcommand Flag.
-fn add_subcommand_flag(subs: &mut BTreeMap<String, Subcommand>, key: String, flag: Flag)
--> Result<(), BashManError> {
-	subs.get_mut(&key)
-		.ok_or(BashManError::UnknownCommand(key))?
-		.data
-		.flags
-		.insert(flag);
-	Ok(())
-}
-
-/// # Add Subcommand Option Flag.
-fn add_subcommand_option(
-	subs: &mut BTreeMap<String, Subcommand>,
-	key: String,
-	flag: OptionFlag,
-) -> Result<(), BashManError> {
-	subs.get_mut(&key)
-		.ok_or(BashManError::UnknownCommand(key))?
-		.data
-		.options
-		.insert(flag);
-	Ok(())
-}
-
-/// # Add Subcommand Trailing Arg.
-fn add_subcommand_arg(
-	subs: &mut BTreeMap<String, Subcommand>,
-	key: String,
-	flag: TrailingArg,
-) -> Result<(), BashManError> {
-	let res = subs.get_mut(&key)
-		.ok_or_else(|| BashManError::UnknownCommand(key.clone()))?
-		.data
-		.args
-		.replace(flag)
-		.is_none();
-
-	if res { Ok(()) }
-	else { Err(BashManError::MultipleArgs(key)) }
-}
 
 /// # Manifest Source Directory and File.
 ///
@@ -683,52 +486,4 @@ fn manifest_source(src: &Path) -> Result<(PathBuf, PathBuf), BashManError> {
 
 	// Additional error checking will come later!
 	Ok((dir, src))
-}
-
-
-
-#[cfg(test)]
-mod test {
-	use super::*;
-
-	#[test]
-	fn t_manifest() {
-		let manifest = match Manifest::from_file("skel/test.toml") {
-			Ok(m) => m,
-			Err(e) => panic!("{e}"),
-		};
-
-		// Let's test a few basic properties of the subcommands.
-		let mut iter = manifest.subcommands.iter();
-
-		// The main command should be first even though it is alphabetically
-		// second.
-		let next = iter.next().expect("Missing manifest subcommand.");
-		assert_eq!(next.name.as_str(), "bashman");
-		assert_eq!(next.version, "0.5.2");
-		assert_eq!(next.data.flags.len(), 1);
-		assert_eq!(next.data.options.len(), 1);
-		assert!(next.data.args.is_some());
-		assert_eq!(next.data.sections.len(), 2);
-
-		// This is third in the file, but should be second because sorting
-		// matters for the actual subcommands.
-		let next = iter.next().expect("Missing manifest subcommand.");
-		assert_eq!(next.name.as_str(), "action");
-		assert_eq!(next.data.flags.len(), 2);
-		assert_eq!(next.data.options.len(), 1);
-		assert!(next.data.args.is_none());
-		assert_eq!(next.data.sections.len(), 2);
-
-		// One more!
-		let next = iter.next().expect("Missing manifest subcommand.");
-		assert_eq!(next.name.as_str(), "make");
-		assert_eq!(next.data.flags.len(), 4);
-		assert_eq!(next.data.options.len(), 1);
-		assert!(next.data.args.is_none());
-		assert_eq!(next.data.sections.len(), 2);
-
-		// That should be it.
-		assert!(iter.next().is_none());
-	}
 }

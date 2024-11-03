@@ -44,7 +44,7 @@ pub(super) struct CreditsWriter<'a> {
 	target: Option<TargetTriple>,
 
 	/// # Dependencies.
-	dependencies: Vec<Dependency>,
+	dependencies: &'a [Dependency],
 }
 
 impl<'a> fmt::Display for CreditsWriter<'a> {
@@ -83,28 +83,27 @@ impl<'a> fmt::Display for CreditsWriter<'a> {
 		}
 
 		// There may not be any dependencies.
-		let deps = self.dependencies.as_slice();
-		if deps.is_empty() {
+		if self.dependencies.is_empty() {
 			return f.write_str("This project has no dependencies.\n");
 		}
 
 		// Some dependencies are context dependent; some work is required.
-		if deps.iter().any(Dependency::conditional) {
+		if self.dependencies.iter().any(Dependency::conditional) {
 			f.write_str("| Package | Version | Author(s) | License | Context |\n| ---- | ---- | ---- | ---- | ---- |\n")?;
 
 			// Required first.
-			for dep in deps {
+			for dep in self.dependencies {
 				if ! dep.conditional() { writeln!(f, "{dep} |")?; }
 			}
 			// Now the specific ones.
-			for dep in deps {
+			for dep in self.dependencies {
 				if dep.conditional() { writeln!(f, "{dep} {} |", dep.context())?; }
 			}
 		}
 		// Everything is needed all the time!
 		else {
 			f.write_str("| Package | Version | Author(s) | License |\n| ---- | ---- | ---- | ---- |\n")?;
-			for dep in deps { writeln!(f, "{dep}")?; }
+			for dep in self.dependencies { writeln!(f, "{dep}")?; }
 		}
 
 		Ok(())
@@ -113,13 +112,12 @@ impl<'a> fmt::Display for CreditsWriter<'a> {
 
 impl<'a> CreditsWriter<'a> {
 	/// # New Instance.
-	pub(super) fn new(man: &'a Manifest, target: Option<TargetTriple>)
+	pub(super) fn new(man: &'a Manifest)
 	-> Result<Self, BashManError> {
 		let src = man.src();
 		let dst = man.dir_credits()?.join("CREDITS.md");
 		let cmd = man.main_cmd().ok_or(BashManError::Credits)?;
 		let name = cmd.bin();
-		let dependencies = man.dependencies(target)?;
 
 		// Done!
 		Ok(Self {
@@ -127,8 +125,8 @@ impl<'a> CreditsWriter<'a> {
 			dst,
 			name,
 			version: cmd.version(),
-			target,
-			dependencies,
+			target: man.target(),
+			dependencies: man.dependencies(),
 		})
 	}
 

@@ -3,14 +3,94 @@
 */
 
 use adbyss_psl::Domain;
+use crate::{
+	BashManError,
+	TargetTriple,
+};
 use serde::{
 	Deserialize,
 	Deserializer,
+};
+use std::{
+	borrow::Cow,
+	ffi::OsStr,
+	path::Path,
+	process::{
+		Command,
+		Output,
+		Stdio,
+	},
+	sync::OnceLock,
 };
 use trimothy::{
 	NormalizeWhitespace,
 	TrimMut,
 };
+
+
+
+#[derive(Debug, Clone, Copy)]
+/// # Cargo Metadata.
+///
+/// This struct is used to configure and execute a call to `cargo metadata`.
+pub(super) struct CargoMetadata<'a> {
+	/// # Manifest Path.
+	path: &'a Path,
+
+	/// # Target Triple.
+	target: Option<TargetTriple>,
+
+	/// # Flags.
+	features: bool,
+}
+
+impl<'a> CargoMetadata<'a> {
+	/// # New.
+	pub(super) const fn new(path: &'a Path, target: Option<TargetTriple>) -> Self {
+		Self {
+			path,
+			target,
+			features: false,
+		}
+	}
+
+	/// # With Features.
+	///
+	/// If `false`, will be called with `--no-default-features`; if `true`,
+	/// `--all-features`.
+	pub(super) const fn with_features(self, features: bool) -> Self {
+		Self { features, ..self }
+	}
+
+	/// # Exec.
+	pub(super) fn exec(&self) -> Result<Vec<u8>, BashManError> {
+		// Populate the command arguments.
+		let mut cmd = cargo_cmd();
+		cmd.args([
+			"metadata",
+			"--quiet",
+			"--color", "never",
+			"--format-version", "1",
+			if self.features { "--all-features" } else { "--no-default-features" },
+			"--manifest-path",
+		]);
+		cmd.arg(self.path.as_os_str());
+		if let Some(target) = self.target {
+			cmd.args(["--filter-platform", target.as_str()]);
+		}
+
+		// Run it and see what happens!
+		let Output { status, stdout, .. } = cmd
+			.stdin(Stdio::null())
+			.stdout(Stdio::piped())
+			.stderr(Stdio::null())
+			.output()
+			.map_err(|_| BashManError::Cargo)?;
+
+		if status.success() && stdout.starts_with(br#"{"packages":["#) { Ok(stdout) }
+		else { Err(BashManError::Cargo) }
+	}
+}
 
 
 
@@ -34,20 +114,22 @@ where D: Deserializer<'de> {
 ///
 /// Note this removes problematic characters but does not strictly enforce SPDX
 /// formatting requirements or license names.
-pub(super) fn deserialize_license<'de, D>(deserializer: D) -> Result<String, D::Error>
+pub(super) fn deserialize_license<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where D: Deserializer<'de> {
-	if let Ok(mut out) = <String>::deserialize(deserializer) {
-		out.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '|'));
+	Ok(
+		<String>::deserialize(deserializer).ok()
+			.and_then(|mut out| {
+				out.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '|'));
 
-		// Slash separators are deprecated.
-		while let Some(pos) = out.find('/') { out.replace_range(pos..=pos, " OR "); }
+				// Slash separators are deprecated.
+				while let Some(pos) = out.find('/') { out.replace_range(pos..=pos, " OR "); }
 
-		// Normalize and return.
-		normalize_string(&mut out);
-		return Ok(out);
-	}
-
-	Ok(String::new())
+				// Normalize and return if non-empty.
+				normalize_string(&mut out);
+				if out.is_empty() { None }
+				else { Some(out) }
+			})
+	)
 }
 
 /// # Deserialize: Non-Empty String, Normalized.
@@ -127,6 +209,22 @@ pub(super) fn normalize_string(raw: &mut String) {
 }
 
 
+
+/// # Return Cargo Command.
+///
+/// This instantiates a new (argumentless) command set to the `$CARGO`
+/// environmental variable or simply "cargo".
+fn cargo_cmd() -> Command {
+	/// # Cargo Executable Path.
+	static CARGO: OnceLock<Cow<OsStr>> = OnceLock::new();
+
+	// Start the command.
+	Command::new(CARGO.get_or_init(|| {
+		let out = std::env::var_os("CARGO").unwrap_or_default();
+		if out.is_empty() { Cow::Borrowed(OsStr::new("cargo")) }
+		else { Cow::Owned(out) }
+	}))
+}
 
 /// # Nice Author Line.
 ///

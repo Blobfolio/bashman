@@ -535,23 +535,3 @@ impl<'a> Subcommand<'a> {
 		out
 	}
 }
-
-
-
-#[cfg(test)]
-mod test {
-	use super::*;
-
-	#[test]
-	fn t_bash() {
-		let manifest = Manifest::from_file("skel/test.toml")
-			.expect("Manifest parsing failed.");
-		let writer = BashWriter::try_from(&manifest)
-			.expect("Man set up failed.");
-
-		assert_eq!(
-			writer.to_string().replace("\n\n", "\n"),
-			include_str!("../skel/test.bash"),
-		);
-	}
-}

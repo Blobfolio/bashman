@@ -87,9 +87,6 @@ pub(super) enum BashManError {
 	/// # Cargo Metadata (JSON) Parsing Error.
 	ParseCargoMetadata(String),
 
-	/// # Cargo.toml Parsing Error.
-	ParseToml(String),
-
 	/// # Read Error.
 	Read(String),
 
@@ -140,7 +137,6 @@ impl fmt::Display for BashManError {
 				if s.is_empty() { "Package name cannot be empty." }
 				else { return write!(f, "Invalid package name: {s}"); },
 			Self::ParseCargoMetadata(s) => return write!(f, "Cargo metadata parsing error: {s}"),
-			Self::ParseToml(s) => return write!(f, "Cargo.toml parsing error: {s}"),
 			Self::Read(s) => return write!(f, "Unable to read: {s}"),
 			Self::UnknownCommand(s) => return write!(f, "Unknown (sub)command: {s}"),
 			Self::Write(s) => return write!(f, "Unable to write: {s}"),
