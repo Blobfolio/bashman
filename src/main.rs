@@ -198,7 +198,7 @@ fn _main() -> Result<(), BashManError> {
 		None => CWD.as_ref()
 			.ok_or_else(|| BashManError::Dir("working", "./".to_owned()))?
 			.join("Cargo.toml"),
-	})?;
+	}, target)?;
 
 	// Set up a shared buffer for whatever we'll be writing to help reduce
 	// allocations.
@@ -235,7 +235,7 @@ fn _main() -> Result<(), BashManError> {
 
 	// Crate Credits.
 	if FLAG_CREDITS == flags & FLAG_CREDITS {
-		match CreditsWriter::new(&manifest, target).and_then(|w| w.write(&mut buf)) {
+		match CreditsWriter::new(&manifest).and_then(|w| w.write(&mut buf)) {
 			Ok(p) => {
 				good.push("credits");
 				files.push(p);

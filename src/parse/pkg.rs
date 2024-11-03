@@ -68,31 +68,16 @@ impl PartialOrd for Dependency {
 
 impl Dependency {
 	/// # Feature-Specific.
-	pub(super) const FLAG_OPTIONAL: u8 = 0b0000_0001;
-
-	/// # Build/Runtime Context.
-	///
-	/// This flag is only used during deserialization.
-	pub(super) const FLAG_RUNTIME: u8 =  0b0000_0010;
-
-	/// # Dev/Testing Context.
-	///
-	/// This flag is only used during deserialization.
-	pub(super) const FLAG_DEV: u8 =      0b0000_0100;
+	pub(super) const FLAG_OPTIONAL: u8 =   0b0000_0001;
 
 	/// # Not Target-Specific.
-	pub(super) const FLAG_ANY: u8 =      0b0000_1000;
+	pub(super) const FLAG_TARGET_ANY: u8 = 0b0000_0010;
 
 	/// # Target-Specific.
-	pub(super) const FLAG_TARGET: u8 =   0b0001_0000;
-
-	/// # Context Flags.
-	///
-	/// This flag is only used during deserialization.
-	pub(super) const FLAG_CONTEXT: u8 = Self::FLAG_DEV | Self::FLAG_RUNTIME;
+	pub(super) const FLAG_TARGET_CFG: u8 = 0b0000_0100;
 
 	/// # Platform Flags.
-	pub(super) const FLAG_PLATFORM: u8 = Self::FLAG_ANY | Self::FLAG_TARGET;
+	pub(super) const FLAG_TARGET: u8 = Self::FLAG_TARGET_ANY | Self::FLAG_TARGET_CFG;
 }
 
 impl Dependency {
@@ -113,18 +98,30 @@ impl Dependency {
 	/// # Repository URL.
 	pub(super) fn url(&self) -> Option<&str> { self.url.as_deref() }
 
-	/// # Conditional?
-	pub(crate) const fn conditional(&self) -> bool {
-		(Self::FLAG_OPTIONAL == self.context & Self::FLAG_OPTIONAL) ||
-		(Self::FLAG_TARGET == self.context & Self::FLAG_PLATFORM)
+	/// # Optional?
+	pub(crate) const fn optional(&self) -> bool {
+		Self::FLAG_OPTIONAL == self.context & Self::FLAG_OPTIONAL
 	}
 
-	/// # Context Flags.
-	pub(crate) const fn context(&self) -> &'static str {
-		let optional = Self::FLAG_OPTIONAL == self.context & Self::FLAG_OPTIONAL;
-		let target = Self::FLAG_TARGET == self.context & Self::FLAG_PLATFORM;
+	/// # Target-Specific?
+	pub(crate) const fn target_specific(&self) -> bool {
+		Self::FLAG_TARGET_CFG == self.context & Self::FLAG_TARGET
+	}
 
-		match (optional, target) {
+	/// # Conditional?
+	///
+	/// Returns `true` if optional or target specific.
+	pub(crate) const fn conditional(&self) -> bool {
+		self.optional() || self.target_specific()
+	}
+
+	/// # Context Flags as String Slice.
+	///
+	/// Return a textual representation of the dependency's context(s). There
+	/// are only a few combinations so this is pretty easy to construct
+	/// manually.
+	pub(crate) const fn context(&self) -> &'static str {
+		match (self.optional(), self.target_specific()) {
 			(true, true) => "optional, target-specific",
 			(true, false) => "optional",
 			(false, true) => "target-specific",
