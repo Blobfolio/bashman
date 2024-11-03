@@ -17,9 +17,11 @@ MAN pages are saved in both plain ("app.1") and GZipped ("app.1.gz") states. Lin
 
 ## Installation
 
+As might be expected, `cargo bashman` requires [`cargo`](https://github.com/rust-lang/cargo). If you don't already have that installed, check out [rustup](https://rustup.rs/) before continuing.
+
 Debian and Ubuntu users can just grab the pre-built `.deb` package from the [latest release](https://github.com/Blobfolio/bashman/releases/latest).
 
-This application is written in [Rust](https://www.rust-lang.org/) and can alternatively be built from source using [Cargo](https://github.com/rust-lang/cargo):
+To build from source:
 
 ```bash
 # Clone the source.
@@ -30,7 +32,7 @@ cd bashman
 
 # Build as usual. Specify additional flags as desired.
 cargo build \
-    --bin bashman \
+    --bin cargo-bashman \
     --release
 ```
 
@@ -51,8 +53,6 @@ cargo bashman [-h/--help]
 ```
 
 The flags `--no-bash`, `--no-man`, and `--no-credits` can be used to skip the generation of BASH completions, MAN pages, and/or `CREDITS.md` respectively.
-
-Note that for the `CREDITS.md` feature, [Cargo](https://github.com/rust-lang/cargo) is explicitly required. (It pulls the dependency tree from the `cargo metadata` output.)
 
 
 ## CONFIGURATION

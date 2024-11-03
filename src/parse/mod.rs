@@ -6,8 +6,6 @@ pub(super) mod keyword;
 pub(super) mod pkg;
 pub(super) mod target;
 mod cargo;
-//mod metadata;
-//mod toml;
 mod util;
 
 use crate::{
@@ -18,10 +16,7 @@ use crate::{
 };
 use std::{
 	cmp::Ordering,
-	collections::{
-		BTreeMap,
-		BTreeSet,
-	},
+	collections::BTreeSet,
 	path::{
 		Path,
 		PathBuf,
@@ -72,75 +67,13 @@ impl Manifest {
 	/// module. Haha.
 	pub(crate) fn from_file<P: AsRef<Path>>(src: P, target: Option<TargetTriple>)
 	-> Result<Self, BashManError> {
-		// Unpack a ton of shit.
+		// Unpack a bunch of shit.
 		let (dir, src) = manifest_source(src.as_ref())?;
 		let cargo::RawManifest { main, mut deps } = cargo::RawManifest::new(&src, target)?;
-		let cargo::RawMainPackage { name, version, description, metadata } = main;
-		let cargo::RawBashMan { nice_name, dir_bash, dir_man, dir_credits, subcommands, flags, options, args, sections, credits } = metadata;
+		let cargo::RawMainPackage { dir_bash, dir_man, dir_credits, subcommands, credits } = main;
 
-		// Build the subcommands.
-		let mut subs = BTreeMap::<String, Subcommand>::new();
-		let main = Subcommand {
-			nice_name,
-			name: KeyWord::from(name),
-			description,
-			version: version.to_string(),
-			parent: None,
-			data: ManifestData::default(),
-		};
-		for raw in subcommands {
-			let sub = Subcommand::from_raw(
-				raw,
-				main.version.clone(),
-				Some((main.nice_name().to_owned(), main.name.clone())),
-			);
-			subs.insert(sub.name.as_str().to_owned(), sub);
-		}
-		subs.insert(String::new(), main);
-
-		// Add Flags.
-		for (flag, mut subcommands) in flags.into_iter().map(Flag::from_raw) {
-			// Process the last subcommand separately so we can save a clone.
-			if let Some(last) = subcommands.pop_last() {
-				for s in subcommands {
-					add_subcommand_flag(&mut subs, s, flag.clone())?;
-				}
-				add_subcommand_flag(&mut subs, last, flag)?;
-			}
-		}
-
-		// Add Options.
-		for (flag, mut subcommands) in options.into_iter().map(OptionFlag::from_raw) {
-			// Process the last subcommand separately so we can save a clone.
-			if let Some(last) = subcommands.pop_last() {
-				for s in subcommands {
-					add_subcommand_option(&mut subs, s, flag.clone())?;
-				}
-				add_subcommand_option(&mut subs, last, flag)?;
-			}
-		}
-
-		// Add Args.
-		for (flag, mut subcommands) in args.into_iter().map(TrailingArg::from_raw) {
-			// Process the last subcommand separately so we can save a clone.
-			if let Some(last) = subcommands.pop_last() {
-				for s in subcommands {
-					add_subcommand_arg(&mut subs, s, flag.clone())?;
-				}
-				add_subcommand_arg(&mut subs, last, flag)?;
-			}
-		}
-
-		// Sections go everywhere.
-		if ! sections.is_empty() {
-			let sections: Vec<_> = sections.into_iter().map(Section::from).collect();
-			for s in subs.values_mut() {
-				s.data.sections.extend_from_slice(&sections);
-			}
-		}
-
-		// Merge the credits and dependencies.
-		deps.extend(credits.into_iter().map(Dependency::from));
+		// Abosrb the extra credits into the real dependencies.
+		deps.extend(credits);
 
 		// Finally!
 		Ok(Self {
@@ -149,7 +82,7 @@ impl Manifest {
 			dir_man: dir_man.map(|v| dir.join(v)),
 			dir_credits: dir_credits.map(|v| dir.join(v)),
 			dir,
-			subcommands: subs.into_values().collect(),
+			subcommands,
 			target,
 			dependencies: deps.into_iter().collect(),
 		})
@@ -298,21 +231,6 @@ pub(crate) struct Subcommand {
 }
 
 impl Subcommand {
-	/// # From Raw.
-	fn from_raw(raw: cargo::RawSubCmd, version: String, parent: Option<(String, KeyWord)>)
-	-> Self {
-		Self {
-			nice_name: raw.name,
-			name: raw.cmd,
-			description: raw.description,
-			version,
-			parent,
-			data: ManifestData::default(),
-		}
-	}
-}
-
-impl Subcommand {
 	/// # Bin.
 	pub(crate) fn bin(&self) -> &str { self.name.as_str() }
 
@@ -388,14 +306,6 @@ impl PartialOrd for Flag {
 }
 
 impl Flag {
-	/// # From Raw.
-	///
-	/// Return self along with whatever subcommands apply, if any.
-	fn from_raw(raw: cargo::RawSwitch) -> (Self, BTreeSet<String>) {
-		let cargo::RawSwitch { short, long, description, duplicate, subcommands } = raw;
-		(Self { short, long, description, duplicate }, subcommands)
-	}
-
 	/// # Sort Key.
 	///
 	/// Return the non-dashed portion of the short or long key to give us
@@ -455,23 +365,6 @@ impl PartialOrd for OptionFlag {
 }
 
 impl OptionFlag {
-	/// # From Raw.
-	///
-	/// Return self along with whatever subcommands apply, if any.
-	fn from_raw(raw: cargo::RawOption) -> (Self, BTreeSet<String>) {
-		let cargo::RawOption { short, long, description, label, path, duplicate, subcommands } = raw;
-		(
-			Self {
-				flag: Flag { short, long, description, duplicate },
-				label: label.unwrap_or_else(|| "<VAL>".to_owned()),
-				path,
-			},
-			subcommands,
-		)
-	}
-}
-
-impl OptionFlag {
 	/// # Duplicate?
 	pub(crate) const fn duplicate(&self) -> bool { self.flag.duplicate() }
 
@@ -521,22 +414,6 @@ impl PartialOrd for TrailingArg {
 }
 
 impl TrailingArg {
-	/// # From Raw.
-	///
-	/// Return self along with whatever subcommands apply, if any.
-	fn from_raw(raw: cargo::RawArg) -> (Self, BTreeSet<String>) {
-		let cargo::RawArg { label, description, subcommands } = raw;
-		(
-			Self {
-				label: label.unwrap_or_else(|| "<ARG(S)…>".to_owned()),
-				description,
-			},
-			subcommands,
-		)
-	}
-}
-
-impl TrailingArg {
 	/// # Description.
 	pub(super) fn description(&self) -> &str { &self.description }
 
@@ -583,48 +460,6 @@ impl Section {
 }
 
 
-
-/// # Add Subcommand Flag.
-fn add_subcommand_flag(subs: &mut BTreeMap<String, Subcommand>, key: String, flag: Flag)
--> Result<(), BashManError> {
-	subs.get_mut(&key)
-		.ok_or(BashManError::UnknownCommand(key))?
-		.data
-		.flags
-		.insert(flag);
-	Ok(())
-}
-
-/// # Add Subcommand Option Flag.
-fn add_subcommand_option(
-	subs: &mut BTreeMap<String, Subcommand>,
-	key: String,
-	flag: OptionFlag,
-) -> Result<(), BashManError> {
-	subs.get_mut(&key)
-		.ok_or(BashManError::UnknownCommand(key))?
-		.data
-		.options
-		.insert(flag);
-	Ok(())
-}
-
-/// # Add Subcommand Trailing Arg.
-fn add_subcommand_arg(
-	subs: &mut BTreeMap<String, Subcommand>,
-	key: String,
-	flag: TrailingArg,
-) -> Result<(), BashManError> {
-	let res = subs.get_mut(&key)
-		.ok_or_else(|| BashManError::UnknownCommand(key.clone()))?
-		.data
-		.args
-		.replace(flag)
-		.is_none();
-
-	if res { Ok(()) }
-	else { Err(BashManError::MultipleArgs(key)) }
-}
 
 /// # Manifest Source Directory and File.
 ///

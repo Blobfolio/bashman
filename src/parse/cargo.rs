@@ -8,9 +8,13 @@ relevant data from the JSON output of a `cargo metadata` command.
 use crate::{
 	BashManError,
 	Dependency,
+	Flag,
 	KeyWord,
+	OptionFlag,
 	PackageName,
+	Subcommand,
 	TargetTriple,
+	TrailingArg,
 };
 use semver::Version;
 use serde::{
@@ -32,6 +36,8 @@ use std::{
 	path::Path,
 };
 use super::{
+	ManifestData,
+	Section,
 	util::{
 		self,
 		CargoMetadata,
@@ -43,6 +49,14 @@ use url::Url;
 
 
 /// # Intermediary Manifest.
+///
+/// The top-level `Raw` struct used for the initial JSON deserialization
+/// leverages borrows that can't outlive the caller.
+///
+/// This struct is used to process and take control of that data so `Manifest`
+/// doesn't have to get bogged down in parse-related taskwork.
+///
+/// All the magic happens in `RawManifest::new`.
 pub(super) struct RawManifest {
 	/// # Main Package.
 	pub(super) main: RawMainPackage,
@@ -65,52 +79,41 @@ impl RawManifest {
 		// Build the dependency list (and find the main package).
 		let flags = resolve.flags(target.is_some());
 		let mut main = None;
-		let mut deps: BTreeSet<Dependency> = packages.into_iter()
-			.filter_map(|p|
-				// Split out the main crate.
-				if p.id == resolve.root {
-					main.replace(p);
-					None
-				}
-				// Convert and keep used dependencies.
-				else if resolve.nodes.contains_key(p.id) {
-					Some(Dependency {
-						name: String::from(p.name),
-						version: p.version,
-						license: if p.license.is_empty() { None } else { Some(p.license) },
-						authors: p.authors,
-						url: p.repository.map(String::from),
-						context: flags.get(p.id).copied().unwrap_or(0),
-					})
-				}
-				// Nope.
-				else { None }
-			)
-			.collect();
+		let mut deps = BTreeSet::<Dependency>::new();
+		for p in packages {
+			// Split out the main crate.
+			if p.id == resolve.root { main.replace(p); }
+			// Convert and keep used dependencies.
+			else if resolve.nodes.contains_key(p.id) {
+				let context = flags.get(p.id).copied().unwrap_or(0);
+				let p = p.try_into_dependency(context)?;
+				deps.insert(p);
+			}
+		}
 
 		// We should have a main package by now.
-		let main = main.ok_or_else(|| BashManError::ParseCargoMetadata(
+		let RawPackage { id, name, version, description, features, metadata, .. } = main.ok_or_else(|| BashManError::ParseCargoMetadata(
 			"unable to determine root package".to_owned()
 		))?;
+		let main = RawMainPackage::try_from_parts(name, &version, description, metadata)?;
+		let features = features.map_or(false, deserialize_features);
 
 		// If this crate has features, repeat the process to figure out if
-		// there are any additional optional dependencies.
-		if main.features {
+		// there are any additional optional dependencies. If this fails for
+		// whatever reason, we'll stick with what we have.
+		if features {
 			if let Ok(raw2) = cargo.with_features(true).exec() {
 				if let Ok(Raw { packages, resolve }) = serde_json::from_slice(&raw2) {
 					// Build the dependency list (and find the main package).
 					let flags = resolve.flags(target.is_some());
 					for p in packages {
-						if p.id != main.id && resolve.nodes.contains_key(p.id) {
-							// Insert it if unique; discard it if not!
-							deps.insert(Dependency {
-								name: String::from(p.name),
-								version: p.version,
-								license: if p.license.is_empty() { None } else { Some(p.license) },
-								authors: p.authors,
-								url: p.repository.map(String::from),
-								context: flags.get(p.id).copied().unwrap_or(0) | Dependency::FLAG_OPTIONAL,
-							});
+						if p.id != id && resolve.nodes.contains_key(p.id) {
+							let context = flags.get(p.id)
+								.copied()
+								.unwrap_or(0) | Dependency::FLAG_OPTIONAL;
+							if let Ok(d) = p.try_into_dependency(context) {
+								deps.insert(d);
+							}
 						}
 					}
 				}
@@ -118,348 +121,138 @@ impl RawManifest {
 		}
 
 		// Finish deserializing the main package.
-		let main = RawMainPackage::try_from(main)?;
 		Ok(Self { main, deps })
 	}
 }
 
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 /// # Main Package.
 ///
 /// This is almost the same as `RawPackage`, but includes the the `bashman`
 /// metadata, if any.
 pub(super) struct RawMainPackage {
-	/// # Name.
-	pub(super) name: PackageName,
+	/// # Bash Output Directory.
+	pub(super) dir_bash: Option<String>,
 
-	/// # Version.
-	pub(super) version: Version,
+	/// # Manual Output Directory.
+	pub(super) dir_man: Option<String>,
 
-	/// # Package Description.
-	pub(super) description: String,
+	/// # Credits Output Directory.
+	pub(super) dir_credits: Option<String>,
 
-	/// # Metadata.
-	pub(super) metadata: RawBashMan,
+	/// # Subcommands.
+	pub(super) subcommands: Vec<Subcommand>,
+
+	/// # Extra Credits.
+	pub(super) credits: Vec<Dependency>,
 }
 
-impl<'a> TryFrom<RawPackage<'a>> for RawMainPackage {
-	type Error = BashManError;
-	fn try_from(raw: RawPackage<'a>) -> Result<Self, Self::Error> {
-		// Destructure the raw, discarding all the fields we don't care about.
-		let RawPackage { name, version, description, metadata, .. } = raw;
+impl RawMainPackage {
+	/// # From Raw Parts.
+	///
+	/// This method consumes the relevant parts of a `RawPackage` object and
+	/// returns an owned `RawMainPackage`.
+	///
+	/// Note the distance between here and there is quite long… Haha.
+	fn try_from_parts<'a>(
+		name: PackageName,
+		version: &Version,
+		description: Option<&'a RawValue>,
+		metadata: Option<&'a RawValue>,
+	) -> Result<Self, BashManError> {
+		// Deserialize deferred fields.
+		let description = description
+			.ok_or_else(|| BashManError::ParseCargoMetadata(
+				"missing description for main package".to_owned()
+			))
+			.and_then(|raw|
+				util::deserialize_nonempty_str_normalized(raw)
+					.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))
+			)?;
 
-		// Description is mandatory for this one!
-		let description = description.ok_or_else(|| BashManError::ParseCargoMetadata(
-			"missing description for main package".to_owned()
-		))?;
-
-		// If we have metadata, deserialize it now!
-		let mut metadata: Option<RawBashMan> = match metadata {
-			Some(m) => serde_json::from_str::<Option<RawMetadata>>(m.get())
-				.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?
-				.and_then(|m| m.bashman),
-			None => None,
+		let RawBashMan { nice_name, dir_bash, dir_man, dir_credits, subcommands, flags, options, args, sections, credits } = match metadata {
+			Some(m) => deserialize_bashman(m)?.unwrap_or_default(),
+			None => RawBashMan::default(),
 		};
 
-		// Perform some sanity checks on the data, if any.
-		if let Some(meta) = &mut metadata {
-			// Prune flags that are missing keys.
-			meta.flags.retain(|s| s.short.is_some() || s.long.is_some());
-			meta.options.retain(|s| s.short.is_some() || s.long.is_some());
+		// Build the subcommands.
+		let mut subs = BTreeMap::<String, Subcommand>::new();
+		let main = Subcommand {
+			nice_name,
+			name: KeyWord::from(name),
+			description,
+			version: version.to_string(),
+			parent: None,
+			data: ManifestData::default(),
+		};
+		for raw in subcommands {
+			let sub = raw.into_subcommand(
+				main.version.clone(),
+				Some((main.nice_name().to_owned(), main.name.clone())),
+			);
+			subs.insert(sub.name.as_str().to_owned(), sub);
+		}
+		subs.insert(String::new(), main);
 
-			// Prune sections that are missing text.
-			meta.sections.retain(|s| ! s.lines.is_empty() || ! s.items.is_empty());
-
-			// Populate empty subcommand lists with an empty string, which is what
-			// we use for top-level stuff.
-			let iter = meta.flags.iter_mut().map(|s| &mut s.subcommands)
-				.chain(meta.options.iter_mut().map(|s| &mut s.subcommands))
-				.chain(meta.args.iter_mut().map(|s| &mut s.subcommands));
-			for v in iter {
-				if v.is_empty() { v.insert(String::new()); }
-			}
-
-			// Check for duplicate subcommands.
-			let mut subs = BTreeMap::<&str, BTreeSet<&KeyWord>>::new();
-			subs.insert("", BTreeSet::new());
-			for e in &meta.subcommands {
-				if subs.insert(e.cmd.as_str(), BTreeSet::new()).is_some() {
-					return Err(BashManError::DuplicateKeyWord(e.cmd.clone()));
+		// Add Flags.
+		for line in flags {
+			let RawSwitch { short, long, description, duplicate, mut subcommands } = line;
+			let flag = Flag { short, long, description, duplicate };
+			if let Some(last) = subcommands.pop_last() {
+				for s in subcommands {
+					add_subcommand_flag(&mut subs, s, flag.clone())?;
 				}
+				add_subcommand_flag(&mut subs, last, flag)?;
 			}
+		}
 
-			// Check for duplicate keys.
-			let iter = meta.flags.iter().map(|f| (f.short.as_ref(), f.long.as_ref(), &f.subcommands))
-				.chain(meta.options.iter().map(|f| (f.short.as_ref(), f.long.as_ref(), &f.subcommands)));
-			for (short, long, flag_subs) in iter {
-				for s in flag_subs {
-					let entry = subs.get_mut(s.as_str())
-						.ok_or_else(|| BashManError::UnknownCommand(s.clone()))?;
-					for key in [short, long].into_iter().flatten() {
-						if ! entry.insert(key) {
-							return Err(BashManError::DuplicateKeyWord(key.clone()))?;
-						}
-					}
+		// Add Options.
+		for line in options {
+			let RawOption { short, long, description, label, path, duplicate, mut subcommands } = line;
+			let option = OptionFlag {
+				flag: Flag { short, long, description, duplicate },
+				label: label.unwrap_or_else(|| "<VAL>".to_owned()),
+				path,
+			};
+			if let Some(last) = subcommands.pop_last() {
+				for s in subcommands {
+					add_subcommand_option(&mut subs, s, option.clone())?;
 				}
+				add_subcommand_option(&mut subs, last, option)?;
+			}
+		}
+
+		// Add Args.
+		for line in args {
+			let RawArg { label, description, mut subcommands } = line;
+			let arg = TrailingArg {
+				label: label.unwrap_or_else(|| "<ARG(S)…>".to_owned()),
+				description,
+			};
+			if let Some(last) = subcommands.pop_last() {
+				for s in subcommands {
+					add_subcommand_arg(&mut subs, s, arg.clone())?;
+				}
+				add_subcommand_arg(&mut subs, last, arg)?;
+			}
+		}
+
+		if ! sections.is_empty() {
+			let sections: Vec<_> = sections.into_iter().map(Section::from).collect();
+			for s in subs.values_mut() {
+				s.data.sections.extend_from_slice(&sections);
 			}
 		}
 
 		Ok(Self {
-			name,
-			version,
-			description,
-			metadata: metadata.unwrap_or_default(),
+			dir_bash,
+			dir_man,
+			dir_credits,
+			subcommands: subs.into_values().collect(),
+			credits: credits.into_iter().map(Dependency::from).collect(),
 		})
-	}
-}
-
-
-
-#[derive(Debug, Clone, Default, Deserialize)]
-/// # Raw Package Metadata (bashman).
-///
-/// This is what is found under "package.metadata.bashman".
-pub(super) struct RawBashMan {
-	#[serde(rename = "name")]
-	#[serde(default)]
-	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str_normalized")]
-	/// # Package Nice Name.
-	pub(super) nice_name: Option<String>,
-
-	#[serde(rename = "bash-dir")]
-	#[serde(default)]
-	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str")]
-	/// # Directory For Bash Completions.
-	pub(super) dir_bash: Option<String>,
-
-	#[serde(rename = "man-dir")]
-	#[serde(default)]
-	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str")]
-	/// # Directory for MAN pages.
-	pub(super) dir_man: Option<String>,
-
-	#[serde(rename = "credits-dir")]
-	#[serde(default)]
-	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str")]
-	/// # Directory for Credits.
-	pub(super) dir_credits: Option<String>,
-
-	#[serde(default)]
-	/// # Subcommands.
-	pub(super) subcommands: Vec<RawSubCmd>,
-
-	#[serde(rename = "switches")]
-	#[serde(default)]
-	/// # Switches.
-	pub(super) flags: Vec<RawSwitch>,
-
-	#[serde(default)]
-	/// # Options.
-	pub(super) options: Vec<RawOption>,
-
-	#[serde(rename = "arguments")]
-	#[serde(default)]
-	/// # Arguments.
-	pub(super) args: Vec<RawArg>,
-
-	#[serde(default)]
-	/// # Sections.
-	pub(super) sections: Vec<RawSection>,
-
-	#[serde(default)]
-	/// # Credits.
-	pub(super) credits: Vec<RawCredits>,
-}
-
-
-
-#[derive(Debug, Clone, Deserialize)]
-/// # Raw Subcommand.
-///
-/// This is what is found under "package.metadata.bashman.subcommands".
-pub(super) struct RawSubCmd {
-	#[serde(default)]
-	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str_normalized")]
-	/// # Nice Name.
-	pub(super) name: Option<String>,
-
-	/// # (Sub)command.
-	pub(super) cmd: KeyWord,
-
-	#[serde(deserialize_with = "util::deserialize_nonempty_str_normalized")]
-	/// # Description.
-	pub(super) description: String,
-}
-
-
-
-#[derive(Debug, Clone, Deserialize)]
-/// # Raw Switch.
-///
-/// This is what is found under "package.metadata.bashman.switches".
-pub(super) struct RawSwitch {
-	#[serde(default)]
-	/// # Short Key.
-	pub(super) short: Option<KeyWord>,
-
-	#[serde(default)]
-	/// # Long Key.
-	pub(super) long: Option<KeyWord>,
-
-	#[serde(deserialize_with = "util::deserialize_nonempty_str_normalized")]
-	/// # Description.
-	pub(super) description: String,
-
-	#[serde(default)]
-	/// # Allow Duplicates.
-	pub(super) duplicate: bool,
-
-	#[serde(default)]
-	/// # Applicable (Sub)commands.
-	pub(super) subcommands: BTreeSet<String>,
-}
-
-
-
-#[derive(Debug, Clone, Deserialize)]
-/// Raw Option.
-///
-/// This is what is found under "package.metadata.bashman.options".
-pub(super) struct RawOption {
-	#[serde(default)]
-	/// # Short Key.
-	pub(super) short: Option<KeyWord>,
-
-	#[serde(default)]
-	/// # Long Key.
-	pub(super) long: Option<KeyWord>,
-
-	#[serde(deserialize_with = "util::deserialize_nonempty_str_normalized")]
-	/// # Description.
-	pub(super) description: String,
-
-	#[serde(default)]
-	#[serde(deserialize_with = "deserialize_label")]
-	/// # Value Label.
-	pub(super) label: Option<String>,
-
-	#[serde(default)]
-	/// # Value is Path?
-	pub(super) path: bool,
-
-	#[serde(default)]
-	/// # Allow Duplicates.
-	pub(super) duplicate: bool,
-
-	#[serde(default)]
-	/// # Applicable (Sub)commands.
-	pub(super) subcommands: BTreeSet<String>,
-}
-
-
-
-#[derive(Debug, Clone, Deserialize)]
-/// # Raw Argument.
-///
-/// This is what is found under "package.metadata.bashman.arguments".
-pub(super) struct RawArg {
-	#[serde(default)]
-	#[serde(deserialize_with = "deserialize_label")]
-	/// # Value Label.
-	pub(super) label: Option<String>,
-
-	#[serde(deserialize_with = "util::deserialize_nonempty_str_normalized")]
-	/// # Description.
-	pub(super) description: String,
-
-	#[serde(default)]
-	/// # Applicable (Sub)commands.
-	pub(super) subcommands: BTreeSet<String>,
-}
-
-
-
-#[derive(Debug, Clone, Deserialize)]
-/// # Raw Section.
-///
-/// This is what is found under "package.metadata.bashman.sections".
-pub(super) struct RawSection {
-	#[serde(deserialize_with = "deserialize_section_name")]
-	/// # Section Name.
-	name: String,
-
-	#[serde(default)]
-	/// # Indent?
-	inside: bool,
-
-	#[serde(default)]
-	#[serde(deserialize_with = "deserialize_lines")]
-	/// # Text Lines.
-	lines: Vec<String>,
-
-	#[serde(default)]
-	#[serde(deserialize_with = "deserialize_items")]
-	/// # Text Bullets.
-	items: Vec<[String; 2]>
-}
-
-impl From<RawSection> for super::Section {
-	#[inline]
-	fn from(raw: RawSection) -> Self {
-		Self {
-			name: raw.name,
-			inside: raw.inside,
-			lines: if raw.lines.is_empty() { String::new() } else { raw.lines.join("\n.RE\n") },
-			items: raw.items,
-		}
-	}
-}
-
-
-
-#[derive(Debug, Clone, Deserialize)]
-/// # Raw Credits.
-///
-/// This is what is found under "package.metadata.bashman.credits".
-pub(super) struct RawCredits {
-	/// # Name.
-	name: PackageName,
-
-	/// # Version.
-	version: Version,
-
-	#[serde(default)]
-	#[serde(deserialize_with = "util::deserialize_license")]
-	/// # License.
-	license: String,
-
-	#[serde(default)]
-	#[serde(deserialize_with = "util::deserialize_authors")]
-	/// # Author(s).
-	authors: Vec<String>,
-
-	#[serde(default)]
-	/// # Repository URL.
-	repository: Option<Url>,
-
-	#[serde(default)]
-	/// # Optional?
-	optional: bool,
-}
-
-impl From<RawCredits> for Dependency {
-	#[inline]
-	fn from(src: RawCredits) -> Self {
-		Self {
-			name: String::from(src.name),
-			version: src.version,
-			license: if src.license.is_empty() { None } else { Some(src.license) },
-			authors: src.authors,
-			url: src.repository.map(String::from),
-			context: if src.optional { Self::FLAG_OPTIONAL } else { 0 },
-		}
 	}
 }
 
@@ -499,14 +292,327 @@ struct RawPackage<'a> {
 	/// # Version.
 	version: Version,
 
-	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str_normalized")]
+	#[serde(borrow)]
 	/// # Package Description.
-	description: Option<String>,
+	description: Option<&'a RawValue>,
+
+	#[serde(default)]
+	#[serde(borrow)]
+	/// # License.
+	license: Option<&'a RawValue>,
+
+	#[serde(default)]
+	#[serde(borrow)]
+	/// # Author(s).
+	authors: Option<&'a RawValue>,
+
+	#[serde(default)]
+	#[serde(borrow)]
+	/// # Repository URL.
+	repository: Option<&'a RawValue>,
+
+	#[serde(default)]
+	#[serde(borrow)]
+	/// # Has Features?
+	///
+	/// We'll only ever end up using this for the primary package, so there's
+	/// no point getting specific about types and whatnot at this stage.
+	features: Option<&'a RawValue>,
+
+	#[serde(default)]
+	#[serde(borrow)]
+	/// # Metadata.
+	///
+	/// We'll only ever end up using this for the primary package, so there's
+	/// no point getting specific about types and whatnot at this stage.
+	metadata: Option<&'a RawValue>,
+}
+
+impl<'a> RawPackage<'a> {
+	/// # Try Into Dependency.
+	fn try_into_dependency(self, context: u8) -> Result<Dependency, BashManError> {
+		// Deserialize deferred fields.
+		let license: Option<String> = match self.license {
+			Some(raw) => util::deserialize_license(raw)
+				.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?,
+			None => None,
+		};
+		let authors: Vec<String> = match self.authors {
+			Some(raw) => util::deserialize_authors(raw)
+				.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?,
+			None => Vec::new(),
+		};
+		let url: Option<String> = match self.repository {
+			Some(raw) => <Option<Url>>::deserialize(raw)
+				.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?
+				.map(String::from),
+			None => None,
+		};
+
+		// Done!
+		Ok(Dependency {
+			name: String::from(self.name),
+			version: self.version,
+			license,
+			authors,
+			url,
+			context,
+		})
+	}
+}
+
+
+
+#[derive(Debug, Default, Deserialize)]
+/// # Raw Metadata.
+///
+/// This is just a simple intermediary structure; we'll only end up keeping
+/// what's inside.
+struct RawMetadata<'a> {
+	#[serde(borrow)]
+	#[serde(default)]
+	/// # Bashman Metadata.
+	bashman: Option<RawBashMan<'a>>,
+}
+
+
+
+#[derive(Debug, Clone, Default, Deserialize)]
+/// # Raw Package Metadata (bashman).
+///
+/// This is what is found under "package.metadata.bashman".
+struct RawBashMan<'a> {
+	#[serde(rename = "name")]
+	#[serde(default)]
+	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str_normalized")]
+	/// # Package Nice Name.
+	nice_name: Option<String>,
+
+	#[serde(rename = "bash-dir")]
+	#[serde(default)]
+	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str")]
+	/// # Directory For Bash Completions.
+	dir_bash: Option<String>,
+
+	#[serde(rename = "man-dir")]
+	#[serde(default)]
+	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str")]
+	/// # Directory for MAN pages.
+	dir_man: Option<String>,
+
+	#[serde(rename = "credits-dir")]
+	#[serde(default)]
+	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str")]
+	/// # Directory for Credits.
+	dir_credits: Option<String>,
+
+	#[serde(default)]
+	/// # Subcommands.
+	subcommands: Vec<RawSubCmd>,
+
+	#[serde(rename = "switches")]
+	#[serde(default)]
+	#[serde(borrow)]
+	/// # Switches.
+	flags: Vec<RawSwitch<'a>>,
+
+	#[serde(default)]
+	/// # Options.
+	options: Vec<RawOption<'a>>,
+
+	#[serde(rename = "arguments")]
+	#[serde(default)]
+	/// # Arguments.
+	args: Vec<RawArg<'a>>,
+
+	#[serde(default)]
+	/// # Sections.
+	sections: Vec<RawSection>,
+
+	#[serde(default)]
+	/// # Credits.
+	credits: Vec<RawCredits>,
+}
+
+
+
+#[derive(Debug, Clone, Deserialize)]
+/// # Raw Subcommand.
+///
+/// This is what is found under "package.metadata.bashman.subcommands".
+struct RawSubCmd {
+	#[serde(default)]
+	#[serde(deserialize_with = "util::deserialize_nonempty_opt_str_normalized")]
+	/// # Nice Name.
+	name: Option<String>,
+
+	/// # (Sub)command.
+	cmd: KeyWord,
+
+	#[serde(deserialize_with = "util::deserialize_nonempty_str_normalized")]
+	/// # Description.
+	description: String,
+}
+
+impl RawSubCmd {
+	/// # From Raw.
+	fn into_subcommand(self, version: String, parent: Option<(String, KeyWord)>)
+	-> Subcommand {
+		Subcommand {
+			nice_name: self.name,
+			name: self.cmd,
+			description: self.description,
+			version,
+			parent,
+			data: ManifestData::default(),
+		}
+	}
+}
+
+
+
+#[derive(Debug, Clone, Deserialize)]
+/// # Raw Switch.
+///
+/// This is what is found under "package.metadata.bashman.switches".
+struct RawSwitch<'a> {
+	#[serde(default)]
+	/// # Short Key.
+	short: Option<KeyWord>,
+
+	#[serde(default)]
+	/// # Long Key.
+	long: Option<KeyWord>,
+
+	#[serde(deserialize_with = "util::deserialize_nonempty_str_normalized")]
+	/// # Description.
+	description: String,
+
+	#[serde(default)]
+	/// # Allow Duplicates.
+	duplicate: bool,
+
+	#[serde(borrow)]
+	#[serde(default)]
+	/// # Applicable (Sub)commands.
+	subcommands: BTreeSet<&'a str>,
+}
+
+
+
+#[derive(Debug, Clone, Deserialize)]
+/// Raw Option.
+///
+/// This is what is found under "package.metadata.bashman.options".
+struct RawOption<'a> {
+	#[serde(default)]
+	/// # Short Key.
+	short: Option<KeyWord>,
+
+	#[serde(default)]
+	/// # Long Key.
+	long: Option<KeyWord>,
+
+	#[serde(deserialize_with = "util::deserialize_nonempty_str_normalized")]
+	/// # Description.
+	description: String,
+
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_label")]
+	/// # Value Label.
+	label: Option<String>,
+
+	#[serde(default)]
+	/// # Value is Path?
+	path: bool,
+
+	#[serde(default)]
+	/// # Allow Duplicates.
+	duplicate: bool,
+
+	#[serde(borrow)]
+	#[serde(default)]
+	/// # Applicable (Sub)commands.
+	subcommands: BTreeSet<&'a str>,
+}
+
+
+
+#[derive(Debug, Clone, Deserialize)]
+/// # Raw Argument.
+///
+/// This is what is found under "package.metadata.bashman.arguments".
+struct RawArg<'a> {
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_label")]
+	/// # Value Label.
+	label: Option<String>,
+
+	#[serde(deserialize_with = "util::deserialize_nonempty_str_normalized")]
+	/// # Description.
+	description: String,
+
+	#[serde(borrow)]
+	#[serde(default)]
+	/// # Applicable (Sub)commands.
+	subcommands: BTreeSet<&'a str>,
+}
+
+
+
+#[derive(Debug, Clone, Deserialize)]
+/// # Raw Section.
+///
+/// This is what is found under "package.metadata.bashman.sections".
+struct RawSection {
+	#[serde(deserialize_with = "deserialize_section_name")]
+	/// # Section Name.
+	name: String,
+
+	#[serde(default)]
+	/// # Indent?
+	inside: bool,
+
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_lines")]
+	/// # Text Lines.
+	lines: Vec<String>,
+
+	#[serde(default)]
+	#[serde(deserialize_with = "deserialize_items")]
+	/// # Text Bullets.
+	items: Vec<[String; 2]>
+}
+
+impl From<RawSection> for super::Section {
+	#[inline]
+	fn from(raw: RawSection) -> Self {
+		Self {
+			name: raw.name,
+			inside: raw.inside,
+			lines: if raw.lines.is_empty() { String::new() } else { raw.lines.join("\n.RE\n") },
+			items: raw.items,
+		}
+	}
+}
+
+
+
+#[derive(Debug, Clone, Deserialize)]
+/// # Raw Credits.
+///
+/// This is what is found under "package.metadata.bashman.credits".
+struct RawCredits {
+	/// # Name.
+	name: PackageName,
+
+	/// # Version.
+	version: Version,
 
 	#[serde(default)]
 	#[serde(deserialize_with = "util::deserialize_license")]
 	/// # License.
-	license: String,
+	license: Option<String>,
 
 	#[serde(default)]
 	#[serde(deserialize_with = "util::deserialize_authors")]
@@ -518,33 +624,22 @@ struct RawPackage<'a> {
 	repository: Option<Url>,
 
 	#[serde(default)]
-	#[serde(deserialize_with = "deserialize_features")]
-	/// # Has Features?
-	///
-	/// This field is a map in the raw data, but since we only want to know
-	/// whether or not there _are_ features, a yay/nay is sufficient here.
-	features: bool,
-
-	#[serde(default)]
-	#[serde(borrow)]
-	/// # Metadata.
-	///
-	/// We'll only ever end up using this for the primary package, so there's
-	/// no point getting specific about types and whatnot at this stage.
-	metadata: Option<&'a RawValue>,
+	/// # Optional?
+	optional: bool,
 }
 
-
-
-#[derive(Debug, Default, Deserialize)]
-/// # Raw Metadata.
-///
-/// This is just a simple intermediary structure; we'll only end up keeping
-/// what's inside.
-struct RawMetadata {
-	#[serde(default)]
-	/// # Bashman Metadata.
-	bashman: Option<RawBashMan>,
+impl From<RawCredits> for Dependency {
+	#[inline]
+	fn from(src: RawCredits) -> Self {
+		Self {
+			name: String::from(src.name),
+			version: src.version,
+			license: src.license,
+			authors: src.authors,
+			url: src.repository.map(String::from),
+			context: if src.optional { Self::FLAG_OPTIONAL } else { 0 },
+		}
+	}
 }
 
 
@@ -728,6 +823,100 @@ impl<'de> Deserialize<'de> for NodeDepTarget {
 
 
 
+/// # Add Subcommand Flag.
+fn add_subcommand_flag(subs: &mut BTreeMap<String, Subcommand>, key: &str, flag: Flag)
+-> Result<(), BashManError> {
+	subs.get_mut(key)
+		.ok_or_else(|| BashManError::UnknownCommand(key.to_owned()))?
+		.data
+		.flags
+		.insert(flag);
+	Ok(())
+}
+
+/// # Add Subcommand Option Flag.
+fn add_subcommand_option(
+	subs: &mut BTreeMap<String, Subcommand>,
+	key: &str,
+	flag: OptionFlag,
+) -> Result<(), BashManError> {
+	subs.get_mut(key)
+		.ok_or_else(|| BashManError::UnknownCommand(key.to_owned()))?
+		.data
+		.options
+		.insert(flag);
+	Ok(())
+}
+
+/// # Add Subcommand Trailing Arg.
+fn add_subcommand_arg(
+	subs: &mut BTreeMap<String, Subcommand>,
+	key: &str,
+	flag: TrailingArg,
+) -> Result<(), BashManError> {
+	let res = subs.get_mut(key)
+		.ok_or_else(|| BashManError::UnknownCommand(key.to_owned()))?
+		.data
+		.args
+		.replace(flag)
+		.is_none();
+
+	if res { Ok(()) }
+	else { Err(BashManError::MultipleArgs(key.to_owned())) }
+}
+
+/// # Deserialize: Bashman Metadata.
+fn deserialize_bashman<'a>(raw: &'a RawValue) -> Result<Option<RawBashMan<'a>>, BashManError> {
+	let res = <Option<RawMetadata<'a>>>::deserialize(raw)
+		.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?;
+
+	if let Some(mut bashman) = res.and_then(|RawMetadata { bashman }| bashman) {
+		// Prune flags that are missing keys.
+		bashman.flags.retain(|s| s.short.is_some() || s.long.is_some());
+		bashman.options.retain(|s| s.short.is_some() || s.long.is_some());
+
+		// Prune sections that are missing text.
+		bashman.sections.retain(|s| ! s.lines.is_empty() || ! s.items.is_empty());
+
+		// Populate empty subcommand lists with an empty string, which is what
+		// we use for top-level stuff.
+		let iter = bashman.flags.iter_mut().map(|s| &mut s.subcommands)
+			.chain(bashman.options.iter_mut().map(|s| &mut s.subcommands))
+			.chain(bashman.args.iter_mut().map(|s| &mut s.subcommands));
+		for v in iter {
+			if v.is_empty() { v.insert(""); }
+		}
+
+		// Check for duplicate subcommands.
+		let mut subs = BTreeMap::<&str, BTreeSet<&KeyWord>>::new();
+		subs.insert("", BTreeSet::new());
+		for e in &bashman.subcommands {
+			if subs.insert(e.cmd.as_str(), BTreeSet::new()).is_some() {
+				return Err(BashManError::DuplicateKeyWord(e.cmd.clone()));
+			}
+		}
+
+		// Check for duplicate keys.
+		let iter = bashman.flags.iter().map(|f| (f.short.as_ref(), f.long.as_ref(), &f.subcommands))
+			.chain(bashman.options.iter().map(|f| (f.short.as_ref(), f.long.as_ref(), &f.subcommands)));
+		for (short, long, flag_subs) in iter {
+			for &s in flag_subs {
+				let entry = subs.get_mut(s)
+					.ok_or_else(|| BashManError::UnknownCommand(s.to_owned()))?;
+				for key in [short, long].into_iter().flatten() {
+					if ! entry.insert(key) {
+						return Err(BashManError::DuplicateKeyWord(key.clone()));
+					}
+				}
+			}
+		}
+
+		return Ok(Some(bashman));
+	}
+
+	Ok(None)
+}
+
 #[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
 /// # Deserialize: Node Sub-Dependency Kinds.
 ///
@@ -760,13 +949,11 @@ where D: Deserializer<'de> {
 	))
 }
 
-#[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
 /// # Deserialize: Features.
 ///
 /// We just want to know if there _are_ features; the details are irrelevant.
-fn deserialize_features<'de, D>(deserializer: D) -> Result<bool, D::Error>
-where D: Deserializer<'de> {
-	Ok(<HashMap<Cow<'de, str>, &'de RawValue>>::deserialize(deserializer).map_or(
+fn deserialize_features<'a>(raw: &'a RawValue) -> bool {
+	<HashMap<Cow<'a, str>, &'a RawValue>>::deserialize(raw).map_or(
 		false,
 		|map| match 1_usize.cmp(&map.len()) {
 			// 2+ features is always a YES.
@@ -776,7 +963,7 @@ where D: Deserializer<'de> {
 			// Zero is a NO.
 			Ordering::Greater => false,
 		}
-	))
+	)
 }
 
 #[expect(clippy::unnecessary_wraps, reason = "We don't control this signature.")]
@@ -957,28 +1144,16 @@ mod test {
 
 	#[test]
 	fn t_deserialize_features() {
-		let raw = r#"{}"#;
-		assert!(matches!(
-			deserialize_features(&mut serde_json::de::Deserializer::from_str(raw)),
-			Ok(false),
-		));
+		let raw = RawValue::from_string(r#"{}"#.to_owned()).unwrap();
+		assert!(! deserialize_features(&raw));
 
-		let raw = r#"{"default": ["foo"]}"#;
-		assert!(matches!(
-			deserialize_features(&mut serde_json::de::Deserializer::from_str(raw)),
-			Ok(false),
-		));
+		let raw = RawValue::from_string(r#"{"default": ["foo"]}"#.to_owned()).unwrap();
+		assert!(! deserialize_features(&raw));
 
-		let raw = r#"{"utc2k": null}"#;
-		assert!(matches!(
-			deserialize_features(&mut serde_json::de::Deserializer::from_str(raw)),
-			Ok(true),
-		));
+		let raw = RawValue::from_string(r#"{"utc2k": null}"#.to_owned()).unwrap();
+		assert!(deserialize_features(&raw));
 
-		let raw = r#"{"default": ["foo"], "bar": null}"#;
-		assert!(matches!(
-			deserialize_features(&mut serde_json::de::Deserializer::from_str(raw)),
-			Ok(true),
-		));
+		let raw = RawValue::from_string(r#"{"default": ["foo"], "bar": null}"#.to_owned()).unwrap();
+		assert!(deserialize_features(&raw));
 	}
 }

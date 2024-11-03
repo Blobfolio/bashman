@@ -114,20 +114,22 @@ where D: Deserializer<'de> {
 ///
 /// Note this removes problematic characters but does not strictly enforce SPDX
 /// formatting requirements or license names.
-pub(super) fn deserialize_license<'de, D>(deserializer: D) -> Result<String, D::Error>
+pub(super) fn deserialize_license<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where D: Deserializer<'de> {
-	if let Ok(mut out) = <String>::deserialize(deserializer) {
-		out.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '|'));
+	Ok(
+		<String>::deserialize(deserializer).ok()
+			.and_then(|mut out| {
+				out.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '|'));
 
-		// Slash separators are deprecated.
-		while let Some(pos) = out.find('/') { out.replace_range(pos..=pos, " OR "); }
+				// Slash separators are deprecated.
+				while let Some(pos) = out.find('/') { out.replace_range(pos..=pos, " OR "); }
 
-		// Normalize and return.
-		normalize_string(&mut out);
-		return Ok(out);
-	}
-
-	Ok(String::new())
+				// Normalize and return if non-empty.
+				normalize_string(&mut out);
+				if out.is_empty() { None }
+				else { Some(out) }
+			})
+	)
 }
 
 /// # Deserialize: Non-Empty String, Normalized.
