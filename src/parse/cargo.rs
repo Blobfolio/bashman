@@ -185,7 +185,10 @@ impl RawMainPackage {
 			description,
 			version: version.to_string(),
 			parent: None,
-			data: ManifestData::default(),
+			data: ManifestData {
+				sections: sections.into_iter().map(Section::from).collect(),
+				..ManifestData::default()
+			},
 		};
 		for raw in subcommands {
 			let sub = raw.into_subcommand(
@@ -236,13 +239,6 @@ impl RawMainPackage {
 					add_subcommand_arg(&mut subs, s, arg.clone())?;
 				}
 				add_subcommand_arg(&mut subs, last, arg)?;
-			}
-		}
-
-		if ! sections.is_empty() {
-			let sections: Vec<_> = sections.into_iter().map(Section::from).collect();
-			for s in subs.values_mut() {
-				s.data.sections.extend_from_slice(&sections);
 			}
 		}
 
