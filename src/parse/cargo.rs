@@ -48,81 +48,66 @@ use url::Url;
 
 
 
-/// # Intermediary Manifest.
+/// # Fetch Manifest Data.
 ///
-/// The top-level `Raw` struct used for the initial JSON deserialization
-/// leverages borrows that can't outlive the caller.
-///
-/// This struct is used to process and take control of that data so `Manifest`
-/// doesn't have to get bogged down in parse-related taskwork.
-///
-/// All the magic happens in `RawManifest::new`.
-pub(super) struct RawManifest {
-	/// # Main Package.
-	pub(super) main: RawMainPackage,
+/// This executes and parses the raw JSON output from `cargo metadata` into
+/// more easily-consumable structures.
+/// # New.
+pub(super) fn fetch(src: &Path, target: Option<TargetTriple>)
+-> Result<(RawMainPackage, BTreeSet<Dependency>), BashManError> {
+	let cargo = CargoMetadata::new(src, target).with_features(false);
 
-	/// # Dependencies.
-	pub(super) deps: BTreeSet<Dependency>,
-}
+	// Query without features first.
+	let raw1 = cargo.exec()?;
+	let Raw { packages, resolve } = serde_json::from_slice(&raw1)
+		.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?;
 
-impl RawManifest {
-	/// # New.
-	pub(super) fn new(src: &Path, target: Option<TargetTriple>)
-	-> Result<Self, BashManError> {
-		let cargo = CargoMetadata::new(src, target).with_features(false);
-
-		// Query without features first.
-		let raw1 = cargo.exec()?;
-		let Raw { packages, resolve } = serde_json::from_slice(&raw1)
-			.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?;
-
-		// Build the dependency list (and find the main package).
-		let flags = resolve.flags(target.is_some());
-		let mut main = None;
-		let mut deps = BTreeSet::<Dependency>::new();
-		for p in packages {
-			// Split out the main crate.
-			if p.id == resolve.root { main.replace(p); }
-			// Convert and keep used dependencies.
-			else if resolve.nodes.contains_key(p.id) {
-				let context = flags.get(p.id).copied().unwrap_or(0);
-				let p = p.try_into_dependency(context)?;
-				deps.insert(p);
-			}
+	// Build the dependency list (and find the main package).
+	let flags = resolve.flags(target.is_some());
+	let mut main = None;
+	let mut deps = BTreeSet::<Dependency>::new();
+	for p in packages {
+		// Split out the main crate.
+		if p.id == resolve.root { main.replace(p); }
+		// Convert and keep used dependencies.
+		else if resolve.nodes.contains_key(p.id) {
+			let context = flags.get(p.id).copied().unwrap_or(0);
+			let p = p.try_into_dependency(context)?;
+			deps.insert(p);
 		}
+	}
 
-		// We should have a main package by now.
-		let RawPackage { id, name, version, description, features, metadata, .. } = main.ok_or_else(|| BashManError::ParseCargoMetadata(
-			"unable to determine root package".to_owned()
-		))?;
-		let main = RawMainPackage::try_from_parts(name, &version, description, metadata)?;
-		let features = features.map_or(false, deserialize_features);
+	// We should have a main package by now.
+	let RawPackage { id, name, version, description, features, metadata, .. } = main.ok_or_else(|| BashManError::ParseCargoMetadata(
+		"unable to determine root package".to_owned()
+	))?;
+	let main = RawMainPackage::try_from_parts(name, &version, description, metadata)?;
+	let features = features.map_or(false, deserialize_features);
 
-		// If this crate has features, repeat the process to figure out if
-		// there are any additional optional dependencies. If this fails for
-		// whatever reason, we'll stick with what we have.
-		if features {
-			if let Ok(raw2) = cargo.with_features(true).exec() {
-				if let Ok(Raw { packages, resolve }) = serde_json::from_slice(&raw2) {
-					// Build the dependency list (and find the main package).
-					let flags = resolve.flags(target.is_some());
-					for p in packages {
-						if p.id != id && resolve.nodes.contains_key(p.id) {
-							let context = flags.get(p.id)
-								.copied()
-								.unwrap_or(0) | Dependency::FLAG_OPTIONAL;
-							if let Ok(d) = p.try_into_dependency(context) {
-								deps.insert(d);
-							}
+	// If this crate has features, repeat the process to figure out if
+	// there are any additional optional dependencies. If this fails for
+	// whatever reason, we'll stick with what we have.
+	if features {
+		if let Ok(raw2) = cargo.with_features(true).exec() {
+			if let Ok(Raw { packages, resolve }) = serde_json::from_slice(&raw2) {
+				// Build the dependency list (and find the main package).
+				let flags = resolve.flags(target.is_some());
+				for p in packages {
+					if p.id != id && resolve.nodes.contains_key(p.id) {
+						let context = flags.get(p.id)
+							.copied()
+							.unwrap_or(0) | Dependency::FLAG_OPTIONAL;
+						if let Ok(d) = p.try_into_dependency(context) {
+							deps.insert(d);
 						}
 					}
 				}
 			}
 		}
-
-		// Finish deserializing the main package.
-		Ok(Self { main, deps })
 	}
+
+	// Finish deserializing the main package.
+	Ok((main, deps))
 }
 
 

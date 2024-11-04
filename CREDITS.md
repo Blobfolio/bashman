@@ -2,7 +2,7 @@
     Package:   cargo-bashman
     Version:   0.6.3
     Target:    x86_64-unknown-linux-gnu
-    Generated: 2024-11-04 02:47:29 UTC
+    Generated: 2024-11-04 03:01:14 UTC
 
 | Package | Version | Author(s) | License | Context |
 | ---- | ---- | ---- | ---- | ---- |
