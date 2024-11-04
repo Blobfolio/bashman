@@ -591,118 +591,9 @@
       "rust_version": "1.56.0"
     },
     {
-      "name": "brunch",
-      "version": "0.6.1",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#brunch@0.6.1",
-      "license": "WTFPL",
-      "license_file": null,
-      "description": "A simple micro-benchmark runner.",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [
-        {
-          "name": "dactyl",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "0.7.*",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "unicode-width",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "0.2.*",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "quantogram",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "=0.4.4",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        }
-      ],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "brunch",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/brunch-0.6.1/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "fn_fib",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/brunch-0.6.1/benches/fn_fib.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        }
-      ],
-      "features": {},
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/brunch-0.6.1/Cargo.toml",
-      "metadata": {
-        "bashman": {
-          "bash-dir": "./",
-          "credits-dir": "./",
-          "man-dir": "./",
-          "name": "Brunch"
-        },
-        "docs": {
-          "rs": {
-            "default-target": "x86_64-unknown-linux-gnu"
-          }
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Blobfolio, LLC. <hello@blobfolio.com>"
-      ],
-      "categories": [],
-      "keywords": [
-        "benchmark",
-        "profiling"
-      ],
-      "readme": "README.md",
-      "repository": "https://github.com/Blobfolio/brunch",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.77"
-    },
-    {
       "name": "cargo-bashman",
-      "version": "0.6.1",
-      "id": "path+file:///share#cargo-bashman@0.6.1",
+      "version": "0.6.3",
+      "id": "path+file:///share#cargo-bashman@0.6.3",
       "license": "WTFPL",
       "license_file": null,
       "description": "A Cargo plugin to generate bash completions, man pages, and/or crate credits.",
@@ -818,20 +709,8 @@
           "rename": null,
           "optional": false,
           "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "toml",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "0.8.*",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
           "features": [
-            "preserve_order"
+            "raw_value"
           ],
           "target": null,
           "registry": null
@@ -887,18 +766,6 @@
           "registry": null
         },
         {
-          "name": "brunch",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "*",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
           "name": "argyle",
           "source": "registry+https://github.com/rust-lang/crates.io-index",
           "req": "0.10.*",
@@ -946,7 +813,6 @@
       "metadata": {
         "bashman": {
           "bash-dir": "./release/completions",
-          "credits-dir": "./",
           "man-dir": "./release/man",
           "name": "Cargo BashMan",
           "options": [
@@ -966,7 +832,7 @@
           ],
           "switches": [
             {
-              "description": "Print help information.",
+              "description": "Print help information to STDOUT and exit.",
               "long": "--help",
               "short": "-h"
             },
@@ -987,7 +853,7 @@
               "long": "--print-targets"
             },
             {
-              "description": "Print application version.",
+              "description": "Print version information to STDOUT and exit.",
               "long": "--version",
               "short": "-V"
             }
@@ -1040,8 +906,8 @@
     },
     {
       "name": "cc",
-      "version": "1.1.31",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#cc@1.1.31",
+      "version": "1.1.34",
+      "id": "registry+https://github.com/rust-lang/crates.io-index#cc@1.1.34",
       "license": "MIT OR Apache-2.0",
       "license_file": null,
       "description": "A build-time dependency for Cargo build scripts to assist in invoking the native\nC compiler to compile native C code into a static archive to be linked into Rust\ncode.\n",
@@ -1105,7 +971,7 @@
             "lib"
           ],
           "name": "cc",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.1.31/src/lib.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.1.34/src/lib.rs",
           "edition": "2018",
           "doc": true,
           "doctest": true,
@@ -1119,7 +985,7 @@
           "dep:jobserver"
         ]
       },
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.1.31/Cargo.toml",
+      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.1.34/Cargo.toml",
       "metadata": null,
       "publish": null,
       "authors": [
@@ -1794,53 +1660,6 @@
       "rust_version": "1.56.0"
     },
     {
-      "name": "equivalent",
-      "version": "1.0.1",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#equivalent@1.0.1",
-      "license": "Apache-2.0 OR MIT",
-      "license_file": null,
-      "description": "Traits for key comparison in maps.",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "equivalent",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/equivalent-1.0.1/src/lib.rs",
-          "edition": "2015",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        }
-      ],
-      "features": {},
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/equivalent-1.0.1/Cargo.toml",
-      "metadata": null,
-      "publish": null,
-      "authors": [],
-      "categories": [
-        "data-structures",
-        "no-std"
-      ],
-      "keywords": [
-        "hashmap",
-        "no_std"
-      ],
-      "readme": "README.md",
-      "repository": "https://github.com/cuviper/equivalent",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2015",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.6"
-    },
-    {
       "name": "errno",
       "version": "0.3.9",
       "id": "registry+https://github.com/rust-lang/crates.io-index#errno@0.3.9",
@@ -2504,434 +2323,6 @@
       "links": null,
       "default_run": null,
       "rust_version": "1.81"
-    },
-    {
-      "name": "hashbrown",
-      "version": "0.15.0",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#hashbrown@0.15.0",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "A Rust port of Google's SwissTable hash map",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [
-        {
-          "name": "rustc-std-workspace-alloc",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0.0",
-          "kind": null,
-          "rename": "alloc",
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "allocator-api2",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.2.9",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": false,
-          "features": [
-            "alloc"
-          ],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "borsh",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.5.0",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": false,
-          "features": [
-            "derive"
-          ],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "compiler_builtins",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.1.2",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "rustc-std-workspace-core",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0.0",
-          "kind": null,
-          "rename": "core",
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "equivalent",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": false,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "foldhash",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.1.2",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": false,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "rayon",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "serde",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0.25",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": false,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "bumpalo",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^3.13.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [
-            "allocator-api2"
-          ],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "doc-comment",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.3.1",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "fnv",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0.7",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "lazy_static",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.4",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "rand",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.8.3",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [
-            "small_rng"
-          ],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "rayon",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "serde_test",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        }
-      ],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "hashbrown",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/hashbrown-0.15.0/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "equivalent_trait",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/hashbrown-0.15.0/tests/equivalent_trait.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "hasher",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/hashbrown-0.15.0/tests/hasher.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "rayon",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/hashbrown-0.15.0/tests/rayon.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "serde",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/hashbrown-0.15.0/tests/serde.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "set",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/hashbrown-0.15.0/tests/set.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "bench",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/hashbrown-0.15.0/benches/bench.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "insert_unique_unchecked",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/hashbrown-0.15.0/benches/insert_unique_unchecked.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "set_ops",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/hashbrown-0.15.0/benches/set_ops.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        }
-      ],
-      "features": {
-        "alloc": [
-          "dep:alloc"
-        ],
-        "allocator-api2": [
-          "dep:allocator-api2"
-        ],
-        "borsh": [
-          "dep:borsh"
-        ],
-        "compiler_builtins": [
-          "dep:compiler_builtins"
-        ],
-        "core": [
-          "dep:core"
-        ],
-        "default": [
-          "default-hasher",
-          "inline-more",
-          "allocator-api2",
-          "equivalent",
-          "raw-entry"
-        ],
-        "default-hasher": [
-          "dep:foldhash"
-        ],
-        "equivalent": [
-          "dep:equivalent"
-        ],
-        "inline-more": [],
-        "nightly": [
-          "allocator-api2?/nightly",
-          "bumpalo/allocator_api"
-        ],
-        "raw-entry": [],
-        "rayon": [
-          "dep:rayon"
-        ],
-        "rustc-dep-of-std": [
-          "nightly",
-          "core",
-          "compiler_builtins",
-          "alloc",
-          "rustc-internal-api",
-          "raw-entry"
-        ],
-        "rustc-internal-api": [],
-        "serde": [
-          "dep:serde"
-        ]
-      },
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/hashbrown-0.15.0/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "features": [
-              "nightly",
-              "rayon",
-              "serde",
-              "raw-entry"
-            ],
-            "rustdoc-args": [
-              "--generate-link-to-definition"
-            ]
-          }
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Amanieu d'Antras <amanieu@gmail.com>"
-      ],
-      "categories": [
-        "data-structures",
-        "no-std"
-      ],
-      "keywords": [
-        "hash",
-        "no_std",
-        "hashmap",
-        "swisstable"
-      ],
-      "readme": "README.md",
-      "repository": "https://github.com/rust-lang/hashbrown",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.63.0"
     },
     {
       "name": "icu_collections",
@@ -5488,367 +4879,6 @@
       "links": null,
       "default_run": null,
       "rust_version": "1.67"
-    },
-    {
-      "name": "indexmap",
-      "version": "2.6.0",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#indexmap@2.6.0",
-      "license": "Apache-2.0 OR MIT",
-      "license_file": null,
-      "description": "A hash table with consistent order and fast iteration.",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [
-        {
-          "name": "arbitrary",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": false,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "borsh",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.2",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": false,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "equivalent",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": false,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "hashbrown",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.15.0",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": false,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "quickcheck",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": false,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "rayon",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.5.3",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "rustc-rayon",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.5",
-          "kind": null,
-          "rename": "rustc-rayon",
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "serde",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": false,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "fnv",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "fxhash",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.2.1",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "itertools",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.13",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "lazy_static",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.3",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "quickcheck",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": false,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "rand",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.8",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [
-            "small_rng"
-          ],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "serde_derive",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        }
-      ],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "indexmap",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/indexmap-2.6.0/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "equivalent_trait",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/indexmap-2.6.0/tests/equivalent_trait.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "macros_full_path",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/indexmap-2.6.0/tests/macros_full_path.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "quick",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/indexmap-2.6.0/tests/quick.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "tests",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/indexmap-2.6.0/tests/tests.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "bench",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/indexmap-2.6.0/benches/bench.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "faststring",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/indexmap-2.6.0/benches/faststring.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        }
-      ],
-      "features": {
-        "arbitrary": [
-          "dep:arbitrary"
-        ],
-        "borsh": [
-          "dep:borsh"
-        ],
-        "default": [
-          "std"
-        ],
-        "quickcheck": [
-          "dep:quickcheck"
-        ],
-        "rayon": [
-          "dep:rayon"
-        ],
-        "rustc-rayon": [
-          "dep:rustc-rayon"
-        ],
-        "serde": [
-          "dep:serde"
-        ],
-        "std": [],
-        "test_debug": []
-      },
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/indexmap-2.6.0/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "features": [
-              "arbitrary",
-              "quickcheck",
-              "serde",
-              "borsh",
-              "rayon"
-            ],
-            "rustdoc-args": [
-              "--cfg",
-              "docsrs"
-            ]
-          }
-        },
-        "release": {
-          "allow-branch": [
-            "master"
-          ],
-          "sign-tag": true,
-          "tag-name": "{{version}}"
-        }
-      },
-      "publish": null,
-      "authors": [],
-      "categories": [
-        "data-structures",
-        "no-std"
-      ],
-      "keywords": [
-        "hashmap",
-        "no_std"
-      ],
-      "readme": "README.md",
-      "repository": "https://github.com/indexmap-rs/indexmap",
-      "homepage": null,
-      "documentation": "https://docs.rs/indexmap/",
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.63"
     },
     {
       "name": "itoa",
@@ -9424,152 +8454,6 @@
       "rust_version": "1.56"
     },
     {
-      "name": "serde_spanned",
-      "version": "0.6.8",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#serde_spanned@0.6.8",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "Serde-compatible spanned Value",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [
-        {
-          "name": "serde",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0.145",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "serde",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "serde-untagged",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.1",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "serde_derive",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        }
-      ],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "serde_spanned",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_spanned-0.6.8/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        }
-      ],
-      "features": {
-        "serde": [
-          "dep:serde"
-        ]
-      },
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_spanned-0.6.8/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "all-features": true,
-            "rustdoc-args": [
-              "--cfg",
-              "docsrs"
-            ]
-          }
-        },
-        "release": {
-          "pre-release-replacements": [
-            {
-              "file": "CHANGELOG.md",
-              "min": 1,
-              "replace": "{{version}}",
-              "search": "Unreleased"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "...{{tag_name}}",
-              "search": "\\.\\.\\.HEAD"
-            },
-            {
-              "file": "CHANGELOG.md",
-              "min": 1,
-              "replace": "{{date}}",
-              "search": "ReleaseDate"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "<!-- next-header -->\n## [Unreleased] - ReleaseDate\n",
-              "search": "<!-- next-header -->"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "<!-- next-url -->\n[Unreleased]: https://github.com/toml-rs/toml/compare/{{tag_name}}...HEAD",
-              "search": "<!-- next-url -->"
-            }
-          ]
-        }
-      },
-      "publish": null,
-      "authors": [],
-      "categories": [
-        "encoding",
-        "parser-implementations",
-        "parsing",
-        "config"
-      ],
-      "keywords": [
-        "serde",
-        "span"
-      ],
-      "readme": "README.md",
-      "repository": "https://github.com/toml-rs/toml",
-      "homepage": "https://github.com/toml-rs/toml",
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.65"
-    },
-    {
       "name": "shlex",
       "version": "1.3.0",
       "id": "registry+https://github.com/rust-lang/crates.io-index#shlex@1.3.0",
@@ -9869,8 +8753,8 @@
     },
     {
       "name": "syn",
-      "version": "2.0.85",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85",
+      "version": "2.0.87",
+      "id": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87",
       "license": "MIT OR Apache-2.0",
       "license_file": null,
       "description": "Parser for Rust source code",
@@ -10068,7 +8952,7 @@
             "lib"
           ],
           "name": "syn",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/src/lib.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/src/lib.rs",
           "edition": "2021",
           "doc": true,
           "doctest": true,
@@ -10082,7 +8966,7 @@
             "bin"
           ],
           "name": "regression",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/regression.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/regression.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10096,7 +8980,7 @@
             "bin"
           ],
           "name": "test_asyncness",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_asyncness.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_asyncness.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10110,7 +8994,7 @@
             "bin"
           ],
           "name": "test_attribute",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_attribute.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_attribute.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10124,7 +9008,7 @@
             "bin"
           ],
           "name": "test_derive_input",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_derive_input.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_derive_input.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10138,7 +9022,7 @@
             "bin"
           ],
           "name": "test_expr",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_expr.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_expr.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10152,7 +9036,7 @@
             "bin"
           ],
           "name": "test_generics",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_generics.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_generics.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10166,7 +9050,7 @@
             "bin"
           ],
           "name": "test_grouping",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_grouping.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_grouping.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10180,7 +9064,7 @@
             "bin"
           ],
           "name": "test_ident",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_ident.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_ident.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10194,7 +9078,7 @@
             "bin"
           ],
           "name": "test_item",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_item.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_item.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10208,7 +9092,7 @@
             "bin"
           ],
           "name": "test_iterators",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_iterators.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_iterators.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10222,7 +9106,7 @@
             "bin"
           ],
           "name": "test_lit",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_lit.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_lit.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10236,7 +9120,7 @@
             "bin"
           ],
           "name": "test_meta",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_meta.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_meta.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10250,7 +9134,7 @@
             "bin"
           ],
           "name": "test_parse_buffer",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_parse_buffer.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_parse_buffer.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10264,7 +9148,7 @@
             "bin"
           ],
           "name": "test_parse_quote",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_parse_quote.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_parse_quote.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10278,7 +9162,7 @@
             "bin"
           ],
           "name": "test_parse_stream",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_parse_stream.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_parse_stream.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10292,7 +9176,7 @@
             "bin"
           ],
           "name": "test_pat",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_pat.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_pat.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10306,7 +9190,7 @@
             "bin"
           ],
           "name": "test_path",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_path.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_path.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10320,7 +9204,7 @@
             "bin"
           ],
           "name": "test_precedence",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_precedence.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_precedence.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10334,7 +9218,7 @@
             "bin"
           ],
           "name": "test_receiver",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_receiver.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_receiver.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10348,7 +9232,7 @@
             "bin"
           ],
           "name": "test_round_trip",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_round_trip.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_round_trip.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10362,7 +9246,7 @@
             "bin"
           ],
           "name": "test_shebang",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_shebang.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_shebang.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10376,7 +9260,7 @@
             "bin"
           ],
           "name": "test_size",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_size.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_size.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10390,7 +9274,7 @@
             "bin"
           ],
           "name": "test_stmt",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_stmt.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_stmt.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10404,7 +9288,7 @@
             "bin"
           ],
           "name": "test_token_trees",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_token_trees.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_token_trees.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10418,7 +9302,7 @@
             "bin"
           ],
           "name": "test_ty",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_ty.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_ty.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10432,7 +9316,7 @@
             "bin"
           ],
           "name": "test_unparenthesize",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_unparenthesize.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_unparenthesize.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10446,7 +9330,7 @@
             "bin"
           ],
           "name": "test_visibility",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/test_visibility.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/test_visibility.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10460,7 +9344,7 @@
             "bin"
           ],
           "name": "zzz_stable",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/tests/zzz_stable.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/tests/zzz_stable.rs",
           "edition": "2021",
           "doc": false,
           "doctest": false,
@@ -10474,7 +9358,7 @@
             "bin"
           ],
           "name": "file",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/benches/file.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/benches/file.rs",
           "edition": "2021",
           "required-features": [
             "full",
@@ -10492,7 +9376,7 @@
             "bin"
           ],
           "name": "rust",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/benches/rust.rs",
+          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/benches/rust.rs",
           "edition": "2021",
           "required-features": [
             "full",
@@ -10530,7 +9414,7 @@
         "visit": [],
         "visit-mut": []
       },
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.85/Cargo.toml",
+      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/Cargo.toml",
       "metadata": {
         "docs": {
           "rs": {
@@ -11500,842 +10384,6 @@
       "rust_version": null
     },
     {
-      "name": "toml",
-      "version": "0.8.19",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#toml@0.8.19",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "A native Rust encoder and decoder of TOML-formatted files and streams. Provides\nimplementations of the standard Serialize/Deserialize traits for TOML data to\nfacilitate deserializing and serializing Rust structures.\n",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [
-        {
-          "name": "indexmap",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^2.0.0",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "serde",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0.145",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "serde_spanned",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.6.7",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [
-            "serde"
-          ],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "toml_datetime",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.6.8",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [
-            "serde"
-          ],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "toml_edit",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.22.20",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": false,
-          "features": [
-            "serde"
-          ],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "serde",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0.199",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [
-            "derive"
-          ],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "serde_json",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0.116",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "snapbox",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.6.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "toml-test-data",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.11.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "toml-test-harness",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.4.8",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        }
-      ],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "toml",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml-0.8.19/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "decode",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml-0.8.19/examples/decode.rs",
-          "edition": "2021",
-          "required-features": [
-            "parse",
-            "display"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "enum_external",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml-0.8.19/examples/enum_external.rs",
-          "edition": "2021",
-          "required-features": [
-            "parse",
-            "display"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "toml2json",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml-0.8.19/examples/toml2json.rs",
-          "edition": "2021",
-          "required-features": [
-            "parse",
-            "display"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "decoder",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml-0.8.19/tests/decoder.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "decoder_compliance",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml-0.8.19/tests/decoder_compliance.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "encoder",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml-0.8.19/tests/encoder.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "encoder_compliance",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml-0.8.19/tests/encoder_compliance.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "testsuite",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml-0.8.19/tests/testsuite/main.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        }
-      ],
-      "features": {
-        "default": [
-          "parse",
-          "display"
-        ],
-        "display": [
-          "dep:toml_edit",
-          "toml_edit?/display"
-        ],
-        "indexmap": [
-          "dep:indexmap"
-        ],
-        "parse": [
-          "dep:toml_edit",
-          "toml_edit?/parse"
-        ],
-        "preserve_order": [
-          "indexmap"
-        ]
-      },
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml-0.8.19/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "all-features": true,
-            "rustdoc-args": [
-              "--cfg",
-              "docsrs"
-            ]
-          }
-        },
-        "release": {
-          "pre-release-replacements": [
-            {
-              "file": "CHANGELOG.md",
-              "min": 1,
-              "replace": "{{version}}",
-              "search": "Unreleased"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "...{{tag_name}}",
-              "search": "\\.\\.\\.HEAD"
-            },
-            {
-              "file": "CHANGELOG.md",
-              "min": 1,
-              "replace": "{{date}}",
-              "search": "ReleaseDate"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "<!-- next-header -->\n## [Unreleased] - ReleaseDate\n",
-              "search": "<!-- next-header -->"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "<!-- next-url -->\n[Unreleased]: https://github.com/toml-rs/toml/compare/{{tag_name}}...HEAD",
-              "search": "<!-- next-url -->"
-            }
-          ]
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Alex Crichton <alex@alexcrichton.com>"
-      ],
-      "categories": [
-        "encoding",
-        "parser-implementations",
-        "parsing",
-        "config"
-      ],
-      "keywords": [
-        "encoding",
-        "toml"
-      ],
-      "readme": "README.md",
-      "repository": "https://github.com/toml-rs/toml",
-      "homepage": "https://github.com/toml-rs/toml",
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.65"
-    },
-    {
-      "name": "toml_datetime",
-      "version": "0.6.8",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#toml_datetime@0.6.8",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "A TOML-compatible datetime type",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [
-        {
-          "name": "serde",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0.145",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        }
-      ],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "toml_datetime",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_datetime-0.6.8/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        }
-      ],
-      "features": {
-        "serde": [
-          "dep:serde"
-        ]
-      },
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_datetime-0.6.8/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "all-features": true,
-            "rustdoc-args": [
-              "--cfg",
-              "docsrs"
-            ]
-          }
-        },
-        "release": {
-          "pre-release-replacements": [
-            {
-              "file": "CHANGELOG.md",
-              "min": 1,
-              "replace": "{{version}}",
-              "search": "Unreleased"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "...{{tag_name}}",
-              "search": "\\.\\.\\.HEAD"
-            },
-            {
-              "file": "CHANGELOG.md",
-              "min": 1,
-              "replace": "{{date}}",
-              "search": "ReleaseDate"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "<!-- next-header -->\n## [Unreleased] - ReleaseDate\n",
-              "search": "<!-- next-header -->"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "<!-- next-url -->\n[Unreleased]: https://github.com/toml-rs/toml/compare/{{tag_name}}...HEAD",
-              "search": "<!-- next-url -->"
-            }
-          ]
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Alex Crichton <alex@alexcrichton.com>"
-      ],
-      "categories": [
-        "encoding",
-        "parser-implementations",
-        "parsing",
-        "config"
-      ],
-      "keywords": [
-        "encoding",
-        "toml"
-      ],
-      "readme": "README.md",
-      "repository": "https://github.com/toml-rs/toml",
-      "homepage": "https://github.com/toml-rs/toml",
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.65"
-    },
-    {
-      "name": "toml_edit",
-      "version": "0.22.22",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#toml_edit@0.22.22",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "Yet another format-preserving TOML parser.",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [
-        {
-          "name": "indexmap",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^2.3.0",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [
-            "std"
-          ],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "kstring",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^2.0.0",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [
-            "max_inline"
-          ],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "serde",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0.145",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "serde_spanned",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.6.7",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [
-            "serde"
-          ],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "toml_datetime",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.6.8",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "winnow",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.6.18",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "libtest-mimic",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.7.2",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "proptest",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.5.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "serde_json",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0.116",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "snapbox",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.6.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "toml-test-data",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.11.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "toml-test-harness",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.4.8",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        }
-      ],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "toml_edit",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_edit-0.22.22/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "visit",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_edit-0.22.22/examples/visit.rs",
-          "edition": "2021",
-          "required-features": [
-            "parse",
-            "display"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "decoder_compliance",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_edit-0.22.22/tests/decoder_compliance.rs",
-          "edition": "2021",
-          "required-features": [
-            "parse"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "encoder_compliance",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_edit-0.22.22/tests/encoder_compliance.rs",
-          "edition": "2021",
-          "required-features": [
-            "parse",
-            "display"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "invalid",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_edit-0.22.22/tests/invalid.rs",
-          "edition": "2021",
-          "required-features": [
-            "parse",
-            "display"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "testsuite",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_edit-0.22.22/tests/testsuite/main.rs",
-          "edition": "2021",
-          "required-features": [
-            "parse",
-            "display"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": true
-        }
-      ],
-      "features": {
-        "default": [
-          "parse",
-          "display"
-        ],
-        "display": [],
-        "parse": [
-          "dep:winnow"
-        ],
-        "perf": [
-          "dep:kstring"
-        ],
-        "serde": [
-          "dep:serde",
-          "toml_datetime/serde",
-          "dep:serde_spanned"
-        ],
-        "unbounded": []
-      },
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/toml_edit-0.22.22/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "features": [
-              "serde"
-            ],
-            "rustdoc-args": [
-              "--cfg",
-              "docsrs"
-            ]
-          }
-        },
-        "release": {
-          "tag-name": "v{{version}}",
-          "pre-release-replacements": [
-            {
-              "file": "CHANGELOG.md",
-              "min": 1,
-              "replace": "{{version}}",
-              "search": "Unreleased"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "...{{tag_name}}",
-              "search": "\\.\\.\\.HEAD"
-            },
-            {
-              "file": "CHANGELOG.md",
-              "min": 1,
-              "replace": "{{date}}",
-              "search": "ReleaseDate"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "<!-- next-header -->\n## [Unreleased] - ReleaseDate\n",
-              "search": "<!-- next-header -->"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "<!-- next-url -->\n[Unreleased]: https://github.com/toml-rs/toml/compare/{{tag_name}}...HEAD",
-              "search": "<!-- next-url -->"
-            }
-          ]
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Andronik Ordian <write@reusable.software>",
-        "Ed Page <eopage@gmail.com>"
-      ],
-      "categories": [
-        "encoding",
-        "parser-implementations",
-        "parsing",
-        "config"
-      ],
-      "keywords": [
-        "encoding",
-        "toml"
-      ],
-      "readme": "README.md",
-      "repository": "https://github.com/toml-rs/toml",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.65"
-    },
-    {
       "name": "trimothy",
       "version": "0.3.1",
       "id": "registry+https://github.com/rust-lang/crates.io-index#trimothy@0.3.1",
@@ -12837,144 +10885,6 @@
       "links": null,
       "default_run": null,
       "rust_version": "1.36"
-    },
-    {
-      "name": "unicode-width",
-      "version": "0.2.0",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#unicode-width@0.2.0",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "Determine displayed width of `char` and `str` types\naccording to Unicode Standard Annex #11 rules.\n",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [
-        {
-          "name": "compiler_builtins",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.1",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "rustc-std-workspace-core",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0",
-          "kind": null,
-          "rename": "core",
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "rustc-std-workspace-std",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0",
-          "kind": null,
-          "rename": "std",
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        }
-      ],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "unicode_width",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/unicode-width-0.2.0/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "test"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "tests",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/unicode-width-0.2.0/tests/tests.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "benches",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/unicode-width-0.2.0/benches/benches.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        }
-      ],
-      "features": {
-        "cjk": [],
-        "compiler_builtins": [
-          "dep:compiler_builtins"
-        ],
-        "core": [
-          "dep:core"
-        ],
-        "default": [
-          "cjk"
-        ],
-        "no_std": [],
-        "rustc-dep-of-std": [
-          "std",
-          "core",
-          "compiler_builtins"
-        ],
-        "std": [
-          "dep:std"
-        ]
-      },
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/unicode-width-0.2.0/Cargo.toml",
-      "metadata": null,
-      "publish": null,
-      "authors": [
-        "kwantam <kwantam@gmail.com>",
-        "Manish Goregaokar <manishsmail@gmail.com>"
-      ],
-      "categories": [
-        "command-line-interface",
-        "internationalization",
-        "no-std::no-alloc",
-        "text-processing"
-      ],
-      "keywords": [
-        "text",
-        "width",
-        "unicode"
-      ],
-      "readme": "README.md",
-      "repository": "https://github.com/unicode-rs/unicode-width",
-      "homepage": "https://github.com/unicode-rs/unicode-width",
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": null
     },
     {
       "name": "url",
@@ -13526,2853 +11436,6 @@
       "links": null,
       "default_run": null,
       "rust_version": null
-    },
-    {
-      "name": "windows-sys",
-      "version": "0.52.0",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#windows-sys@0.52.0",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "Rust for Windows",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [
-        {
-          "name": "windows-targets",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.52.0",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        }
-      ],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "windows_sys",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows-sys-0.52.0/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        }
-      ],
-      "features": {
-        "Wdk": [],
-        "Wdk_Foundation": [
-          "Wdk"
-        ],
-        "Wdk_Graphics": [
-          "Wdk"
-        ],
-        "Wdk_Graphics_Direct3D": [
-          "Wdk_Graphics"
-        ],
-        "Wdk_Storage": [
-          "Wdk"
-        ],
-        "Wdk_Storage_FileSystem": [
-          "Wdk_Storage"
-        ],
-        "Wdk_Storage_FileSystem_Minifilters": [
-          "Wdk_Storage_FileSystem"
-        ],
-        "Wdk_System": [
-          "Wdk"
-        ],
-        "Wdk_System_IO": [
-          "Wdk_System"
-        ],
-        "Wdk_System_OfflineRegistry": [
-          "Wdk_System"
-        ],
-        "Wdk_System_Registry": [
-          "Wdk_System"
-        ],
-        "Wdk_System_SystemInformation": [
-          "Wdk_System"
-        ],
-        "Wdk_System_SystemServices": [
-          "Wdk_System"
-        ],
-        "Wdk_System_Threading": [
-          "Wdk_System"
-        ],
-        "Win32": [],
-        "Win32_Data": [
-          "Win32"
-        ],
-        "Win32_Data_HtmlHelp": [
-          "Win32_Data"
-        ],
-        "Win32_Data_RightsManagement": [
-          "Win32_Data"
-        ],
-        "Win32_Devices": [
-          "Win32"
-        ],
-        "Win32_Devices_AllJoyn": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_BiometricFramework": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Bluetooth": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Communication": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_DeviceAndDriverInstallation": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_DeviceQuery": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Display": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Enumeration": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Enumeration_Pnp": [
-          "Win32_Devices_Enumeration"
-        ],
-        "Win32_Devices_Fax": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_HumanInterfaceDevice": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_PortableDevices": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Properties": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Pwm": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Sensors": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_SerialCommunication": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Tapi": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Usb": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_WebServicesOnDevices": [
-          "Win32_Devices"
-        ],
-        "Win32_Foundation": [
-          "Win32"
-        ],
-        "Win32_Gaming": [
-          "Win32"
-        ],
-        "Win32_Globalization": [
-          "Win32"
-        ],
-        "Win32_Graphics": [
-          "Win32"
-        ],
-        "Win32_Graphics_Dwm": [
-          "Win32_Graphics"
-        ],
-        "Win32_Graphics_Gdi": [
-          "Win32_Graphics"
-        ],
-        "Win32_Graphics_GdiPlus": [
-          "Win32_Graphics"
-        ],
-        "Win32_Graphics_Hlsl": [
-          "Win32_Graphics"
-        ],
-        "Win32_Graphics_OpenGL": [
-          "Win32_Graphics"
-        ],
-        "Win32_Graphics_Printing": [
-          "Win32_Graphics"
-        ],
-        "Win32_Graphics_Printing_PrintTicket": [
-          "Win32_Graphics_Printing"
-        ],
-        "Win32_Management": [
-          "Win32"
-        ],
-        "Win32_Management_MobileDeviceManagementRegistration": [
-          "Win32_Management"
-        ],
-        "Win32_Media": [
-          "Win32"
-        ],
-        "Win32_Media_Audio": [
-          "Win32_Media"
-        ],
-        "Win32_Media_DxMediaObjects": [
-          "Win32_Media"
-        ],
-        "Win32_Media_KernelStreaming": [
-          "Win32_Media"
-        ],
-        "Win32_Media_Multimedia": [
-          "Win32_Media"
-        ],
-        "Win32_Media_Streaming": [
-          "Win32_Media"
-        ],
-        "Win32_Media_WindowsMediaFormat": [
-          "Win32_Media"
-        ],
-        "Win32_NetworkManagement": [
-          "Win32"
-        ],
-        "Win32_NetworkManagement_Dhcp": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_Dns": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_InternetConnectionWizard": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_IpHelper": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_Multicast": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_Ndis": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_NetBios": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_NetManagement": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_NetShell": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_NetworkDiagnosticsFramework": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_P2P": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_QoS": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_Rras": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_Snmp": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_WNet": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_WebDav": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_WiFi": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_WindowsConnectionManager": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_WindowsFilteringPlatform": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_WindowsFirewall": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_WindowsNetworkVirtualization": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_Networking": [
-          "Win32"
-        ],
-        "Win32_Networking_ActiveDirectory": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_Clustering": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_HttpServer": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_Ldap": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_WebSocket": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_WinHttp": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_WinInet": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_WinSock": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_WindowsWebServices": [
-          "Win32_Networking"
-        ],
-        "Win32_Security": [
-          "Win32"
-        ],
-        "Win32_Security_AppLocker": [
-          "Win32_Security"
-        ],
-        "Win32_Security_Authentication": [
-          "Win32_Security"
-        ],
-        "Win32_Security_Authentication_Identity": [
-          "Win32_Security_Authentication"
-        ],
-        "Win32_Security_Authorization": [
-          "Win32_Security"
-        ],
-        "Win32_Security_Credentials": [
-          "Win32_Security"
-        ],
-        "Win32_Security_Cryptography": [
-          "Win32_Security"
-        ],
-        "Win32_Security_Cryptography_Catalog": [
-          "Win32_Security_Cryptography"
-        ],
-        "Win32_Security_Cryptography_Certificates": [
-          "Win32_Security_Cryptography"
-        ],
-        "Win32_Security_Cryptography_Sip": [
-          "Win32_Security_Cryptography"
-        ],
-        "Win32_Security_Cryptography_UI": [
-          "Win32_Security_Cryptography"
-        ],
-        "Win32_Security_DiagnosticDataQuery": [
-          "Win32_Security"
-        ],
-        "Win32_Security_DirectoryServices": [
-          "Win32_Security"
-        ],
-        "Win32_Security_EnterpriseData": [
-          "Win32_Security"
-        ],
-        "Win32_Security_ExtensibleAuthenticationProtocol": [
-          "Win32_Security"
-        ],
-        "Win32_Security_Isolation": [
-          "Win32_Security"
-        ],
-        "Win32_Security_LicenseProtection": [
-          "Win32_Security"
-        ],
-        "Win32_Security_NetworkAccessProtection": [
-          "Win32_Security"
-        ],
-        "Win32_Security_WinTrust": [
-          "Win32_Security"
-        ],
-        "Win32_Security_WinWlx": [
-          "Win32_Security"
-        ],
-        "Win32_Storage": [
-          "Win32"
-        ],
-        "Win32_Storage_Cabinets": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_CloudFilters": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Compression": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_DistributedFileSystem": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_FileHistory": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_FileSystem": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Imapi": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_IndexServer": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_InstallableFileSystems": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_IscsiDisc": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Jet": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Nvme": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_OfflineFiles": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_OperationRecorder": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Packaging": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Packaging_Appx": [
-          "Win32_Storage_Packaging"
-        ],
-        "Win32_Storage_ProjectedFileSystem": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_StructuredStorage": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Vhd": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Xps": [
-          "Win32_Storage"
-        ],
-        "Win32_System": [
-          "Win32"
-        ],
-        "Win32_System_AddressBook": [
-          "Win32_System"
-        ],
-        "Win32_System_Antimalware": [
-          "Win32_System"
-        ],
-        "Win32_System_ApplicationInstallationAndServicing": [
-          "Win32_System"
-        ],
-        "Win32_System_ApplicationVerifier": [
-          "Win32_System"
-        ],
-        "Win32_System_ClrHosting": [
-          "Win32_System"
-        ],
-        "Win32_System_Com": [
-          "Win32_System"
-        ],
-        "Win32_System_Com_Marshal": [
-          "Win32_System_Com"
-        ],
-        "Win32_System_Com_StructuredStorage": [
-          "Win32_System_Com"
-        ],
-        "Win32_System_Com_Urlmon": [
-          "Win32_System_Com"
-        ],
-        "Win32_System_ComponentServices": [
-          "Win32_System"
-        ],
-        "Win32_System_Console": [
-          "Win32_System"
-        ],
-        "Win32_System_CorrelationVector": [
-          "Win32_System"
-        ],
-        "Win32_System_DataExchange": [
-          "Win32_System"
-        ],
-        "Win32_System_DeploymentServices": [
-          "Win32_System"
-        ],
-        "Win32_System_DeveloperLicensing": [
-          "Win32_System"
-        ],
-        "Win32_System_Diagnostics": [
-          "Win32_System"
-        ],
-        "Win32_System_Diagnostics_Ceip": [
-          "Win32_System_Diagnostics"
-        ],
-        "Win32_System_Diagnostics_Debug": [
-          "Win32_System_Diagnostics"
-        ],
-        "Win32_System_Diagnostics_Debug_Extensions": [
-          "Win32_System_Diagnostics_Debug"
-        ],
-        "Win32_System_Diagnostics_Etw": [
-          "Win32_System_Diagnostics"
-        ],
-        "Win32_System_Diagnostics_ProcessSnapshotting": [
-          "Win32_System_Diagnostics"
-        ],
-        "Win32_System_Diagnostics_ToolHelp": [
-          "Win32_System_Diagnostics"
-        ],
-        "Win32_System_DistributedTransactionCoordinator": [
-          "Win32_System"
-        ],
-        "Win32_System_Environment": [
-          "Win32_System"
-        ],
-        "Win32_System_ErrorReporting": [
-          "Win32_System"
-        ],
-        "Win32_System_EventCollector": [
-          "Win32_System"
-        ],
-        "Win32_System_EventLog": [
-          "Win32_System"
-        ],
-        "Win32_System_EventNotificationService": [
-          "Win32_System"
-        ],
-        "Win32_System_GroupPolicy": [
-          "Win32_System"
-        ],
-        "Win32_System_HostCompute": [
-          "Win32_System"
-        ],
-        "Win32_System_HostComputeNetwork": [
-          "Win32_System"
-        ],
-        "Win32_System_HostComputeSystem": [
-          "Win32_System"
-        ],
-        "Win32_System_Hypervisor": [
-          "Win32_System"
-        ],
-        "Win32_System_IO": [
-          "Win32_System"
-        ],
-        "Win32_System_Iis": [
-          "Win32_System"
-        ],
-        "Win32_System_Ioctl": [
-          "Win32_System"
-        ],
-        "Win32_System_JobObjects": [
-          "Win32_System"
-        ],
-        "Win32_System_Js": [
-          "Win32_System"
-        ],
-        "Win32_System_Kernel": [
-          "Win32_System"
-        ],
-        "Win32_System_LibraryLoader": [
-          "Win32_System"
-        ],
-        "Win32_System_Mailslots": [
-          "Win32_System"
-        ],
-        "Win32_System_Mapi": [
-          "Win32_System"
-        ],
-        "Win32_System_Memory": [
-          "Win32_System"
-        ],
-        "Win32_System_Memory_NonVolatile": [
-          "Win32_System_Memory"
-        ],
-        "Win32_System_MessageQueuing": [
-          "Win32_System"
-        ],
-        "Win32_System_MixedReality": [
-          "Win32_System"
-        ],
-        "Win32_System_Ole": [
-          "Win32_System"
-        ],
-        "Win32_System_PasswordManagement": [
-          "Win32_System"
-        ],
-        "Win32_System_Performance": [
-          "Win32_System"
-        ],
-        "Win32_System_Performance_HardwareCounterProfiling": [
-          "Win32_System_Performance"
-        ],
-        "Win32_System_Pipes": [
-          "Win32_System"
-        ],
-        "Win32_System_Power": [
-          "Win32_System"
-        ],
-        "Win32_System_ProcessStatus": [
-          "Win32_System"
-        ],
-        "Win32_System_Recovery": [
-          "Win32_System"
-        ],
-        "Win32_System_Registry": [
-          "Win32_System"
-        ],
-        "Win32_System_RemoteDesktop": [
-          "Win32_System"
-        ],
-        "Win32_System_RemoteManagement": [
-          "Win32_System"
-        ],
-        "Win32_System_RestartManager": [
-          "Win32_System"
-        ],
-        "Win32_System_Restore": [
-          "Win32_System"
-        ],
-        "Win32_System_Rpc": [
-          "Win32_System"
-        ],
-        "Win32_System_Search": [
-          "Win32_System"
-        ],
-        "Win32_System_Search_Common": [
-          "Win32_System_Search"
-        ],
-        "Win32_System_SecurityCenter": [
-          "Win32_System"
-        ],
-        "Win32_System_Services": [
-          "Win32_System"
-        ],
-        "Win32_System_SetupAndMigration": [
-          "Win32_System"
-        ],
-        "Win32_System_Shutdown": [
-          "Win32_System"
-        ],
-        "Win32_System_StationsAndDesktops": [
-          "Win32_System"
-        ],
-        "Win32_System_SubsystemForLinux": [
-          "Win32_System"
-        ],
-        "Win32_System_SystemInformation": [
-          "Win32_System"
-        ],
-        "Win32_System_SystemServices": [
-          "Win32_System"
-        ],
-        "Win32_System_Threading": [
-          "Win32_System"
-        ],
-        "Win32_System_Time": [
-          "Win32_System"
-        ],
-        "Win32_System_TpmBaseServices": [
-          "Win32_System"
-        ],
-        "Win32_System_UserAccessLogging": [
-          "Win32_System"
-        ],
-        "Win32_System_Variant": [
-          "Win32_System"
-        ],
-        "Win32_System_VirtualDosMachines": [
-          "Win32_System"
-        ],
-        "Win32_System_WindowsProgramming": [
-          "Win32_System"
-        ],
-        "Win32_System_Wmi": [
-          "Win32_System"
-        ],
-        "Win32_UI": [
-          "Win32"
-        ],
-        "Win32_UI_Accessibility": [
-          "Win32_UI"
-        ],
-        "Win32_UI_ColorSystem": [
-          "Win32_UI"
-        ],
-        "Win32_UI_Controls": [
-          "Win32_UI"
-        ],
-        "Win32_UI_Controls_Dialogs": [
-          "Win32_UI_Controls"
-        ],
-        "Win32_UI_HiDpi": [
-          "Win32_UI"
-        ],
-        "Win32_UI_Input": [
-          "Win32_UI"
-        ],
-        "Win32_UI_Input_Ime": [
-          "Win32_UI_Input"
-        ],
-        "Win32_UI_Input_KeyboardAndMouse": [
-          "Win32_UI_Input"
-        ],
-        "Win32_UI_Input_Pointer": [
-          "Win32_UI_Input"
-        ],
-        "Win32_UI_Input_Touch": [
-          "Win32_UI_Input"
-        ],
-        "Win32_UI_Input_XboxController": [
-          "Win32_UI_Input"
-        ],
-        "Win32_UI_InteractionContext": [
-          "Win32_UI"
-        ],
-        "Win32_UI_Magnification": [
-          "Win32_UI"
-        ],
-        "Win32_UI_Shell": [
-          "Win32_UI"
-        ],
-        "Win32_UI_Shell_PropertiesSystem": [
-          "Win32_UI_Shell"
-        ],
-        "Win32_UI_TabletPC": [
-          "Win32_UI"
-        ],
-        "Win32_UI_TextServices": [
-          "Win32_UI"
-        ],
-        "Win32_UI_WindowsAndMessaging": [
-          "Win32_UI"
-        ],
-        "Win32_Web": [
-          "Win32"
-        ],
-        "Win32_Web_InternetExplorer": [
-          "Win32_Web"
-        ],
-        "default": [],
-        "docs": []
-      },
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows-sys-0.52.0/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "all-features": true,
-            "default-target": "x86_64-pc-windows-msvc",
-            "targets": []
-          }
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Microsoft"
-      ],
-      "categories": [
-        "os::windows-apis"
-      ],
-      "keywords": [],
-      "readme": "readme.md",
-      "repository": "https://github.com/microsoft/windows-rs",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.56"
-    },
-    {
-      "name": "windows-sys",
-      "version": "0.59.0",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#windows-sys@0.59.0",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "Rust for Windows",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [
-        {
-          "name": "windows-targets",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.52.6",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        }
-      ],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "windows_sys",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows-sys-0.59.0/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": false,
-          "test": false
-        }
-      ],
-      "features": {
-        "Wdk": [
-          "Win32_Foundation"
-        ],
-        "Wdk_Devices": [
-          "Wdk"
-        ],
-        "Wdk_Devices_Bluetooth": [
-          "Wdk_Devices"
-        ],
-        "Wdk_Devices_HumanInterfaceDevice": [
-          "Wdk_Devices"
-        ],
-        "Wdk_Foundation": [
-          "Wdk"
-        ],
-        "Wdk_Graphics": [
-          "Wdk"
-        ],
-        "Wdk_Graphics_Direct3D": [
-          "Wdk_Graphics"
-        ],
-        "Wdk_NetworkManagement": [
-          "Wdk"
-        ],
-        "Wdk_NetworkManagement_Ndis": [
-          "Wdk_NetworkManagement"
-        ],
-        "Wdk_NetworkManagement_WindowsFilteringPlatform": [
-          "Wdk_NetworkManagement"
-        ],
-        "Wdk_Storage": [
-          "Wdk"
-        ],
-        "Wdk_Storage_FileSystem": [
-          "Wdk_Storage"
-        ],
-        "Wdk_Storage_FileSystem_Minifilters": [
-          "Wdk_Storage_FileSystem"
-        ],
-        "Wdk_System": [
-          "Wdk"
-        ],
-        "Wdk_System_IO": [
-          "Wdk_System"
-        ],
-        "Wdk_System_Memory": [
-          "Wdk_System"
-        ],
-        "Wdk_System_OfflineRegistry": [
-          "Wdk_System"
-        ],
-        "Wdk_System_Registry": [
-          "Wdk_System"
-        ],
-        "Wdk_System_SystemInformation": [
-          "Wdk_System"
-        ],
-        "Wdk_System_SystemServices": [
-          "Wdk_System"
-        ],
-        "Wdk_System_Threading": [
-          "Wdk_System"
-        ],
-        "Win32": [
-          "Win32_Foundation"
-        ],
-        "Win32_Data": [
-          "Win32"
-        ],
-        "Win32_Data_HtmlHelp": [
-          "Win32_Data"
-        ],
-        "Win32_Data_RightsManagement": [
-          "Win32_Data"
-        ],
-        "Win32_Devices": [
-          "Win32"
-        ],
-        "Win32_Devices_AllJoyn": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_BiometricFramework": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Bluetooth": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Communication": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_DeviceAndDriverInstallation": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_DeviceQuery": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Display": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Enumeration": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Enumeration_Pnp": [
-          "Win32_Devices_Enumeration"
-        ],
-        "Win32_Devices_Fax": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_HumanInterfaceDevice": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_PortableDevices": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Properties": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Pwm": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Sensors": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_SerialCommunication": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Tapi": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_Usb": [
-          "Win32_Devices"
-        ],
-        "Win32_Devices_WebServicesOnDevices": [
-          "Win32_Devices"
-        ],
-        "Win32_Foundation": [
-          "Win32"
-        ],
-        "Win32_Gaming": [
-          "Win32"
-        ],
-        "Win32_Globalization": [
-          "Win32"
-        ],
-        "Win32_Graphics": [
-          "Win32"
-        ],
-        "Win32_Graphics_Dwm": [
-          "Win32_Graphics"
-        ],
-        "Win32_Graphics_Gdi": [
-          "Win32_Graphics"
-        ],
-        "Win32_Graphics_GdiPlus": [
-          "Win32_Graphics"
-        ],
-        "Win32_Graphics_Hlsl": [
-          "Win32_Graphics"
-        ],
-        "Win32_Graphics_OpenGL": [
-          "Win32_Graphics"
-        ],
-        "Win32_Graphics_Printing": [
-          "Win32_Graphics"
-        ],
-        "Win32_Graphics_Printing_PrintTicket": [
-          "Win32_Graphics_Printing"
-        ],
-        "Win32_Management": [
-          "Win32"
-        ],
-        "Win32_Management_MobileDeviceManagementRegistration": [
-          "Win32_Management"
-        ],
-        "Win32_Media": [
-          "Win32"
-        ],
-        "Win32_Media_Audio": [
-          "Win32_Media"
-        ],
-        "Win32_Media_DxMediaObjects": [
-          "Win32_Media"
-        ],
-        "Win32_Media_KernelStreaming": [
-          "Win32_Media"
-        ],
-        "Win32_Media_Multimedia": [
-          "Win32_Media"
-        ],
-        "Win32_Media_Streaming": [
-          "Win32_Media"
-        ],
-        "Win32_Media_WindowsMediaFormat": [
-          "Win32_Media"
-        ],
-        "Win32_NetworkManagement": [
-          "Win32"
-        ],
-        "Win32_NetworkManagement_Dhcp": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_Dns": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_InternetConnectionWizard": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_IpHelper": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_Multicast": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_Ndis": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_NetBios": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_NetManagement": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_NetShell": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_NetworkDiagnosticsFramework": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_P2P": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_QoS": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_Rras": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_Snmp": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_WNet": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_WebDav": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_WiFi": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_WindowsConnectionManager": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_WindowsFilteringPlatform": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_WindowsFirewall": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_NetworkManagement_WindowsNetworkVirtualization": [
-          "Win32_NetworkManagement"
-        ],
-        "Win32_Networking": [
-          "Win32"
-        ],
-        "Win32_Networking_ActiveDirectory": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_Clustering": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_HttpServer": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_Ldap": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_WebSocket": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_WinHttp": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_WinInet": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_WinSock": [
-          "Win32_Networking"
-        ],
-        "Win32_Networking_WindowsWebServices": [
-          "Win32_Networking"
-        ],
-        "Win32_Security": [
-          "Win32"
-        ],
-        "Win32_Security_AppLocker": [
-          "Win32_Security"
-        ],
-        "Win32_Security_Authentication": [
-          "Win32_Security"
-        ],
-        "Win32_Security_Authentication_Identity": [
-          "Win32_Security_Authentication"
-        ],
-        "Win32_Security_Authorization": [
-          "Win32_Security"
-        ],
-        "Win32_Security_Credentials": [
-          "Win32_Security"
-        ],
-        "Win32_Security_Cryptography": [
-          "Win32_Security"
-        ],
-        "Win32_Security_Cryptography_Catalog": [
-          "Win32_Security_Cryptography"
-        ],
-        "Win32_Security_Cryptography_Certificates": [
-          "Win32_Security_Cryptography"
-        ],
-        "Win32_Security_Cryptography_Sip": [
-          "Win32_Security_Cryptography"
-        ],
-        "Win32_Security_Cryptography_UI": [
-          "Win32_Security_Cryptography"
-        ],
-        "Win32_Security_DiagnosticDataQuery": [
-          "Win32_Security"
-        ],
-        "Win32_Security_DirectoryServices": [
-          "Win32_Security"
-        ],
-        "Win32_Security_EnterpriseData": [
-          "Win32_Security"
-        ],
-        "Win32_Security_ExtensibleAuthenticationProtocol": [
-          "Win32_Security"
-        ],
-        "Win32_Security_Isolation": [
-          "Win32_Security"
-        ],
-        "Win32_Security_LicenseProtection": [
-          "Win32_Security"
-        ],
-        "Win32_Security_NetworkAccessProtection": [
-          "Win32_Security"
-        ],
-        "Win32_Security_WinTrust": [
-          "Win32_Security"
-        ],
-        "Win32_Security_WinWlx": [
-          "Win32_Security"
-        ],
-        "Win32_Storage": [
-          "Win32"
-        ],
-        "Win32_Storage_Cabinets": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_CloudFilters": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Compression": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_DistributedFileSystem": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_FileHistory": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_FileSystem": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Imapi": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_IndexServer": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_InstallableFileSystems": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_IscsiDisc": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Jet": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Nvme": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_OfflineFiles": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_OperationRecorder": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Packaging": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Packaging_Appx": [
-          "Win32_Storage_Packaging"
-        ],
-        "Win32_Storage_ProjectedFileSystem": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_StructuredStorage": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Vhd": [
-          "Win32_Storage"
-        ],
-        "Win32_Storage_Xps": [
-          "Win32_Storage"
-        ],
-        "Win32_System": [
-          "Win32"
-        ],
-        "Win32_System_AddressBook": [
-          "Win32_System"
-        ],
-        "Win32_System_Antimalware": [
-          "Win32_System"
-        ],
-        "Win32_System_ApplicationInstallationAndServicing": [
-          "Win32_System"
-        ],
-        "Win32_System_ApplicationVerifier": [
-          "Win32_System"
-        ],
-        "Win32_System_ClrHosting": [
-          "Win32_System"
-        ],
-        "Win32_System_Com": [
-          "Win32_System"
-        ],
-        "Win32_System_Com_Marshal": [
-          "Win32_System_Com"
-        ],
-        "Win32_System_Com_StructuredStorage": [
-          "Win32_System_Com"
-        ],
-        "Win32_System_Com_Urlmon": [
-          "Win32_System_Com"
-        ],
-        "Win32_System_ComponentServices": [
-          "Win32_System"
-        ],
-        "Win32_System_Console": [
-          "Win32_System"
-        ],
-        "Win32_System_CorrelationVector": [
-          "Win32_System"
-        ],
-        "Win32_System_DataExchange": [
-          "Win32_System"
-        ],
-        "Win32_System_DeploymentServices": [
-          "Win32_System"
-        ],
-        "Win32_System_DeveloperLicensing": [
-          "Win32_System"
-        ],
-        "Win32_System_Diagnostics": [
-          "Win32_System"
-        ],
-        "Win32_System_Diagnostics_Ceip": [
-          "Win32_System_Diagnostics"
-        ],
-        "Win32_System_Diagnostics_Debug": [
-          "Win32_System_Diagnostics"
-        ],
-        "Win32_System_Diagnostics_Debug_Extensions": [
-          "Win32_System_Diagnostics_Debug"
-        ],
-        "Win32_System_Diagnostics_Etw": [
-          "Win32_System_Diagnostics"
-        ],
-        "Win32_System_Diagnostics_ProcessSnapshotting": [
-          "Win32_System_Diagnostics"
-        ],
-        "Win32_System_Diagnostics_ToolHelp": [
-          "Win32_System_Diagnostics"
-        ],
-        "Win32_System_Diagnostics_TraceLogging": [
-          "Win32_System_Diagnostics"
-        ],
-        "Win32_System_DistributedTransactionCoordinator": [
-          "Win32_System"
-        ],
-        "Win32_System_Environment": [
-          "Win32_System"
-        ],
-        "Win32_System_ErrorReporting": [
-          "Win32_System"
-        ],
-        "Win32_System_EventCollector": [
-          "Win32_System"
-        ],
-        "Win32_System_EventLog": [
-          "Win32_System"
-        ],
-        "Win32_System_EventNotificationService": [
-          "Win32_System"
-        ],
-        "Win32_System_GroupPolicy": [
-          "Win32_System"
-        ],
-        "Win32_System_HostCompute": [
-          "Win32_System"
-        ],
-        "Win32_System_HostComputeNetwork": [
-          "Win32_System"
-        ],
-        "Win32_System_HostComputeSystem": [
-          "Win32_System"
-        ],
-        "Win32_System_Hypervisor": [
-          "Win32_System"
-        ],
-        "Win32_System_IO": [
-          "Win32_System"
-        ],
-        "Win32_System_Iis": [
-          "Win32_System"
-        ],
-        "Win32_System_Ioctl": [
-          "Win32_System"
-        ],
-        "Win32_System_JobObjects": [
-          "Win32_System"
-        ],
-        "Win32_System_Js": [
-          "Win32_System"
-        ],
-        "Win32_System_Kernel": [
-          "Win32_System"
-        ],
-        "Win32_System_LibraryLoader": [
-          "Win32_System"
-        ],
-        "Win32_System_Mailslots": [
-          "Win32_System"
-        ],
-        "Win32_System_Mapi": [
-          "Win32_System"
-        ],
-        "Win32_System_Memory": [
-          "Win32_System"
-        ],
-        "Win32_System_Memory_NonVolatile": [
-          "Win32_System_Memory"
-        ],
-        "Win32_System_MessageQueuing": [
-          "Win32_System"
-        ],
-        "Win32_System_MixedReality": [
-          "Win32_System"
-        ],
-        "Win32_System_Ole": [
-          "Win32_System"
-        ],
-        "Win32_System_PasswordManagement": [
-          "Win32_System"
-        ],
-        "Win32_System_Performance": [
-          "Win32_System"
-        ],
-        "Win32_System_Performance_HardwareCounterProfiling": [
-          "Win32_System_Performance"
-        ],
-        "Win32_System_Pipes": [
-          "Win32_System"
-        ],
-        "Win32_System_Power": [
-          "Win32_System"
-        ],
-        "Win32_System_ProcessStatus": [
-          "Win32_System"
-        ],
-        "Win32_System_Recovery": [
-          "Win32_System"
-        ],
-        "Win32_System_Registry": [
-          "Win32_System"
-        ],
-        "Win32_System_RemoteDesktop": [
-          "Win32_System"
-        ],
-        "Win32_System_RemoteManagement": [
-          "Win32_System"
-        ],
-        "Win32_System_RestartManager": [
-          "Win32_System"
-        ],
-        "Win32_System_Restore": [
-          "Win32_System"
-        ],
-        "Win32_System_Rpc": [
-          "Win32_System"
-        ],
-        "Win32_System_Search": [
-          "Win32_System"
-        ],
-        "Win32_System_Search_Common": [
-          "Win32_System_Search"
-        ],
-        "Win32_System_SecurityCenter": [
-          "Win32_System"
-        ],
-        "Win32_System_Services": [
-          "Win32_System"
-        ],
-        "Win32_System_SetupAndMigration": [
-          "Win32_System"
-        ],
-        "Win32_System_Shutdown": [
-          "Win32_System"
-        ],
-        "Win32_System_StationsAndDesktops": [
-          "Win32_System"
-        ],
-        "Win32_System_SubsystemForLinux": [
-          "Win32_System"
-        ],
-        "Win32_System_SystemInformation": [
-          "Win32_System"
-        ],
-        "Win32_System_SystemServices": [
-          "Win32_System"
-        ],
-        "Win32_System_Threading": [
-          "Win32_System"
-        ],
-        "Win32_System_Time": [
-          "Win32_System"
-        ],
-        "Win32_System_TpmBaseServices": [
-          "Win32_System"
-        ],
-        "Win32_System_UserAccessLogging": [
-          "Win32_System"
-        ],
-        "Win32_System_Variant": [
-          "Win32_System"
-        ],
-        "Win32_System_VirtualDosMachines": [
-          "Win32_System"
-        ],
-        "Win32_System_WindowsProgramming": [
-          "Win32_System"
-        ],
-        "Win32_System_Wmi": [
-          "Win32_System"
-        ],
-        "Win32_UI": [
-          "Win32"
-        ],
-        "Win32_UI_Accessibility": [
-          "Win32_UI"
-        ],
-        "Win32_UI_ColorSystem": [
-          "Win32_UI"
-        ],
-        "Win32_UI_Controls": [
-          "Win32_UI"
-        ],
-        "Win32_UI_Controls_Dialogs": [
-          "Win32_UI_Controls"
-        ],
-        "Win32_UI_HiDpi": [
-          "Win32_UI"
-        ],
-        "Win32_UI_Input": [
-          "Win32_UI"
-        ],
-        "Win32_UI_Input_Ime": [
-          "Win32_UI_Input"
-        ],
-        "Win32_UI_Input_KeyboardAndMouse": [
-          "Win32_UI_Input"
-        ],
-        "Win32_UI_Input_Pointer": [
-          "Win32_UI_Input"
-        ],
-        "Win32_UI_Input_Touch": [
-          "Win32_UI_Input"
-        ],
-        "Win32_UI_Input_XboxController": [
-          "Win32_UI_Input"
-        ],
-        "Win32_UI_InteractionContext": [
-          "Win32_UI"
-        ],
-        "Win32_UI_Magnification": [
-          "Win32_UI"
-        ],
-        "Win32_UI_Shell": [
-          "Win32_UI"
-        ],
-        "Win32_UI_Shell_Common": [
-          "Win32_UI_Shell"
-        ],
-        "Win32_UI_Shell_PropertiesSystem": [
-          "Win32_UI_Shell"
-        ],
-        "Win32_UI_TabletPC": [
-          "Win32_UI"
-        ],
-        "Win32_UI_TextServices": [
-          "Win32_UI"
-        ],
-        "Win32_UI_WindowsAndMessaging": [
-          "Win32_UI"
-        ],
-        "Win32_Web": [
-          "Win32"
-        ],
-        "Win32_Web_InternetExplorer": [
-          "Win32_Web"
-        ],
-        "default": [],
-        "docs": []
-      },
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows-sys-0.59.0/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "all-features": true,
-            "default-target": "x86_64-pc-windows-msvc",
-            "targets": []
-          }
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Microsoft"
-      ],
-      "categories": [
-        "os::windows-apis"
-      ],
-      "keywords": [],
-      "readme": "readme.md",
-      "repository": "https://github.com/microsoft/windows-rs",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.60"
-    },
-    {
-      "name": "windows-targets",
-      "version": "0.52.6",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#windows-targets@0.52.6",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "Import libs for Windows",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [
-        {
-          "name": "windows_aarch64_gnullvm",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.52.6",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": "aarch64-pc-windows-gnullvm",
-          "registry": null
-        },
-        {
-          "name": "windows_x86_64_msvc",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.52.6",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": "cfg(all(any(target_arch = \"x86_64\", target_arch = \"arm64ec\"), target_env = \"msvc\", not(windows_raw_dylib)))",
-          "registry": null
-        },
-        {
-          "name": "windows_aarch64_msvc",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.52.6",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": "cfg(all(target_arch = \"aarch64\", target_env = \"msvc\", not(windows_raw_dylib)))",
-          "registry": null
-        },
-        {
-          "name": "windows_i686_gnu",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.52.6",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": "cfg(all(target_arch = \"x86\", target_env = \"gnu\", not(target_abi = \"llvm\"), not(windows_raw_dylib)))",
-          "registry": null
-        },
-        {
-          "name": "windows_i686_msvc",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.52.6",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": "cfg(all(target_arch = \"x86\", target_env = \"msvc\", not(windows_raw_dylib)))",
-          "registry": null
-        },
-        {
-          "name": "windows_x86_64_gnu",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.52.6",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": "cfg(all(target_arch = \"x86_64\", target_env = \"gnu\", not(target_abi = \"llvm\"), not(windows_raw_dylib)))",
-          "registry": null
-        },
-        {
-          "name": "windows_i686_gnullvm",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.52.6",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": "i686-pc-windows-gnullvm",
-          "registry": null
-        },
-        {
-          "name": "windows_x86_64_gnullvm",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.52.6",
-          "kind": null,
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": "x86_64-pc-windows-gnullvm",
-          "registry": null
-        }
-      ],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "windows_targets",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows-targets-0.52.6/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        }
-      ],
-      "features": {},
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows-targets-0.52.6/Cargo.toml",
-      "metadata": null,
-      "publish": null,
-      "authors": [
-        "Microsoft"
-      ],
-      "categories": [],
-      "keywords": [],
-      "readme": "readme.md",
-      "repository": "https://github.com/microsoft/windows-rs",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.56"
-    },
-    {
-      "name": "windows_aarch64_gnullvm",
-      "version": "0.52.6",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#windows_aarch64_gnullvm@0.52.6",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "Import lib for Windows",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "windows_aarch64_gnullvm",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_aarch64_gnullvm-0.52.6/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "custom-build"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "build-script-build",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_aarch64_gnullvm-0.52.6/build.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        }
-      ],
-      "features": {},
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_aarch64_gnullvm-0.52.6/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "default-target": "x86_64-pc-windows-msvc",
-            "targets": []
-          }
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Microsoft"
-      ],
-      "categories": [],
-      "keywords": [],
-      "readme": null,
-      "repository": "https://github.com/microsoft/windows-rs",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.56"
-    },
-    {
-      "name": "windows_aarch64_msvc",
-      "version": "0.52.6",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#windows_aarch64_msvc@0.52.6",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "Import lib for Windows",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "windows_aarch64_msvc",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_aarch64_msvc-0.52.6/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "custom-build"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "build-script-build",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_aarch64_msvc-0.52.6/build.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        }
-      ],
-      "features": {},
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_aarch64_msvc-0.52.6/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "default-target": "x86_64-pc-windows-msvc",
-            "targets": []
-          }
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Microsoft"
-      ],
-      "categories": [],
-      "keywords": [],
-      "readme": null,
-      "repository": "https://github.com/microsoft/windows-rs",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.56"
-    },
-    {
-      "name": "windows_i686_gnu",
-      "version": "0.52.6",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#windows_i686_gnu@0.52.6",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "Import lib for Windows",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "windows_i686_gnu",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_i686_gnu-0.52.6/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "custom-build"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "build-script-build",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_i686_gnu-0.52.6/build.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        }
-      ],
-      "features": {},
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_i686_gnu-0.52.6/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "default-target": "x86_64-pc-windows-msvc",
-            "targets": []
-          }
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Microsoft"
-      ],
-      "categories": [],
-      "keywords": [],
-      "readme": null,
-      "repository": "https://github.com/microsoft/windows-rs",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.56"
-    },
-    {
-      "name": "windows_i686_gnullvm",
-      "version": "0.52.6",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#windows_i686_gnullvm@0.52.6",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "Import lib for Windows",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "windows_i686_gnullvm",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_i686_gnullvm-0.52.6/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "custom-build"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "build-script-build",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_i686_gnullvm-0.52.6/build.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        }
-      ],
-      "features": {},
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_i686_gnullvm-0.52.6/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "default-target": "x86_64-pc-windows-msvc",
-            "targets": []
-          }
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Microsoft"
-      ],
-      "categories": [],
-      "keywords": [],
-      "readme": null,
-      "repository": "https://github.com/microsoft/windows-rs",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.56"
-    },
-    {
-      "name": "windows_i686_msvc",
-      "version": "0.52.6",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#windows_i686_msvc@0.52.6",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "Import lib for Windows",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "windows_i686_msvc",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_i686_msvc-0.52.6/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "custom-build"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "build-script-build",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_i686_msvc-0.52.6/build.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        }
-      ],
-      "features": {},
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_i686_msvc-0.52.6/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "default-target": "x86_64-pc-windows-msvc",
-            "targets": []
-          }
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Microsoft"
-      ],
-      "categories": [],
-      "keywords": [],
-      "readme": null,
-      "repository": "https://github.com/microsoft/windows-rs",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.56"
-    },
-    {
-      "name": "windows_x86_64_gnu",
-      "version": "0.52.6",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#windows_x86_64_gnu@0.52.6",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "Import lib for Windows",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "windows_x86_64_gnu",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_x86_64_gnu-0.52.6/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "custom-build"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "build-script-build",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_x86_64_gnu-0.52.6/build.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        }
-      ],
-      "features": {},
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_x86_64_gnu-0.52.6/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "default-target": "x86_64-pc-windows-msvc",
-            "targets": []
-          }
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Microsoft"
-      ],
-      "categories": [],
-      "keywords": [],
-      "readme": null,
-      "repository": "https://github.com/microsoft/windows-rs",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.56"
-    },
-    {
-      "name": "windows_x86_64_gnullvm",
-      "version": "0.52.6",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#windows_x86_64_gnullvm@0.52.6",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "Import lib for Windows",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "windows_x86_64_gnullvm",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_x86_64_gnullvm-0.52.6/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "custom-build"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "build-script-build",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_x86_64_gnullvm-0.52.6/build.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        }
-      ],
-      "features": {},
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_x86_64_gnullvm-0.52.6/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "default-target": "x86_64-pc-windows-msvc",
-            "targets": []
-          }
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Microsoft"
-      ],
-      "categories": [],
-      "keywords": [],
-      "readme": null,
-      "repository": "https://github.com/microsoft/windows-rs",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.56"
-    },
-    {
-      "name": "windows_x86_64_msvc",
-      "version": "0.52.6",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#windows_x86_64_msvc@0.52.6",
-      "license": "MIT OR Apache-2.0",
-      "license_file": null,
-      "description": "Import lib for Windows",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "windows_x86_64_msvc",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_x86_64_msvc-0.52.6/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "custom-build"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "build-script-build",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_x86_64_msvc-0.52.6/build.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        }
-      ],
-      "features": {},
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/windows_x86_64_msvc-0.52.6/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "default-target": "x86_64-pc-windows-msvc",
-            "targets": []
-          }
-        }
-      },
-      "publish": null,
-      "authors": [
-        "Microsoft"
-      ],
-      "categories": [],
-      "keywords": [],
-      "readme": null,
-      "repository": "https://github.com/microsoft/windows-rs",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.56"
-    },
-    {
-      "name": "winnow",
-      "version": "0.6.20",
-      "id": "registry+https://github.com/rust-lang/crates.io-index#winnow@0.6.20",
-      "license": "MIT",
-      "license_file": null,
-      "description": "A byte-oriented, zero-copy, parser combinators library",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "dependencies": [
-        {
-          "name": "anstream",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.3.2",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "anstyle",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0.1",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "is-terminal",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.4.9",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "memchr",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^2.5",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": false,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "terminal_size",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.4.0",
-          "kind": null,
-          "rename": null,
-          "optional": true,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "annotate-snippets",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.11.3",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "anyhow",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0.86",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "automod",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.0.14",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "circular",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.3.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "criterion",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.5.1",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "doc-comment",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.3",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "lexopt",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.3.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "proptest",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.2.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "rustc-hash",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^1.1.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "snapbox",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.6.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [
-            "examples"
-          ],
-          "target": null,
-          "registry": null
-        },
-        {
-          "name": "term-transcript",
-          "source": "registry+https://github.com/rust-lang/crates.io-index",
-          "req": "^0.2.0",
-          "kind": "dev",
-          "rename": null,
-          "optional": false,
-          "uses_default_features": true,
-          "features": [],
-          "target": null,
-          "registry": null
-        }
-      ],
-      "targets": [
-        {
-          "kind": [
-            "lib"
-          ],
-          "crate_types": [
-            "lib"
-          ],
-          "name": "winnow",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/src/lib.rs",
-          "edition": "2021",
-          "doc": true,
-          "doctest": true,
-          "test": true
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "arithmetic",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/arithmetic/main.rs",
-          "edition": "2021",
-          "required-features": [
-            "alloc"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "css",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/css/main.rs",
-          "edition": "2021",
-          "required-features": [
-            "alloc"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "custom_error",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/custom_error.rs",
-          "edition": "2021",
-          "required-features": [
-            "alloc"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "http",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/http/main.rs",
-          "edition": "2021",
-          "required-features": [
-            "alloc"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "ini",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/ini/main.rs",
-          "edition": "2021",
-          "required-features": [
-            "std"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "iterator",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/iterator.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "json",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/json/main.rs",
-          "edition": "2021",
-          "required-features": [
-            "std"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "json_iterator",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/json_iterator.rs",
-          "edition": "2021",
-          "required-features": [
-            "std"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "ndjson",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/ndjson/main.rs",
-          "edition": "2021",
-          "required-features": [
-            "std"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": true
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "s_expression",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/s_expression/main.rs",
-          "edition": "2021",
-          "required-features": [
-            "alloc"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "example"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "string",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/string/main.rs",
-          "edition": "2021",
-          "required-features": [
-            "alloc"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "arithmetic",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/arithmetic/bench.rs",
-          "edition": "2021",
-          "required-features": [
-            "alloc"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "contains_token",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/benches/contains_token.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "find_slice",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/benches/find_slice.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "http",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/http/bench.rs",
-          "edition": "2021",
-          "required-features": [
-            "alloc"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "ini",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/ini/bench.rs",
-          "edition": "2021",
-          "required-features": [
-            "std"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "iter",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/benches/iter.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "json",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/examples/json/bench.rs",
-          "edition": "2021",
-          "required-features": [
-            "std"
-          ],
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "next_slice",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/benches/next_slice.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        },
-        {
-          "kind": [
-            "bench"
-          ],
-          "crate_types": [
-            "bin"
-          ],
-          "name": "number",
-          "src_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/benches/number.rs",
-          "edition": "2021",
-          "doc": false,
-          "doctest": false,
-          "test": false
-        }
-      ],
-      "features": {
-        "alloc": [],
-        "debug": [
-          "std",
-          "dep:anstream",
-          "dep:anstyle",
-          "dep:is-terminal",
-          "dep:terminal_size"
-        ],
-        "default": [
-          "std"
-        ],
-        "simd": [
-          "dep:memchr"
-        ],
-        "std": [
-          "alloc",
-          "memchr?/std"
-        ],
-        "unstable-doc": [
-          "alloc",
-          "std",
-          "simd",
-          "unstable-recover"
-        ],
-        "unstable-recover": []
-      },
-      "manifest_path": "/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/winnow-0.6.20/Cargo.toml",
-      "metadata": {
-        "docs": {
-          "rs": {
-            "cargo-args": [
-              "-Zunstable-options",
-              "-Zrustdoc-scrape-examples"
-            ],
-            "features": [
-              "unstable-doc"
-            ],
-            "rustdoc-args": [
-              "--cfg",
-              "docsrs"
-            ]
-          }
-        },
-        "release": {
-          "pre-release-replacements": [
-            {
-              "file": "CHANGELOG.md",
-              "min": 1,
-              "replace": "{{version}}",
-              "search": "Unreleased"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "...{{tag_name}}",
-              "search": "\\.\\.\\.HEAD"
-            },
-            {
-              "file": "CHANGELOG.md",
-              "min": 1,
-              "replace": "{{date}}",
-              "search": "ReleaseDate"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "<!-- next-header -->\n## [Unreleased] - ReleaseDate\n",
-              "search": "<!-- next-header -->"
-            },
-            {
-              "exactly": 1,
-              "file": "CHANGELOG.md",
-              "replace": "<!-- next-url -->\n[Unreleased]: https://github.com/winnow-rs/winnow/compare/{{tag_name}}...HEAD",
-              "search": "<!-- next-url -->"
-            },
-            {
-              "exactly": 1,
-              "file": "src/lib.rs",
-              "replace": "blob/v{{version}}/CHANGELOG.md",
-              "search": "blob/v.+\\..+\\..+/CHANGELOG.md"
-            }
-          ]
-        }
-      },
-      "publish": null,
-      "authors": [],
-      "categories": [
-        "parsing"
-      ],
-      "keywords": [
-        "parser",
-        "parser-combinators",
-        "parsing",
-        "streaming",
-        "bit"
-      ],
-      "readme": "README.md",
-      "repository": "https://github.com/winnow-rs/winnow",
-      "homepage": null,
-      "documentation": null,
-      "edition": "2021",
-      "links": null,
-      "default_run": null,
-      "rust_version": "1.65.0"
     },
     {
       "name": "write16",
@@ -17765,10 +12828,10 @@
     }
   ],
   "workspace_members": [
-    "path+file:///share#cargo-bashman@0.6.1"
+    "path+file:///share#cargo-bashman@0.6.3"
   ],
   "workspace_default_members": [
-    "path+file:///share#cargo-bashman@0.6.1"
+    "path+file:///share#cargo-bashman@0.6.3"
   ],
   "resolve": {
     "nodes": [
@@ -17834,41 +12897,10 @@
         ]
       },
       {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#brunch@0.6.1",
-        "dependencies": [
-          "registry+https://github.com/rust-lang/crates.io-index#dactyl@0.7.4",
-          "registry+https://github.com/rust-lang/crates.io-index#unicode-width@0.2.0"
-        ],
-        "deps": [
-          {
-            "name": "dactyl",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#dactyl@0.7.4",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          },
-          {
-            "name": "unicode_width",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#unicode-width@0.2.0",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          }
-        ],
-        "features": []
-      },
-      {
-        "id": "path+file:///share#cargo-bashman@0.6.1",
+        "id": "path+file:///share#cargo-bashman@0.6.3",
         "dependencies": [
           "registry+https://github.com/rust-lang/crates.io-index#adbyss_psl@0.14.0",
           "registry+https://github.com/rust-lang/crates.io-index#argyle@0.10.0",
-          "registry+https://github.com/rust-lang/crates.io-index#brunch@0.6.1",
           "registry+https://github.com/rust-lang/crates.io-index#dactyl@0.7.4",
           "registry+https://github.com/rust-lang/crates.io-index#fyi_msg@1.1.1",
           "registry+https://github.com/rust-lang/crates.io-index#libdeflater@1.22.0",
@@ -17876,7 +12908,6 @@
           "registry+https://github.com/rust-lang/crates.io-index#semver@1.0.23",
           "registry+https://github.com/rust-lang/crates.io-index#serde@1.0.214",
           "registry+https://github.com/rust-lang/crates.io-index#serde_json@1.0.132",
-          "registry+https://github.com/rust-lang/crates.io-index#toml@0.8.19",
           "registry+https://github.com/rust-lang/crates.io-index#trimothy@0.3.1",
           "registry+https://github.com/rust-lang/crates.io-index#url@2.5.2",
           "registry+https://github.com/rust-lang/crates.io-index#utc2k@0.11.0",
@@ -17903,16 +12934,6 @@
               },
               {
                 "kind": "build",
-                "target": null
-              }
-            ]
-          },
-          {
-            "name": "brunch",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#brunch@0.6.1",
-            "dep_kinds": [
-              {
-                "kind": "dev",
                 "target": null
               }
             ]
@@ -17988,16 +13009,6 @@
             ]
           },
           {
-            "name": "toml",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#toml@0.8.19",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          },
-          {
             "name": "trimothy",
             "pkg": "registry+https://github.com/rust-lang/crates.io-index#trimothy@0.3.1",
             "dep_kinds": [
@@ -18041,7 +13052,7 @@
         "features": []
       },
       {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#cc@1.1.31",
+        "id": "registry+https://github.com/rust-lang/crates.io-index#cc@1.1.34",
         "dependencies": [
           "registry+https://github.com/rust-lang/crates.io-index#shlex@1.3.0"
         ],
@@ -18076,7 +13087,7 @@
         "dependencies": [
           "registry+https://github.com/rust-lang/crates.io-index#proc-macro2@1.0.89",
           "registry+https://github.com/rust-lang/crates.io-index#quote@1.0.37",
-          "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85"
+          "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87"
         ],
         "deps": [
           {
@@ -18101,7 +13112,7 @@
           },
           {
             "name": "syn",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85",
+            "pkg": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87",
             "dep_kinds": [
               {
                 "kind": null,
@@ -18113,16 +13124,9 @@
         "features": []
       },
       {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#equivalent@1.0.1",
-        "dependencies": [],
-        "deps": [],
-        "features": []
-      },
-      {
         "id": "registry+https://github.com/rust-lang/crates.io-index#errno@0.3.9",
         "dependencies": [
-          "registry+https://github.com/rust-lang/crates.io-index#libc@0.2.161",
-          "registry+https://github.com/rust-lang/crates.io-index#windows-sys@0.52.0"
+          "registry+https://github.com/rust-lang/crates.io-index#libc@0.2.161"
         ],
         "deps": [
           {
@@ -18140,16 +13144,6 @@
               {
                 "kind": null,
                 "target": "cfg(target_os = \"wasi\")"
-              }
-            ]
-          },
-          {
-            "name": "windows_sys",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#windows-sys@0.52.0",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": "cfg(windows)"
               }
             ]
           }
@@ -18211,12 +13205,6 @@
         "features": [
           "default"
         ]
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#hashbrown@0.15.0",
-        "dependencies": [],
-        "deps": [],
-        "features": []
       },
       {
         "id": "registry+https://github.com/rust-lang/crates.io-index#icu_collections@1.5.0",
@@ -18752,7 +13740,7 @@
         "dependencies": [
           "registry+https://github.com/rust-lang/crates.io-index#proc-macro2@1.0.89",
           "registry+https://github.com/rust-lang/crates.io-index#quote@1.0.37",
-          "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85"
+          "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87"
         ],
         "deps": [
           {
@@ -18777,7 +13765,7 @@
           },
           {
             "name": "syn",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85",
+            "pkg": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87",
             "dep_kinds": [
               {
                 "kind": null,
@@ -18880,39 +13868,6 @@
         ]
       },
       {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#indexmap@2.6.0",
-        "dependencies": [
-          "registry+https://github.com/rust-lang/crates.io-index#equivalent@1.0.1",
-          "registry+https://github.com/rust-lang/crates.io-index#hashbrown@0.15.0"
-        ],
-        "deps": [
-          {
-            "name": "equivalent",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#equivalent@1.0.1",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          },
-          {
-            "name": "hashbrown",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#hashbrown@0.15.0",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          }
-        ],
-        "features": [
-          "default",
-          "std"
-        ]
-      },
-      {
         "id": "registry+https://github.com/rust-lang/crates.io-index#itoa@1.0.11",
         "dependencies": [],
         "deps": [],
@@ -18930,12 +13885,12 @@
       {
         "id": "registry+https://github.com/rust-lang/crates.io-index#libdeflate-sys@1.22.0",
         "dependencies": [
-          "registry+https://github.com/rust-lang/crates.io-index#cc@1.1.31"
+          "registry+https://github.com/rust-lang/crates.io-index#cc@1.1.34"
         ],
         "deps": [
           {
             "name": "cc",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#cc@1.1.31",
+            "pkg": "registry+https://github.com/rust-lang/crates.io-index#cc@1.1.34",
             "dep_kinds": [
               {
                 "kind": "build",
@@ -19075,8 +14030,7 @@
           "registry+https://github.com/rust-lang/crates.io-index#bitflags@2.6.0",
           "registry+https://github.com/rust-lang/crates.io-index#errno@0.3.9",
           "registry+https://github.com/rust-lang/crates.io-index#libc@0.2.161",
-          "registry+https://github.com/rust-lang/crates.io-index#linux-raw-sys@0.4.14",
-          "registry+https://github.com/rust-lang/crates.io-index#windows-sys@0.52.0"
+          "registry+https://github.com/rust-lang/crates.io-index#linux-raw-sys@0.4.14"
         ],
         "deps": [
           {
@@ -19132,16 +14086,6 @@
               {
                 "kind": null,
                 "target": "cfg(all(any(target_os = \"android\", target_os = \"linux\"), any(rustix_use_libc, miri, not(all(target_os = \"linux\", any(target_endian = \"little\", target_arch = \"s390x\"), any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"s390x\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\")))))))"
-              }
-            ]
-          },
-          {
-            "name": "windows_sys",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#windows-sys@0.52.0",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": "cfg(windows)"
               }
             ]
           }
@@ -19218,7 +14162,7 @@
         "dependencies": [
           "registry+https://github.com/rust-lang/crates.io-index#proc-macro2@1.0.89",
           "registry+https://github.com/rust-lang/crates.io-index#quote@1.0.37",
-          "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85"
+          "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87"
         ],
         "deps": [
           {
@@ -19243,7 +14187,7 @@
           },
           {
             "name": "syn",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85",
+            "pkg": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87",
             "dep_kinds": [
               {
                 "kind": null,
@@ -19308,28 +14252,8 @@
         ],
         "features": [
           "default",
+          "raw_value",
           "std"
-        ]
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#serde_spanned@0.6.8",
-        "dependencies": [
-          "registry+https://github.com/rust-lang/crates.io-index#serde@1.0.214"
-        ],
-        "deps": [
-          {
-            "name": "serde",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#serde@1.0.214",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          }
-        ],
-        "features": [
-          "serde"
         ]
       },
       {
@@ -19358,7 +14282,7 @@
         ]
       },
       {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85",
+        "id": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87",
         "dependencies": [
           "registry+https://github.com/rust-lang/crates.io-index#proc-macro2@1.0.89",
           "registry+https://github.com/rust-lang/crates.io-index#quote@1.0.37",
@@ -19413,7 +14337,7 @@
         "dependencies": [
           "registry+https://github.com/rust-lang/crates.io-index#proc-macro2@1.0.89",
           "registry+https://github.com/rust-lang/crates.io-index#quote@1.0.37",
-          "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85"
+          "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87"
         ],
         "deps": [
           {
@@ -19438,7 +14362,7 @@
           },
           {
             "name": "syn",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85",
+            "pkg": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87",
             "dep_kinds": [
               {
                 "kind": null,
@@ -19458,8 +14382,7 @@
           "registry+https://github.com/rust-lang/crates.io-index#cfg-if@1.0.0",
           "registry+https://github.com/rust-lang/crates.io-index#fastrand@2.1.1",
           "registry+https://github.com/rust-lang/crates.io-index#once_cell@1.20.2",
-          "registry+https://github.com/rust-lang/crates.io-index#rustix@0.38.38",
-          "registry+https://github.com/rust-lang/crates.io-index#windows-sys@0.59.0"
+          "registry+https://github.com/rust-lang/crates.io-index#rustix@0.38.38"
         ],
         "deps": [
           {
@@ -19499,16 +14422,6 @@
               {
                 "kind": null,
                 "target": "cfg(any(unix, target_os = \"wasi\"))"
-              }
-            ]
-          },
-          {
-            "name": "windows_sys",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#windows-sys@0.59.0",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": "cfg(windows)"
               }
             ]
           }
@@ -19578,163 +14491,6 @@
         "features": []
       },
       {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#toml@0.8.19",
-        "dependencies": [
-          "registry+https://github.com/rust-lang/crates.io-index#indexmap@2.6.0",
-          "registry+https://github.com/rust-lang/crates.io-index#serde@1.0.214",
-          "registry+https://github.com/rust-lang/crates.io-index#serde_spanned@0.6.8",
-          "registry+https://github.com/rust-lang/crates.io-index#toml_datetime@0.6.8",
-          "registry+https://github.com/rust-lang/crates.io-index#toml_edit@0.22.22"
-        ],
-        "deps": [
-          {
-            "name": "indexmap",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#indexmap@2.6.0",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          },
-          {
-            "name": "serde",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#serde@1.0.214",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          },
-          {
-            "name": "serde_spanned",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#serde_spanned@0.6.8",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          },
-          {
-            "name": "toml_datetime",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#toml_datetime@0.6.8",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          },
-          {
-            "name": "toml_edit",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#toml_edit@0.22.22",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          }
-        ],
-        "features": [
-          "default",
-          "display",
-          "indexmap",
-          "parse",
-          "preserve_order"
-        ]
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#toml_datetime@0.6.8",
-        "dependencies": [
-          "registry+https://github.com/rust-lang/crates.io-index#serde@1.0.214"
-        ],
-        "deps": [
-          {
-            "name": "serde",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#serde@1.0.214",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          }
-        ],
-        "features": [
-          "serde"
-        ]
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#toml_edit@0.22.22",
-        "dependencies": [
-          "registry+https://github.com/rust-lang/crates.io-index#indexmap@2.6.0",
-          "registry+https://github.com/rust-lang/crates.io-index#serde@1.0.214",
-          "registry+https://github.com/rust-lang/crates.io-index#serde_spanned@0.6.8",
-          "registry+https://github.com/rust-lang/crates.io-index#toml_datetime@0.6.8",
-          "registry+https://github.com/rust-lang/crates.io-index#winnow@0.6.20"
-        ],
-        "deps": [
-          {
-            "name": "indexmap",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#indexmap@2.6.0",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          },
-          {
-            "name": "serde",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#serde@1.0.214",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          },
-          {
-            "name": "serde_spanned",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#serde_spanned@0.6.8",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          },
-          {
-            "name": "toml_datetime",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#toml_datetime@0.6.8",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          },
-          {
-            "name": "winnow",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#winnow@0.6.20",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          }
-        ],
-        "features": [
-          "display",
-          "parse",
-          "serde"
-        ]
-      },
-      {
         "id": "registry+https://github.com/rust-lang/crates.io-index#trimothy@0.3.1",
         "dependencies": [],
         "deps": [],
@@ -19774,15 +14530,6 @@
         ],
         "features": [
           "std"
-        ]
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#unicode-width@0.2.0",
-        "dependencies": [],
-        "deps": [],
-        "features": [
-          "cjk",
-          "default"
         ]
       },
       {
@@ -19859,229 +14606,6 @@
         "dependencies": [],
         "deps": [],
         "features": []
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#windows-sys@0.52.0",
-        "dependencies": [
-          "registry+https://github.com/rust-lang/crates.io-index#windows-targets@0.52.6"
-        ],
-        "deps": [
-          {
-            "name": "windows_targets",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#windows-targets@0.52.6",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          }
-        ],
-        "features": [
-          "Win32",
-          "Win32_Foundation",
-          "Win32_NetworkManagement",
-          "Win32_NetworkManagement_IpHelper",
-          "Win32_Networking",
-          "Win32_Networking_WinSock",
-          "Win32_System",
-          "Win32_System_Diagnostics",
-          "Win32_System_Diagnostics_Debug",
-          "Win32_System_Threading",
-          "default"
-        ]
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#windows-sys@0.59.0",
-        "dependencies": [
-          "registry+https://github.com/rust-lang/crates.io-index#windows-targets@0.52.6"
-        ],
-        "deps": [
-          {
-            "name": "windows_targets",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#windows-targets@0.52.6",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          }
-        ],
-        "features": [
-          "Win32",
-          "Win32_Foundation",
-          "Win32_Storage",
-          "Win32_Storage_FileSystem",
-          "default"
-        ]
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#windows-targets@0.52.6",
-        "dependencies": [
-          "registry+https://github.com/rust-lang/crates.io-index#windows_aarch64_gnullvm@0.52.6",
-          "registry+https://github.com/rust-lang/crates.io-index#windows_aarch64_msvc@0.52.6",
-          "registry+https://github.com/rust-lang/crates.io-index#windows_i686_gnu@0.52.6",
-          "registry+https://github.com/rust-lang/crates.io-index#windows_i686_gnullvm@0.52.6",
-          "registry+https://github.com/rust-lang/crates.io-index#windows_i686_msvc@0.52.6",
-          "registry+https://github.com/rust-lang/crates.io-index#windows_x86_64_gnu@0.52.6",
-          "registry+https://github.com/rust-lang/crates.io-index#windows_x86_64_gnullvm@0.52.6",
-          "registry+https://github.com/rust-lang/crates.io-index#windows_x86_64_msvc@0.52.6"
-        ],
-        "deps": [
-          {
-            "name": "windows_aarch64_gnullvm",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#windows_aarch64_gnullvm@0.52.6",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": "aarch64-pc-windows-gnullvm"
-              }
-            ]
-          },
-          {
-            "name": "windows_aarch64_msvc",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#windows_aarch64_msvc@0.52.6",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": "cfg(all(target_arch = \"aarch64\", target_env = \"msvc\", not(windows_raw_dylib)))"
-              }
-            ]
-          },
-          {
-            "name": "windows_i686_gnu",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#windows_i686_gnu@0.52.6",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": "cfg(all(target_arch = \"x86\", target_env = \"gnu\", not(target_abi = \"llvm\"), not(windows_raw_dylib)))"
-              }
-            ]
-          },
-          {
-            "name": "windows_i686_gnullvm",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#windows_i686_gnullvm@0.52.6",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": "i686-pc-windows-gnullvm"
-              }
-            ]
-          },
-          {
-            "name": "windows_i686_msvc",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#windows_i686_msvc@0.52.6",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": "cfg(all(target_arch = \"x86\", target_env = \"msvc\", not(windows_raw_dylib)))"
-              }
-            ]
-          },
-          {
-            "name": "windows_x86_64_gnu",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#windows_x86_64_gnu@0.52.6",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": "cfg(all(target_arch = \"x86_64\", target_env = \"gnu\", not(target_abi = \"llvm\"), not(windows_raw_dylib)))"
-              }
-            ]
-          },
-          {
-            "name": "windows_x86_64_gnullvm",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#windows_x86_64_gnullvm@0.52.6",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": "x86_64-pc-windows-gnullvm"
-              }
-            ]
-          },
-          {
-            "name": "windows_x86_64_msvc",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#windows_x86_64_msvc@0.52.6",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": "cfg(all(any(target_arch = \"x86_64\", target_arch = \"arm64ec\"), target_env = \"msvc\", not(windows_raw_dylib)))"
-              }
-            ]
-          }
-        ],
-        "features": []
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#windows_aarch64_gnullvm@0.52.6",
-        "dependencies": [],
-        "deps": [],
-        "features": []
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#windows_aarch64_msvc@0.52.6",
-        "dependencies": [],
-        "deps": [],
-        "features": []
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#windows_i686_gnu@0.52.6",
-        "dependencies": [],
-        "deps": [],
-        "features": []
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#windows_i686_gnullvm@0.52.6",
-        "dependencies": [],
-        "deps": [],
-        "features": []
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#windows_i686_msvc@0.52.6",
-        "dependencies": [],
-        "deps": [],
-        "features": []
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#windows_x86_64_gnu@0.52.6",
-        "dependencies": [],
-        "deps": [],
-        "features": []
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#windows_x86_64_gnullvm@0.52.6",
-        "dependencies": [],
-        "deps": [],
-        "features": []
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#windows_x86_64_msvc@0.52.6",
-        "dependencies": [],
-        "deps": [],
-        "features": []
-      },
-      {
-        "id": "registry+https://github.com/rust-lang/crates.io-index#winnow@0.6.20",
-        "dependencies": [
-          "registry+https://github.com/rust-lang/crates.io-index#memchr@2.7.4"
-        ],
-        "deps": [
-          {
-            "name": "memchr",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#memchr@2.7.4",
-            "dep_kinds": [
-              {
-                "kind": null,
-                "target": null
-              }
-            ]
-          }
-        ],
-        "features": [
-          "alloc",
-          "default",
-          "std"
-        ]
       },
       {
         "id": "registry+https://github.com/rust-lang/crates.io-index#write16@1.0.0",
@@ -20178,7 +14702,7 @@
         "dependencies": [
           "registry+https://github.com/rust-lang/crates.io-index#proc-macro2@1.0.89",
           "registry+https://github.com/rust-lang/crates.io-index#quote@1.0.37",
-          "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85",
+          "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87",
           "registry+https://github.com/rust-lang/crates.io-index#synstructure@0.13.1"
         ],
         "deps": [
@@ -20204,7 +14728,7 @@
           },
           {
             "name": "syn",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85",
+            "pkg": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87",
             "dep_kinds": [
               {
                 "kind": null,
@@ -20252,7 +14776,7 @@
         "dependencies": [
           "registry+https://github.com/rust-lang/crates.io-index#proc-macro2@1.0.89",
           "registry+https://github.com/rust-lang/crates.io-index#quote@1.0.37",
-          "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85",
+          "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87",
           "registry+https://github.com/rust-lang/crates.io-index#synstructure@0.13.1"
         ],
         "deps": [
@@ -20278,7 +14802,7 @@
           },
           {
             "name": "syn",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85",
+            "pkg": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87",
             "dep_kinds": [
               {
                 "kind": null,
@@ -20348,7 +14872,7 @@
         "dependencies": [
           "registry+https://github.com/rust-lang/crates.io-index#proc-macro2@1.0.89",
           "registry+https://github.com/rust-lang/crates.io-index#quote@1.0.37",
-          "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85"
+          "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87"
         ],
         "deps": [
           {
@@ -20373,7 +14897,7 @@
           },
           {
             "name": "syn",
-            "pkg": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.85",
+            "pkg": "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.87",
             "dep_kinds": [
               {
                 "kind": null,
@@ -20385,7 +14909,7 @@
         "features": []
       }
     ],
-    "root": "path+file:///share#cargo-bashman@0.6.1"
+    "root": "path+file:///share#cargo-bashman@0.6.3"
   },
   "target_directory": "/share/target",
   "version": 1,

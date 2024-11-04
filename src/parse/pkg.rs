@@ -83,11 +83,11 @@ impl Dependency {
 	pub(super) const FLAG_CTX_BUILD: u8 =  0b0001_0000;
 
 	/// # Context Flags.
-	pub(super) const FLAG_CTX: u8 =
+	pub(super) const MASK_CTX: u8 =
 		Self::FLAG_CTX_NORMAL | Self::FLAG_CTX_BUILD;
 
 	/// # Platform Flags.
-	pub(super) const FLAG_TARGET: u8 = Self::FLAG_TARGET_ANY | Self::FLAG_TARGET_CFG;
+	pub(super) const MASK_TARGET: u8 = Self::FLAG_TARGET_ANY | Self::FLAG_TARGET_CFG;
 }
 
 impl Dependency {
@@ -115,12 +115,12 @@ impl Dependency {
 
 	/// # Build-Only?
 	pub(crate) const fn build(&self) -> bool {
-		Self::FLAG_CTX_BUILD == self.context & Self::FLAG_CTX
+		Self::FLAG_CTX_BUILD == self.context & Self::MASK_CTX
 	}
 
 	/// # Target-Specific?
 	pub(crate) const fn target_specific(&self) -> bool {
-		Self::FLAG_TARGET_CFG == self.context & Self::FLAG_TARGET
+		Self::FLAG_TARGET_CFG == self.context & Self::MASK_TARGET
 	}
 
 	/// # Conditional?

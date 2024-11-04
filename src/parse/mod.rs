@@ -69,8 +69,10 @@ impl Manifest {
 	-> Result<Self, BashManError> {
 		// Unpack a bunch of shit.
 		let (dir, src) = manifest_source(src.as_ref())?;
-		let cargo::RawManifest { main, mut deps } = cargo::RawManifest::new(&src, target)?;
-		let cargo::RawMainPackage { dir_bash, dir_man, dir_credits, subcommands, credits } = main;
+		let (
+			cargo::RawMainPackage { dir_bash, dir_man, dir_credits, subcommands, credits },
+			mut deps,
+		) = cargo::fetch(&src, target)?;
 
 		// Abosrb the extra credits into the real dependencies.
 		deps.extend(credits);

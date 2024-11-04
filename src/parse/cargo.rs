@@ -48,81 +48,66 @@ use url::Url;
 
 
 
-/// # Intermediary Manifest.
+/// # Fetch Manifest Data.
 ///
-/// The top-level `Raw` struct used for the initial JSON deserialization
-/// leverages borrows that can't outlive the caller.
-///
-/// This struct is used to process and take control of that data so `Manifest`
-/// doesn't have to get bogged down in parse-related taskwork.
-///
-/// All the magic happens in `RawManifest::new`.
-pub(super) struct RawManifest {
-	/// # Main Package.
-	pub(super) main: RawMainPackage,
+/// This executes and parses the raw JSON output from `cargo metadata` into
+/// more easily-consumable structures.
+/// # New.
+pub(super) fn fetch(src: &Path, target: Option<TargetTriple>)
+-> Result<(RawMainPackage, BTreeSet<Dependency>), BashManError> {
+	let cargo = CargoMetadata::new(src, target).with_features(false);
 
-	/// # Dependencies.
-	pub(super) deps: BTreeSet<Dependency>,
-}
+	// Query without features first.
+	let raw1 = cargo.exec()?;
+	let Raw { packages, resolve } = serde_json::from_slice(&raw1)
+		.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?;
 
-impl RawManifest {
-	/// # New.
-	pub(super) fn new(src: &Path, target: Option<TargetTriple>)
-	-> Result<Self, BashManError> {
-		let cargo = CargoMetadata::new(src, target).with_features(false);
-
-		// Query without features first.
-		let raw1 = cargo.exec()?;
-		let Raw { packages, resolve } = serde_json::from_slice(&raw1)
-			.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?;
-
-		// Build the dependency list (and find the main package).
-		let flags = resolve.flags(target.is_some());
-		let mut main = None;
-		let mut deps = BTreeSet::<Dependency>::new();
-		for p in packages {
-			// Split out the main crate.
-			if p.id == resolve.root { main.replace(p); }
-			// Convert and keep used dependencies.
-			else if resolve.nodes.contains_key(p.id) {
-				let context = flags.get(p.id).copied().unwrap_or(0);
-				let p = p.try_into_dependency(context)?;
-				deps.insert(p);
-			}
+	// Build the dependency list (and find the main package).
+	let flags = resolve.flags(target.is_some());
+	let mut main = None;
+	let mut deps = BTreeSet::<Dependency>::new();
+	for p in packages {
+		// Split out the main crate.
+		if p.id == resolve.root { main.replace(p); }
+		// Convert and keep used dependencies.
+		else if resolve.nodes.contains_key(p.id) {
+			let context = flags.get(p.id).copied().unwrap_or(0);
+			let p = p.try_into_dependency(context)?;
+			deps.insert(p);
 		}
+	}
 
-		// We should have a main package by now.
-		let RawPackage { id, name, version, description, features, metadata, .. } = main.ok_or_else(|| BashManError::ParseCargoMetadata(
-			"unable to determine root package".to_owned()
-		))?;
-		let main = RawMainPackage::try_from_parts(name, &version, description, metadata)?;
-		let features = features.map_or(false, deserialize_features);
+	// We should have a main package by now.
+	let RawPackage { id, name, version, description, features, metadata, .. } = main.ok_or_else(|| BashManError::ParseCargoMetadata(
+		"unable to determine root package".to_owned()
+	))?;
+	let main = RawMainPackage::try_from_parts(name, &version, description, metadata)?;
+	let features = features.map_or(false, deserialize_features);
 
-		// If this crate has features, repeat the process to figure out if
-		// there are any additional optional dependencies. If this fails for
-		// whatever reason, we'll stick with what we have.
-		if features {
-			if let Ok(raw2) = cargo.with_features(true).exec() {
-				if let Ok(Raw { packages, resolve }) = serde_json::from_slice(&raw2) {
-					// Build the dependency list (and find the main package).
-					let flags = resolve.flags(target.is_some());
-					for p in packages {
-						if p.id != id && resolve.nodes.contains_key(p.id) {
-							let context = flags.get(p.id)
-								.copied()
-								.unwrap_or(0) | Dependency::FLAG_OPTIONAL;
-							if let Ok(d) = p.try_into_dependency(context) {
-								deps.insert(d);
-							}
+	// If this crate has features, repeat the process to figure out if
+	// there are any additional optional dependencies. If this fails for
+	// whatever reason, we'll stick with what we have.
+	if features {
+		if let Ok(raw2) = cargo.with_features(true).exec() {
+			if let Ok(Raw { packages, resolve }) = serde_json::from_slice(&raw2) {
+				// Build the dependency list (and find the main package).
+				let flags = resolve.flags(target.is_some());
+				for p in packages {
+					if p.id != id && resolve.nodes.contains_key(p.id) {
+						let context = flags.get(p.id)
+							.copied()
+							.unwrap_or(0) | Dependency::FLAG_OPTIONAL;
+						if let Ok(d) = p.try_into_dependency(context) {
+							deps.insert(d);
 						}
 					}
 				}
 			}
 		}
-
-		// Finish deserializing the main package.
-		Ok(Self { main, deps })
 	}
+
+	// Finish deserializing the main package.
+	Ok((main, deps))
 }
 
 
@@ -185,7 +170,10 @@ impl RawMainPackage {
 			description,
 			version: version.to_string(),
 			parent: None,
-			data: ManifestData::default(),
+			data: ManifestData {
+				sections: sections.into_iter().map(Section::from).collect(),
+				..ManifestData::default()
+			},
 		};
 		for raw in subcommands {
 			let sub = raw.into_subcommand(
@@ -236,13 +224,6 @@ impl RawMainPackage {
 					add_subcommand_arg(&mut subs, s, arg.clone())?;
 				}
 				add_subcommand_arg(&mut subs, last, arg)?;
-			}
-		}
-
-		if ! sections.is_empty() {
-			let sections: Vec<_> = sections.into_iter().map(Section::from).collect();
-			for s in subs.values_mut() {
-				s.data.sections.extend_from_slice(&sections);
 			}
 		}
 
@@ -666,8 +647,6 @@ impl<'a> RawResolve<'a> {
 	/// returning an orderly lookup map of the results.
 	fn flags(&self, targeted: bool) -> HashMap<&str, u8> {
 		let mut out = HashMap::<&str, u8>::with_capacity(self.nodes.len());
-
-		// For this, we only want to loop the children.
 		for RawNodeDep { id, dep_kinds } in self.nodes.values().flat_map(|n| n.iter().copied()) {
 			match out.entry(id) {
 				Entry::Occupied(mut e) => { *e.get_mut() |= dep_kinds; },
@@ -675,6 +654,7 @@ impl<'a> RawResolve<'a> {
 			}
 		}
 
+		// If we're targeting specifically, unset the specific target bit.
 		if targeted {
 			for flag in out.values_mut() { *flag &= ! Dependency::FLAG_TARGET_CFG; }
 		}
@@ -943,7 +923,10 @@ where D: Deserializer<'de> {
 	Ok(<Vec<RawNodeDep<'de>>>::deserialize(deserializer).map_or_else(
 		|_| Vec::new(),
 		|mut v| {
-			v.retain(|nd| 0 != nd.dep_kinds & Dependency::FLAG_CTX);
+			v.retain(|nd|
+				(0 != nd.dep_kinds & Dependency::MASK_CTX) &&
+				(0 != nd.dep_kinds & Dependency::MASK_TARGET)
+			);
 			v
 		}
 	))
@@ -1039,15 +1022,16 @@ where D: Deserializer<'de> {
 
 /// # Deserialize: Resolve.
 ///
-/// This rebuilds the node list so that only _used_ dependencies are included.
+/// This rebuilds the node list so that only _used_ dependencies are included,
+/// and makes sure that sub-dependencies inherit the sins of their fathers.
 fn deserialize_resolve<'de, D>(deserializer: D)
 -> Result<RawResolve<'de>, D::Error>
 where D: Deserializer<'de> {
 	let mut resolve = <RawResolve<'de>>::deserialize(deserializer)?;
 
-	// To figure out which dependencies are actually used, we need to traverse
-	// the root node's child dependencies, then traverse each of their
-	// dependencies, and so on. A simple push/pop queue will suffice!
+	// First things first, let's figure out which dependencies are actually
+	// _used_ by starting with the root and its dependencies, then each of
+	// their dependencies, and so on.
 	let mut used: HashSet<&str> = HashSet::with_capacity(resolve.nodes.len());
 	let mut queue = vec![resolve.root];
 	while let Some(next) = queue.pop() {
@@ -1061,8 +1045,58 @@ where D: Deserializer<'de> {
 		}
 	}
 
-	// And with that, let's prune the unused nodes.
+	// And with that, let's remove all unused node chains entirely.
 	resolve.nodes.retain(|k, _| used.contains(k));
+
+	// Now let's do something similar, this time building up a list of "normal"
+	// runtime dependencies. We'll use this to mark the direct children of any
+	// non-normal node parents as build-only.
+	used.clear();
+	queue.push(resolve.root);
+	while let Some(next) = queue.pop() {
+		if used.insert(next) {
+			// Add its children, if any.
+			if let Some(next) = resolve.nodes.get(next) {
+				for nd in next {
+					if Dependency::FLAG_CTX_NORMAL == nd.dep_kinds & Dependency::FLAG_CTX_NORMAL {
+						queue.push(nd.id);
+					}
+				}
+			}
+		}
+	}
+	for (k, v) in &mut resolve.nodes {
+		if ! used.contains(k) {
+			for nd in v {
+				nd.dep_kinds = (nd.dep_kinds & ! Dependency::MASK_CTX) | Dependency::FLAG_CTX_BUILD;
+			}
+		}
+	}
+
+	// One more time around! Here, we're looking for "any" targets so that we
+	// can mark the direct children of non-any targets as being
+	// target-specific.
+	used.clear();
+	queue.push(resolve.root);
+	while let Some(next) = queue.pop() {
+		if used.insert(next) {
+			// Add its children, if any.
+			if let Some(next) = resolve.nodes.get(next) {
+				for nd in next {
+					if Dependency::FLAG_TARGET_ANY == nd.dep_kinds & Dependency::FLAG_TARGET_ANY {
+						queue.push(nd.id);
+					}
+				}
+			}
+		}
+	}
+	for (k, v) in &mut resolve.nodes {
+		if ! used.contains(k) {
+			for nd in v {
+				nd.dep_kinds = (nd.dep_kinds & ! Dependency::MASK_TARGET) | Dependency::FLAG_TARGET_CFG;
+			}
+		}
+	}
 
 	// Done!
 	Ok(resolve)
@@ -1089,6 +1123,70 @@ where D: Deserializer<'de> {
 #[cfg(test)]
 mod test {
 	use super::*;
+
+	#[test]
+	fn t_deserialize_raw() {
+		// We can't test `cargo metadata` directly because it foolishly
+		// looks for main.rs/lib.rs, but we can replicate the parsing side of
+		// things.
+		let raw = std::fs::read("skel/metadata.json").expect("Missing metadata.json");
+		let Raw { packages, resolve } = match serde_json::from_slice(&raw) {
+			Ok(r) => r,
+			Err(e) => panic!("Deserialization failed: {e}"),
+		};
+
+		// Build the dependency list (and find the main package).
+		let flags = resolve.flags(true);
+		let mut main = None;
+		let mut deps = BTreeSet::<Dependency>::new();
+		for p in packages {
+			// Split out the main crate.
+			if p.id == resolve.root { main.replace(p); }
+			// Convert and keep used dependencies.
+			else if resolve.nodes.contains_key(p.id) {
+				let context = flags.get(p.id).copied().unwrap_or(0);
+				let p = p.try_into_dependency(context)
+					.expect("Into dependency failed.");
+				deps.insert(p);
+			}
+		}
+
+		// Confirm the dependency count.
+		assert_eq!(deps.len(), 67);
+		assert_eq!(flags.len(), 67);
+
+		// We should have a main package by now.
+		let RawPackage { name, version, description, features, metadata, .. } = main
+			.expect("Unable to find main package.");
+		let main = RawMainPackage::try_from_parts(name, &version, description, metadata)
+			.expect("RawMainPackage::try_from_parts failed.");
+		let features = features.map_or(false, deserialize_features);
+
+		// No features.
+		assert!(! features);
+
+		// We have 2 of 3 directories defined.
+		assert_eq!(main.dir_bash.as_deref(), Some("./release/completions"));
+		assert_eq!(main.dir_man.as_deref(), Some("./release/man"));
+		assert!(main.dir_credits.is_none());
+
+		// Only one command.
+		assert_eq!(main.subcommands.len(), 1);
+		assert_eq!(main.subcommands[0].nice_name.as_deref(), Some("Cargo BashMan"));
+		assert_eq!(main.subcommands[0].name.as_str(), "cargo-bashman");
+		assert_eq!(
+			main.subcommands[0].description,
+			"A Cargo plugin to generate bash completions, man pages, and/or crate credits.",
+		);
+		assert_eq!(main.subcommands[0].version, "0.6.3");
+		assert!(main.subcommands[0].parent.is_none());
+
+		// Six flags, two options, no args or sections.
+		assert_eq!(main.subcommands[0].data.flags.len(), 6);
+		assert_eq!(main.subcommands[0].data.options.len(), 2);
+		assert!(main.subcommands[0].data.args.is_none());
+		assert!(main.subcommands[0].data.sections.is_empty());
+	}
 
 	#[test]
 	fn t_raw_node_dep_kind() {
