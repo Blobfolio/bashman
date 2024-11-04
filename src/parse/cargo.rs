@@ -1125,6 +1125,70 @@ mod test {
 	use super::*;
 
 	#[test]
+	fn t_deserialize_raw() {
+		// We can't test `cargo metadata` directly because it foolishly
+		// looks for main.rs/lib.rs, but we can replicate the parsing side of
+		// things.
+		let raw = std::fs::read("skel/metadata.json").expect("Missing metadata.json");
+		let Raw { packages, resolve } = match serde_json::from_slice(&raw) {
+			Ok(r) => r,
+			Err(e) => panic!("Deserialization failed: {e}"),
+		};
+
+		// Build the dependency list (and find the main package).
+		let flags = resolve.flags(true);
+		let mut main = None;
+		let mut deps = BTreeSet::<Dependency>::new();
+		for p in packages {
+			// Split out the main crate.
+			if p.id == resolve.root { main.replace(p); }
+			// Convert and keep used dependencies.
+			else if resolve.nodes.contains_key(p.id) {
+				let context = flags.get(p.id).copied().unwrap_or(0);
+				let p = p.try_into_dependency(context)
+					.expect("Into dependency failed.");
+				deps.insert(p);
+			}
+		}
+
+		// Confirm the dependency count.
+		assert_eq!(deps.len(), 67);
+		assert_eq!(flags.len(), 67);
+
+		// We should have a main package by now.
+		let RawPackage { name, version, description, features, metadata, .. } = main
+			.expect("Unable to find main package.");
+		let main = RawMainPackage::try_from_parts(name, &version, description, metadata)
+			.expect("RawMainPackage::try_from_parts failed.");
+		let features = features.map_or(false, deserialize_features);
+
+		// No features.
+		assert!(! features);
+
+		// We have 2 of 3 directories defined.
+		assert_eq!(main.dir_bash.as_deref(), Some("./release/completions"));
+		assert_eq!(main.dir_man.as_deref(), Some("./release/man"));
+		assert!(main.dir_credits.is_none());
+
+		// Only one command.
+		assert_eq!(main.subcommands.len(), 1);
+		assert_eq!(main.subcommands[0].nice_name.as_deref(), Some("Cargo BashMan"));
+		assert_eq!(main.subcommands[0].name.as_str(), "cargo-bashman");
+		assert_eq!(
+			main.subcommands[0].description,
+			"A Cargo plugin to generate bash completions, man pages, and/or crate credits.",
+		);
+		assert_eq!(main.subcommands[0].version, "0.6.3");
+		assert!(main.subcommands[0].parent.is_none());
+
+		// Six flags, two options, no args or sections.
+		assert_eq!(main.subcommands[0].data.flags.len(), 6);
+		assert_eq!(main.subcommands[0].data.options.len(), 2);
+		assert!(main.subcommands[0].data.args.is_none());
+		assert!(main.subcommands[0].data.sections.is_empty());
+	}
+
+	#[test]
 	fn t_raw_node_dep_kind() {
 		// No values.
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": null, "target": null}"#)
