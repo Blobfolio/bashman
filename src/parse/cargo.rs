@@ -110,6 +110,47 @@ pub(super) fn fetch(src: &Path, target: Option<TargetTriple>)
 	Ok((main, deps))
 }
 
+#[cfg(test)]
+/// # Dummy Fetch.
+///
+/// This is a testing version of `fetch` that parses a static (pre-generated)
+/// dataset instead of running `cargo metadata`.
+pub(super) fn fetch_test(target: Option<TargetTriple>)
+-> Result<(RawMainPackage, BTreeSet<Dependency>), BashManError> {
+	// Parse the static data.
+	let raw1 = std::fs::read("skel/metadata.json")
+		.map_err(|_| BashManError::Read("skel/metadata.json".to_owned()))?;
+	let Raw { packages, resolve } = serde_json::from_slice(&raw1)
+		.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?;
+
+	// Build the dependency list (and find the main package).
+	let flags = resolve.flags(target.is_some());
+	let mut main = None;
+	let mut deps = BTreeSet::<Dependency>::new();
+	for p in packages {
+		// Split out the main crate.
+		if p.id == resolve.root { main.replace(p); }
+		// Convert and keep used dependencies.
+		else if resolve.nodes.contains_key(p.id) {
+			let context = flags.get(p.id).copied().unwrap_or(0);
+			let p = p.try_into_dependency(context)?;
+			deps.insert(p);
+		}
+	}
+
+	// We should have a main package by now.
+	let RawPackage { name, version, description, features, metadata, .. } = main.ok_or_else(|| BashManError::ParseCargoMetadata(
+		"unable to determine root package".to_owned()
+	))?;
+	let main = RawMainPackage::try_from_parts(name, &version, description, metadata)?;
+
+	// We don't have features.
+	assert!(! features.map_or(false, deserialize_features), "No features expected!");
+
+	// Finish deserializing the main package.
+	Ok((main, deps))
+}
+
 
 
 #[derive(Debug)]
@@ -1126,48 +1167,17 @@ mod test {
 
 	#[test]
 	fn t_deserialize_raw() {
-		// We can't test `cargo metadata` directly because it foolishly
-		// looks for main.rs/lib.rs, but we can replicate the parsing side of
-		// things.
-		let raw = std::fs::read("skel/metadata.json").expect("Missing metadata.json");
-		let Raw { packages, resolve } = match serde_json::from_slice(&raw) {
-			Ok(r) => r,
-			Err(e) => panic!("Deserialization failed: {e}"),
-		};
+		let target = TargetTriple::try_from("x86_64-unknown-linux-gnu".to_owned()).ok();
+		assert!(target.is_some(), "Target failed.");
 
-		// Build the dependency list (and find the main package).
-		let flags = resolve.flags(true);
-		let mut main = None;
-		let mut deps = BTreeSet::<Dependency>::new();
-		for p in packages {
-			// Split out the main crate.
-			if p.id == resolve.root { main.replace(p); }
-			// Convert and keep used dependencies.
-			else if resolve.nodes.contains_key(p.id) {
-				let context = flags.get(p.id).copied().unwrap_or(0);
-				let p = p.try_into_dependency(context)
-					.expect("Into dependency failed.");
-				deps.insert(p);
-			}
-		}
+		let (main, deps) = fetch_test(target).expect("Fetch test failed.");
 
 		// Confirm the dependency count.
 		assert_eq!(deps.len(), 67);
-		assert_eq!(flags.len(), 67);
-
-		// We should have a main package by now.
-		let RawPackage { name, version, description, features, metadata, .. } = main
-			.expect("Unable to find main package.");
-		let main = RawMainPackage::try_from_parts(name, &version, description, metadata)
-			.expect("RawMainPackage::try_from_parts failed.");
-		let features = features.map_or(false, deserialize_features);
-
-		// No features.
-		assert!(! features);
 
 		// We have 2 of 3 directories defined.
-		assert_eq!(main.dir_bash.as_deref(), Some("./release/completions"));
-		assert_eq!(main.dir_man.as_deref(), Some("./release/man"));
+		assert_eq!(main.dir_bash.as_deref(), Some("./"));
+		assert_eq!(main.dir_man.as_deref(), Some("./"));
 		assert!(main.dir_credits.is_none());
 
 		// Only one command.

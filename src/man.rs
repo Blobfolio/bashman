@@ -570,3 +570,31 @@ fn output_file(dir: &Path, parent_cmd: Option<&str>, cmd: &str) -> PathBuf {
 		}
 	)
 }
+
+
+
+#[cfg(test)]
+mod test {
+	use super::*;
+
+	#[test]
+	fn t_manwriter() {
+		let manifest = Manifest::from_test().expect("Manifest failed.");
+		let writer = ManWriter::try_from(&manifest).expect("ManWriter failed.");
+		assert_eq!(writer.men.len(), 1); // Just the one!
+
+		// Test the page generates as expected (without saving anything).
+		let mut expected = std::fs::read_to_string("skel/metadata.man")
+			.expect("Missing skel/metadata.man");
+
+		// Before we do that, though, we need to patch the date into our
+		// reference output, as that always reflects the current time.
+		let now = Utc2k::now();
+		let pos = expected.find("MONTHNAME").expect("Missing MONTHNAME");
+		expected.replace_range(pos + 10..pos + 14, &now.year().to_string());
+		expected.replace_range(pos..pos + 9, now.month_name());
+
+		// Test!
+		assert_eq!(writer.men[0].to_string(), expected);
+	}
+}

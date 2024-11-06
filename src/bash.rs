@@ -176,20 +176,7 @@ impl<'a> BashWriter<'a> {
 
 		// Strip double linebreaks before saving to a file. (Waste not, want
 		// not!)
-		let mut last = '\n';
-		buf.retain(|c|
-			if c == '\n' {
-				if last == '\n' { false }
-				else {
-					last = '\n';
-					true
-				}
-			}
-			else {
-				last = c;
-				true
-			}
-		);
+		strip_double_lines(buf);
 
 		// Save it!
 		let out_file = self.dir.join(bname);
@@ -533,5 +520,51 @@ impl<'a> Subcommand<'a> {
 		}
 
 		out
+	}
+}
+
+
+
+/// # Strip Double Line Breaks.
+///
+/// Extra line breaks have been added to format strings in a few places to
+/// improve readability, but they're not needed for the final output. This
+/// method strips them after-the-fact.
+fn strip_double_lines(buf: &mut String) {
+	let mut last = '\n';
+	buf.retain(|c|
+		if c == '\n' {
+			if last == '\n' { false }
+			else {
+				last = '\n';
+				true
+			}
+		}
+		else {
+			last = c;
+			true
+		}
+	);
+}
+
+
+
+#[cfg(test)]
+mod test {
+	use super::*;
+
+	#[test]
+	fn t_bashwriter() {
+		let manifest = Manifest::from_test().expect("Manifest failed.");
+		let writer = BashWriter::try_from(&manifest).expect("BashWriter failed.");
+		assert_eq!(writer.subcommands.len(), 1); // Just the one!
+
+		// Test the completions generate as expected, fixing double linebreaks
+		// as would happen during save (which we aren't running).
+		let mut out = writer.to_string();
+		strip_double_lines(&mut out);
+		let expected = std::fs::read_to_string("skel/metadata.bash")
+			.expect("Missing skel/metadata.bash");
+		assert_eq!(out, expected);
 	}
 }

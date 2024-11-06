@@ -154,3 +154,25 @@ impl<'a> CreditsWriter<'a> {
 			.map(|()| self.dst)
 	}
 }
+
+
+
+#[cfg(test)]
+mod test {
+	use super::*;
+
+	#[test]
+	fn t_creditswriter() {
+		let manifest = Manifest::from_test().expect("Manifest failed.");
+		let writer = CreditsWriter::try_from(&manifest).expect("CreditsWriter failed.");
+
+		// Test the credits generate as expected, save for the timestamp.
+		let expected = std::fs::read_to_string("skel/metadata.credits")
+			.expect("Missing skel/metadata.credits");
+		let mut out = writer.to_string();
+		let pos = out.find("    Generated: ").expect("Missing timestamp.");
+		out.replace_range(pos + 15..pos + 35, "");
+
+		assert_eq!(out, expected);
+	}
+}
