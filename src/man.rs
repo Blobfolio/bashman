@@ -145,13 +145,13 @@ impl<'a> ManWriter<'a> {
 /// impl.
 struct Man<'a> {
 	/// # Parent Nice Name.
-	parent_name: Option<&'a str>,
+	parent_name: Option<String>,
 
 	/// # Parent Command.
 	parent_cmd: Option<&'a str>,
 
 	/// # Nice Name.
-	name: &'a str,
+	name: String,
 
 	/// # (Sub)command.
 	cmd: &'a str,
@@ -178,10 +178,10 @@ impl<'a> fmt::Display for Man<'a> {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		// Start with the header.
 		let now = Utc2k::now();
-		let full_name = self.parent_name.map_or_else(
-			|| self.name.to_uppercase(),
-			|p| format!("{p} {}", self.name).to_uppercase(),
-		).replace('"', "");
+		let full_name = self.parent_name.as_deref().map_or_else(
+			|| Cow::Borrowed(self.name.as_str()),
+			|p| Cow::Owned(format!("{p} {}", self.name)),
+		);
 		let full_cmd = self.parent_cmd.map_or(
 			Cow::Borrowed(self.cmd),
 			|p| Cow::Owned(format!("{p} {}", self.cmd)),
@@ -190,7 +190,7 @@ impl<'a> fmt::Display for Man<'a> {
 		writeln!(
 			f,
 			r#".TH "{}" "1" "{} {}" "{} v{}" "User Commands""#,
-			EscapeHyphens(full_name.as_str()),
+			EscapeHyphens(full_name.as_ref()),
 			now.month_name(),
 			now.year(),
 			EscapeHyphens(full_cmd.as_ref()),
@@ -201,7 +201,7 @@ impl<'a> fmt::Display for Man<'a> {
 		writeln!(
 			f,
 			".SH NAME\n{} \\- Manual page for {} v{}.",
-			EscapeHyphens(&self.name.to_uppercase()),
+			EscapeHyphens(self.name.as_str()),
 			EscapeHyphens(full_cmd.as_ref()),
 			self.version,
 		)?;
@@ -259,10 +259,23 @@ impl<'a> Man<'a> {
 
 impl<'a> From<&'a Subcommand> for Man<'a> {
 	fn from(src: &'a Subcommand) -> Self {
+		/// # Sanitize Nice Name.
+		///
+		/// Strip quotes and make the string uppercase.
+		fn nice_name(raw: &str) -> Option<String> {
+			let out: String = raw.chars()
+				.flat_map(char::to_uppercase)
+				.filter(|&c| c != '"')
+				.collect();
+
+			if out.is_empty() { None }
+			else { Some(out) }
+		}
+
 		let mut out = Self {
-			parent_name: src.parent_nice_name(),
+			parent_name: src.parent_nice_name().and_then(nice_name),
 			parent_cmd: src.parent_bin(),
-			name: src.nice_name(),
+			name: nice_name(src.nice_name()).unwrap_or_else(|| src.bin().to_uppercase()),
 			cmd: src.bin(),
 			version: EscapeHyphens(src.version()),
 			description: EscapeHyphens(src.description()),
