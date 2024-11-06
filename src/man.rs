@@ -157,10 +157,10 @@ struct Man<'a> {
 	cmd: &'a str,
 
 	/// # Version.
-	version: &'a str,
+	version: EscapeHyphens<'a>,
 
 	/// # Description.
-	description: &'a str,
+	description: EscapeHyphens<'a>,
 
 	/// # Table of Contents.
 	///
@@ -194,7 +194,7 @@ impl<'a> fmt::Display for Man<'a> {
 			now.month_name(),
 			now.year(),
 			EscapeHyphens(full_cmd.as_ref()),
-			EscapeHyphens(self.version),
+			self.version,
 		)?;
 
 		// Name.
@@ -203,11 +203,11 @@ impl<'a> fmt::Display for Man<'a> {
 			".SH NAME\n{} \\- Manual page for {} v{}.",
 			EscapeHyphens(&self.name.to_uppercase()),
 			EscapeHyphens(full_cmd.as_ref()),
-			EscapeHyphens(self.version),
+			self.version,
 		)?;
 
 		// Description.
-		writeln!(f, ".SH DESCRIPTION\n{}", EscapeHyphens(self.description))?;
+		writeln!(f, ".SH DESCRIPTION\n{}", self.description)?;
 
 		// Usage.
 		write!(
@@ -218,7 +218,7 @@ impl<'a> fmt::Display for Man<'a> {
 			if Self::HAS_FLAGS == self.toc & Self::HAS_FLAGS { " [FLAGS]" } else { "" },
 			if Self::HAS_OPTIONS == self.toc & Self::HAS_OPTIONS { " [OPTIONS]" } else { "" },
 		)?;
-		if let Some(arg) = self.arg_label() { writeln!(f, " {}", EscapeHyphens(arg)) }
+		if let Some(arg) = self.arg_label() { writeln!(f, " {arg}") }
 		else { writeln!(f) }?;
 
 		// Everything else!
@@ -244,7 +244,7 @@ impl<'a> Man<'a> {
 	/// # Arg Label.
 	///
 	/// Return the value label used for trailing arguments, if any.
-	fn arg_label(&self) -> Option<&str> {
+	fn arg_label(&self) -> Option<EscapeHyphens> {
 		if Self::HAS_ARGS == self.toc & Self::HAS_ARGS {
 			self.sections.iter().find_map(|s|
 				if s.label == LABEL_ARGS {
@@ -264,8 +264,8 @@ impl<'a> From<&'a Subcommand> for Man<'a> {
 			parent_cmd: src.parent_bin(),
 			name: src.nice_name(),
 			cmd: src.bin(),
-			version: src.version(),
-			description: src.description(),
+			version: EscapeHyphens(src.version()),
+			description: EscapeHyphens(src.description()),
 			toc: 0,
 			sections: Vec::new(),
 		};
@@ -376,16 +376,16 @@ impl<'a> fmt::Display for Section<'a> {
 /// use of `Option` in order to accommodate keys, args, and custom stuff.
 struct SectionData<'a> {
 	/// # Short Key.
-	short: Option<&'a str>,
+	short: Option<EscapeHyphens<'a>>,
 
 	/// # Long Key.
-	long: Option<&'a str>,
+	long: Option<EscapeHyphens<'a>>,
 
 	/// # Label.
-	label: Option<&'a str>,
+	label: Option<EscapeHyphens<'a>>,
 
 	/// # Description.
-	description: &'a str,
+	description: EscapeHyphens<'a>,
 
 	/// # Indent?
 	indent: bool,
@@ -401,40 +401,32 @@ impl<'a> fmt::Display for SectionData<'a> {
 			// Everything!
 			(Some(short), Some(long), Some(val)) => writeln!(
 				f,
-				".TP\n\\fB{}\\fR, \\fB{}\\fR {}\n{}",
-				EscapeHyphens(short),
-				EscapeHyphens(long),
-				EscapeHyphens(val),
-				EscapeHyphens(self.description),
+				".TP\n\\fB{short}\\fR, \\fB{long}\\fR {val}\n{}",
+				self.description,
 			),
 			// Key and value.
 			(Some(key), None, Some(val)) | (None, Some(key), Some(val)) => writeln!(
 				f,
-				".TP\n\\fB{}\\fR {}\n{}",
-				EscapeHyphens(key),
-				EscapeHyphens(val),
-				EscapeHyphens(self.description),
+				".TP\n\\fB{key}\\fR {val}\n{}",
+				self.description,
 			),
 			// Two keys.
 			(Some(short), Some(long), None) => writeln!(
 				f,
-				".TP\n\\fB{}\\fR, \\fB{}\\fR\n{}",
-				EscapeHyphens(short),
-				EscapeHyphens(long),
-				EscapeHyphens(self.description),
+				".TP\n\\fB{short}\\fR, \\fB{long}\\fR\n{}",
+				self.description,
 			),
 			// One thing.
 			(Some(key), None, None) | (None, Some(key), None) | (None, None, Some(key)) => writeln!(
 				f,
-				".TP\n\\fB{}\\fR\n{}",
-				EscapeHyphens(key),
-				EscapeHyphens(self.description),
+				".TP\n\\fB{key}\\fR\n{}",
+				self.description,
 			),
 			// Just a paragraph.
 			_ => {
 				// Add indentation if necessary.
 				if self.indent { f.write_str(".TP\n")?; }
-				writeln!(f, "{}", EscapeHyphens(self.description))
+				writeln!(f, "{}", self.description)
 			},
 		}
 	}
@@ -444,10 +436,10 @@ impl<'a> From<&'a Flag> for SectionData<'a> {
 	#[inline]
 	fn from(src: &'a Flag) -> Self {
 		Self {
-			short: src.short(),
-			long: src.long(),
+			short: src.short().map(EscapeHyphens),
+			long: src.long().map(EscapeHyphens),
 			label: None,
-			description: src.description(),
+			description: EscapeHyphens(src.description()),
 			indent: true,
 		}
 	}
@@ -457,10 +449,10 @@ impl<'a> From<&'a OptionFlag> for SectionData<'a> {
 	#[inline]
 	fn from(src: &'a OptionFlag) -> Self {
 		Self {
-			short: src.short(),
-			long: src.long(),
-			label: Some(src.label()),
-			description: src.description(),
+			short: src.short().map(EscapeHyphens),
+			long: src.long().map(EscapeHyphens),
+			label: Some(EscapeHyphens(src.label())),
+			description: EscapeHyphens(src.description()),
 			indent: true,
 		}
 	}
@@ -471,9 +463,9 @@ impl<'a> From<&'a [String; 2]> for SectionData<'a> {
 	fn from(src: &'a [String; 2]) -> Self {
 		Self {
 			short: None,
-			long: Some(src[0].as_str()),
+			long: Some(EscapeHyphens(src[0].as_str())),
 			label: None,
-			description: src[1].as_str(),
+			description: EscapeHyphens(src[1].as_str()),
 			indent: true,
 		}
 	}
@@ -486,7 +478,7 @@ impl<'a> From<&'a str> for SectionData<'a> {
 			short: None,
 			long: None,
 			label: None,
-			description: src,
+			description: EscapeHyphens(src),
 			indent: true,
 		}
 	}
@@ -497,9 +489,9 @@ impl<'a> From<&'a Subcommand> for SectionData<'a> {
 	fn from(src: &'a Subcommand) -> Self {
 		Self {
 			short: None,
-			long: Some(src.bin()),
+			long: Some(EscapeHyphens(src.bin())),
 			label: None,
-			description: src.description(),
+			description: EscapeHyphens(src.description()),
 			indent: true,
 		}
 	}
@@ -511,8 +503,8 @@ impl<'a> From<&'a TrailingArg> for SectionData<'a> {
 		Self {
 			short: None,
 			long: None,
-			label: Some(src.label()),
-			description: src.description(),
+			label: Some(EscapeHyphens(src.label())),
+			description: EscapeHyphens(src.description()),
 			indent: true,
 		}
 	}
