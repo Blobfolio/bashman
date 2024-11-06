@@ -110,10 +110,10 @@ impl<'a> fmt::Display for CreditsWriter<'a> {
 	}
 }
 
-impl<'a> CreditsWriter<'a> {
-	/// # New Instance.
-	pub(super) fn new(man: &'a Manifest)
-	-> Result<Self, BashManError> {
+impl<'a> TryFrom<&'a Manifest> for CreditsWriter<'a> {
+	type Error = BashManError;
+
+	fn try_from(man: &'a Manifest) -> Result<Self, Self::Error> {
 		let src = man.src();
 		let dst = man.dir_credits()?.join("CREDITS.md");
 		let cmd = man.main_cmd().ok_or(BashManError::Credits)?;
@@ -129,7 +129,9 @@ impl<'a> CreditsWriter<'a> {
 			dependencies: man.dependencies(),
 		})
 	}
+}
 
+impl<'a> CreditsWriter<'a> {
 	/// # Write Credits!
 	///
 	/// This method is called by `main.rs` to generate and save the crate

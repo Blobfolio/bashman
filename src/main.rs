@@ -235,7 +235,7 @@ fn _main() -> Result<(), BashManError> {
 
 	// Crate Credits.
 	if FLAG_CREDITS == flags & FLAG_CREDITS {
-		match CreditsWriter::new(&manifest).and_then(|w| w.write(&mut buf)) {
+		match CreditsWriter::try_from(&manifest).and_then(|w| w.write(&mut buf)) {
 			Ok(p) => {
 				good.push("credits");
 				files.push(p);
