@@ -77,6 +77,18 @@ impl Manifest {
 		// Abosrb the extra credits into the real dependencies.
 		deps.extend(credits);
 
+		// Collect into a vec and resort, pushing conditional dependencies to
+		// the end of the list.
+		let mut dependencies: Vec<Dependency> = deps.into_iter().collect();
+		dependencies.sort_by(|a, b| {
+			let a_cond = a.conditional();
+			let b_cond = b.conditional();
+
+			if a_cond == b_cond { a.cmp(b) }
+			else if a_cond { Ordering::Greater }
+			else { Ordering::Less }
+		});
+
 		// Finally!
 		Ok(Self {
 			src,
@@ -86,7 +98,7 @@ impl Manifest {
 			dir,
 			subcommands,
 			target,
-			dependencies: deps.into_iter().collect(),
+			dependencies,
 		})
 	}
 

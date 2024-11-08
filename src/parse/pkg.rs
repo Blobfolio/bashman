@@ -67,20 +67,24 @@ impl PartialOrd for Dependency {
 }
 
 impl Dependency {
+	/// # Direct Dependency.
+	pub(super) const FLAG_DIRECT: u8 =     0b0000_0001;
+
 	/// # Feature-Specific.
-	pub(super) const FLAG_OPTIONAL: u8 =   0b0000_0001;
+	pub(super) const FLAG_OPTIONAL: u8 =   0b0000_0010;
 
 	/// # Not Target-Specific.
-	pub(super) const FLAG_TARGET_ANY: u8 = 0b0000_0010;
+	pub(super) const FLAG_TARGET_ANY: u8 = 0b0000_0100;
 
 	/// # Target-Specific.
-	pub(super) const FLAG_TARGET_CFG: u8 = 0b0000_0100;
+	pub(super) const FLAG_TARGET_CFG: u8 = 0b0000_1000;
 
 	/// # Normal Context.
-	pub(super) const FLAG_CTX_NORMAL: u8 = 0b0000_1000;
+	pub(super) const FLAG_CTX_NORMAL: u8 = 0b0001_0000;
 
 	/// # Build Context.
-	pub(super) const FLAG_CTX_BUILD: u8 =  0b0001_0000;
+	pub(super) const FLAG_CTX_BUILD: u8 =  0b0010_0000;
+
 
 	/// # Context Flags.
 	pub(super) const MASK_CTX: u8 =
@@ -108,6 +112,11 @@ impl Dependency {
 	/// # Repository URL.
 	pub(super) fn url(&self) -> Option<&str> { self.url.as_deref() }
 
+	/// # Direct?
+	pub(crate) const fn direct(&self) -> bool {
+		Self::FLAG_DIRECT == self.context & Self::FLAG_DIRECT
+	}
+
 	/// # Optional?
 	pub(crate) const fn optional(&self) -> bool {
 		Self::FLAG_OPTIONAL == self.context & Self::FLAG_OPTIONAL
@@ -127,37 +136,27 @@ impl Dependency {
 	///
 	/// Returns `true` if optional or target specific.
 	pub(crate) const fn conditional(&self) -> bool {
-		self.optional() || self.build() || self.target_specific()
-	}
-
-	/// # Context Flags as String Slice.
-	///
-	/// Return a textual representation of the dependency's context(s). There
-	/// are only a few combinations so this is pretty easy to construct
-	/// manually.
-	pub(crate) const fn context(&self) -> &'static str {
-		match (self.optional(), self.build(), self.target_specific()) {
-			(true, true, true) => "optional, build, target-specific",
-			(true, true, false) => "optional, build",
-			(true, false, true) => "optional, target-specific",
-			(false, true, true) => "build, target-specific",
-			(true, false, false) => "optional",
-			(false, true, false) => "build",
-			(false, false, true) => "target-specific",
-			(false, false, false) => "",
-		}
+		self.optional() || self.target_specific()
 	}
 }
 
 impl fmt::Display for Dependency {
 	/// # Write as Markdown.
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		let (open, close) = match (self.direct(), self.conditional()) {
+			(true, true) => ("**_", "_**"),
+			(true, false) => ("**", "**"),
+			(false, true) => ("_", "_"),
+			(false, false) => ("", ""),
+		};
+
 		// The name as a link.
 		if let Some(url) = self.url() {
 			write!(
 				f,
-				"| [{}]({url}) | {} | {} | {} |",
+				"| [{open}{}{close}]({url}){} | {} | {} | {} |",
 				self.name,
+				if self.build() { " ⚒️" } else { "" },
 				self.version,
 				OxfordJoinFmt::and(self.authors()),
 				self.license().unwrap_or(""),
@@ -167,8 +166,9 @@ impl fmt::Display for Dependency {
 		else {
 			write!(
 				f,
-				"| {} | {} | {} | {} |",
+				"| {open}{}{close}{} | {} | {} | {} |",
 				self.name,
+				if self.build() { " ⚒️" } else { "" },
 				self.version,
 				OxfordJoinFmt::and(self.authors()),
 				self.license().unwrap_or(""),

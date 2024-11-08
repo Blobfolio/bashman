@@ -666,7 +666,9 @@ impl From<RawCredits> for Dependency {
 			license: src.license,
 			authors: src.authors,
 			url: src.repository.map(String::from),
-			context: if src.optional { Self::FLAG_OPTIONAL } else { 0 },
+			context:
+				if src.optional { Self::FLAG_DIRECT | Self::FLAG_OPTIONAL }
+				else { Self::FLAG_DIRECT },
 		}
 	}
 }
@@ -1110,8 +1112,8 @@ fn prune_resolve<'a>(resolve: &'a mut RawResolve, mut used: HashSet<&'a str>) {
 
 	// And with that, let's remove all unused node chains entirely.
 	resolve.nodes.retain(|k, _| used.contains(k));
-	for deps in resolve.nodes.values_mut() {
-		deps.retain(|nd| used.contains(nd.id));
+	for v in resolve.nodes.values_mut() {
+		v.retain(|nd| used.contains(nd.id));
 	}
 
 	// Now let's do something similar, this time building up a list of "normal"
@@ -1161,6 +1163,13 @@ fn prune_resolve<'a>(resolve: &'a mut RawResolve, mut used: HashSet<&'a str>) {
 			for nd in v {
 				nd.dep_kinds = (nd.dep_kinds & ! Dependency::MASK_TARGET) | Dependency::FLAG_TARGET_CFG;
 			}
+		}
+	}
+
+	// Lastly, let's mark direct dependencies.
+	if let Some(v) = resolve.nodes.get_mut(resolve.root) {
+		for nd in v {
+			nd.dep_kinds |= Dependency::FLAG_DIRECT;
 		}
 	}
 }
