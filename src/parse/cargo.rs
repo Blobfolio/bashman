@@ -55,12 +55,15 @@ use url::Url;
 /// # New.
 pub(super) fn fetch(src: &Path, target: Option<TargetTriple>)
 -> Result<(RawMainPackage, BTreeSet<Dependency>), BashManError> {
-	let cargo = CargoMetadata::new(src, target).with_features(false);
+	let mut cargo = CargoMetadata::new(src, target).with_features(false);
 
 	// Query without features first.
 	let raw1 = cargo.exec()?;
-	let Raw { packages, resolve } = serde_json::from_slice(&raw1)
+	let Raw { packages, mut resolve } = serde_json::from_slice(&raw1)
 		.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?;
+
+	// Clean up unused nodes.
+	prune_resolve(&mut resolve, cargo.exec_tree(&packages).unwrap_or_default());
 
 	// Build the dependency list (and find the main package).
 	let flags = resolve.flags(target.is_some());
@@ -88,8 +91,12 @@ pub(super) fn fetch(src: &Path, target: Option<TargetTriple>)
 	// there are any additional optional dependencies. If this fails for
 	// whatever reason, we'll stick with what we have.
 	if features {
-		if let Ok(raw2) = cargo.with_features(true).exec() {
-			if let Ok(Raw { packages, resolve }) = serde_json::from_slice(&raw2) {
+		cargo = cargo.with_features(true);
+		if let Ok(raw2) = cargo.exec() {
+			if let Ok(Raw { packages, mut resolve }) = serde_json::from_slice(&raw2) {
+				// Clean up unused nodes.
+				prune_resolve(&mut resolve, cargo.exec_tree(&packages).unwrap_or_default());
+
 				// Build the dependency list (and find the main package).
 				let flags = resolve.flags(target.is_some());
 				for p in packages {
@@ -120,8 +127,9 @@ pub(super) fn fetch_test(target: Option<TargetTriple>)
 	// Parse the static data.
 	let raw1 = std::fs::read("skel/metadata.json")
 		.map_err(|_| BashManError::Read("skel/metadata.json".to_owned()))?;
-	let Raw { packages, resolve } = serde_json::from_slice(&raw1)
+	let Raw { packages, mut resolve } = serde_json::from_slice(&raw1)
 		.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?;
+	prune_resolve(&mut resolve, HashSet::new());
 
 	// Build the dependency list (and find the main package).
 	let flags = resolve.flags(target.is_some());
@@ -295,7 +303,6 @@ struct Raw<'a> {
 	packages: Vec<RawPackage<'a>>,
 
 	#[serde(borrow)]
-	#[serde(deserialize_with = "deserialize_resolve")]
 	/// # Resolved Nodes.
 	resolve: RawResolve<'a>,
 }
@@ -304,15 +311,15 @@ struct Raw<'a> {
 
 #[derive(Debug, Deserialize)]
 /// # Package.
-struct RawPackage<'a> {
+pub(super) struct RawPackage<'a> {
 	/// # ID.
-	id: &'a str,
+	pub(super) id: &'a str,
 
 	/// # Name.
-	name: PackageName,
+	pub(super) name: PackageName,
 
 	/// # Version.
-	version: Version,
+	pub(super) version: Version,
 
 	#[serde(borrow)]
 	/// # Package Description.
@@ -1061,33 +1068,51 @@ where D: Deserializer<'de> {
 	))
 }
 
-/// # Deserialize: Resolve.
+/// # Deserialize: Section Name.
 ///
-/// This rebuilds the node list so that only _used_ dependencies are included,
-/// and makes sure that sub-dependencies inherit the sins of their fathers.
-fn deserialize_resolve<'de, D>(deserializer: D)
--> Result<RawResolve<'de>, D::Error>
+/// This will return an error if a string is present but empty.
+fn deserialize_section_name<'de, D>(deserializer: D) -> Result<String, D::Error>
 where D: Deserializer<'de> {
-	let mut resolve = <RawResolve<'de>>::deserialize(deserializer)?;
+	let tmp = <String>::deserialize(deserializer)?;
+	let mut out: String = tmp.normalized_control_and_whitespace()
+		.flat_map(char::to_uppercase)
+		.collect();
 
-	// First things first, let's figure out which dependencies are actually
-	// _used_ by starting with the root and its dependencies, then each of
-	// their dependencies, and so on.
-	let mut used: HashSet<&str> = HashSet::with_capacity(resolve.nodes.len());
-	let mut queue = vec![resolve.root];
-	while let Some(next) = queue.pop() {
-		// Only enqueue a given package's dependencies once to avoid infinite
-		// loops.
-		if used.insert(next) {
-			// Add its children, if any.
-			if let Some(next) = resolve.nodes.get(next) {
-				queue.extend(next.iter().map(|nd| nd.id));
+	let last = out.chars().last()
+		.ok_or_else(|| serde::de::Error::custom("value cannot be empty"))?;
+	if ! last.is_ascii_punctuation() { out.push(':'); }
+	Ok(out)
+}
+
+/// # Prune Resolve.
+///
+/// Remove dependencies that aren't being used, and clean up build/cfg flags
+/// for sub-dependencies.
+fn prune_resolve<'a>(resolve: &'a mut RawResolve, mut used: HashSet<&'a str>) {
+	let mut queue = Vec::new();
+
+	// If cargo tree couldn't help us, build up the "used" dependencies
+	// manually.
+	if used.is_empty() || ! used.contains(resolve.root) {
+		used.clear();
+		queue.push(resolve.root);
+		while let Some(next) = queue.pop() {
+			// Only enqueue a given package's dependencies once to avoid infinite
+			// loops.
+			if used.insert(next) {
+				// Add its children, if any.
+				if let Some(next) = resolve.nodes.get(next) {
+					queue.extend(next.iter().map(|nd| nd.id));
+				}
 			}
 		}
 	}
 
 	// And with that, let's remove all unused node chains entirely.
 	resolve.nodes.retain(|k, _| used.contains(k));
+	for deps in resolve.nodes.values_mut() {
+		deps.retain(|nd| used.contains(nd.id));
+	}
 
 	// Now let's do something similar, this time building up a list of "normal"
 	// runtime dependencies. We'll use this to mark the direct children of any
@@ -1138,25 +1163,6 @@ where D: Deserializer<'de> {
 			}
 		}
 	}
-
-	// Done!
-	Ok(resolve)
-}
-
-/// # Deserialize: Section Name.
-///
-/// This will return an error if a string is present but empty.
-fn deserialize_section_name<'de, D>(deserializer: D) -> Result<String, D::Error>
-where D: Deserializer<'de> {
-	let tmp = <String>::deserialize(deserializer)?;
-	let mut out: String = tmp.normalized_control_and_whitespace()
-		.flat_map(char::to_uppercase)
-		.collect();
-
-	let last = out.chars().last()
-		.ok_or_else(|| serde::de::Error::custom("value cannot be empty"))?;
-	if ! last.is_ascii_punctuation() { out.push(':'); }
-	Ok(out)
 }
 
 

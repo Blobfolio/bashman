@@ -7,12 +7,14 @@ use crate::{
 	BashManError,
 	TargetTriple,
 };
+use semver::Version;
 use serde::{
 	Deserialize,
 	Deserializer,
 };
 use std::{
 	borrow::Cow,
+	collections::HashSet,
 	ffi::OsStr,
 	path::Path,
 	process::{
@@ -89,6 +91,63 @@ impl<'a> CargoMetadata<'a> {
 
 		if status.success() && stdout.starts_with(br#"{"packages":["#) { Ok(stdout) }
 		else { Err(BashManError::Cargo) }
+	}
+
+	/// # Exec Tree.
+	///
+	/// Cargo tree is better at finding the dependencies we care about than we
+	/// are. If we can use it to get a list, we might as well!
+	pub(super) fn exec_tree<'b>(&self, packages: &'b [super::cargo::RawPackage]) -> Option<HashSet<&'b str>> {
+		if packages.is_empty() { return None; }
+
+		// Populate the command arguments.
+		let mut cmd = cargo_cmd();
+		cmd.args([
+			"tree",
+			"--quiet",
+			"--color", "never",
+			"--edges", "normal,build",
+			"--prefix", "none",
+			if self.features { "--all-features" } else { "--no-default-features" },
+			"--target", self.target.map_or("all", TargetTriple::as_str),
+			"--manifest-path",
+		]);
+		cmd.arg(self.path.as_os_str());
+
+		let raw = cmd
+			.stdin(Stdio::null())
+			.stdout(Stdio::piped())
+			.stderr(Stdio::null())
+			.output()
+			.ok()
+			.and_then(|o|
+				if o.status.success() { String::from_utf8(o.stdout).ok() }
+				else { None }
+			)?;
+
+		// Find the package/version pairs.
+		let name_version: HashSet<(&str, Version)> = raw.lines()
+			.filter_map(|line| {
+				let mut parts = line.split_whitespace();
+				let name = parts.next()?;
+				let version = parts.next()
+					.and_then(|s| s.strip_prefix("v"))
+					.and_then(|s| s.parse::<Version>().ok())?;
+				Some((name, version))
+			})
+			.collect();
+
+		// Now map those to package IDs from cargo metadata!
+		let mut out = HashSet::with_capacity(packages.len());
+		for p in packages {
+			if name_version.contains(&(p.name.as_str(), p.version.clone())) {
+				out.insert(p.id);
+			}
+		}
+
+		// Return it if we got it!
+		if out.is_empty() { None }
+		else { Some(out) }
 	}
 }
 
