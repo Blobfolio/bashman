@@ -1,8 +1,8 @@
 # Project Dependencies
     Package:   cargo-bashman
-    Version:   0.6.4
+    Version:   0.6.5
     Target:    x86_64-unknown-linux-gnu
-    Generated: 2024-11-04 03:33:44 UTC
+    Generated: 2024-11-08 06:34:15 UTC
 
 | Package | Version | Author(s) | License | Context |
 | ---- | ---- | ---- | ---- | ---- |
@@ -12,8 +12,7 @@
 | [cfg-if](https://github.com/alexcrichton/cfg-if) | 1.0.0 | [Alex Crichton](mailto:alex@alexcrichton.com) | MIT OR Apache-2.0 | |
 | [dactyl](https://github.com/Blobfolio/dactyl) | 0.7.4 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL | |
 | [displaydoc](https://github.com/yaahc/displaydoc) | 0.2.5 | [Jane Lusby](mailto:jlusby@yaah.dev) | MIT OR Apache-2.0 | |
-| [errno](https://github.com/lambda-fairy/rust-errno) | 0.3.9 | [Chris Wong](mailto:lambda.fairy@gmail.com) | MIT OR Apache-2.0 | |
-| [fastrand](https://github.com/smol-rs/fastrand) | 2.1.1 | [Stjepan Glavina](mailto:stjepang@gmail.com) | Apache-2.0 OR MIT | |
+| [fastrand](https://github.com/smol-rs/fastrand) | 2.2.0 | [Stjepan Glavina](mailto:stjepang@gmail.com) | Apache-2.0 OR MIT | |
 | [form_urlencoded](https://github.com/servo/rust-url) | 1.2.1 | The rust-url developers | MIT OR Apache-2.0 | |
 | [fyi_msg](https://github.com/Blobfolio/fyi) | 1.1.1 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL | |
 | [icu_collections](https://github.com/unicode-org/icu4x) | 1.5.0 | The ICU4X Project Developers | Unicode-3.0 | |
@@ -26,10 +25,9 @@
 | [icu_properties_data](https://github.com/unicode-org/icu4x) | 1.5.0 | The ICU4X Project Developers | Unicode-3.0 | |
 | [icu_provider](https://github.com/unicode-org/icu4x) | 1.5.0 | The ICU4X Project Developers | Unicode-3.0 | |
 | [icu_provider_macros](https://github.com/unicode-org/icu4x) | 1.5.0 | The ICU4X Project Developers | Unicode-3.0 | |
-| [idna](https://github.com/servo/rust-url/) | 0.5.0 | The rust-url developers | MIT OR Apache-2.0 | |
-| [idna](https://github.com/servo/rust-url/) | 1.0.2 | The rust-url developers | MIT OR Apache-2.0 | |
+| [idna](https://github.com/servo/rust-url/) | 1.0.3 | The rust-url developers | MIT OR Apache-2.0 | |
+| [idna_adapter](https://github.com/hsivonen/idna_adapter) | 1.2.0 | The rust-url developers | Apache-2.0 OR MIT | |
 | [itoa](https://github.com/dtolnay/itoa) | 1.0.11 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 | |
-| [libc](https://github.com/rust-lang/libc) | 0.2.161 | The Rust Project Developers | MIT OR Apache-2.0 | |
 | [libdeflate-sys](https://github.com/adamkewley/libdeflater) | 1.22.0 | [Adam Kewley](mailto:contact@adamkewley.com) | Apache-2.0 | |
 | [libdeflater](https://github.com/adamkewley/libdeflater) | 1.22.0 | [Adam Kewley](mailto:contact@adamkewley.com) | Apache-2.0 | |
 | [linux-raw-sys](https://github.com/sunfishcode/linux-raw-sys) | 0.4.14 | [Dan Gohman](mailto:dev@sunfishcode.online) | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT | |
@@ -40,7 +38,7 @@
 | [percent-encoding](https://github.com/servo/rust-url/) | 2.3.1 | The rust-url developers | MIT OR Apache-2.0 | |
 | [proc-macro2](https://github.com/dtolnay/proc-macro2) | 1.0.89 | [David Tolnay](mailto:dtolnay@gmail.com) and [Alex Crichton](mailto:alex@alexcrichton.com) | MIT OR Apache-2.0 | |
 | [quote](https://github.com/dtolnay/quote) | 1.0.37 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 | |
-| [rustix](https://github.com/bytecodealliance/rustix) | 0.38.38 | [Dan Gohman](mailto:dev@sunfishcode.online) and [Jakub Konka](mailto:kubkon@jakubkonka.com) | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT | |
+| [rustix](https://github.com/bytecodealliance/rustix) | 0.38.39 | [Dan Gohman](mailto:dev@sunfishcode.online) and [Jakub Konka](mailto:kubkon@jakubkonka.com) | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT | |
 | [ryu](https://github.com/dtolnay/ryu) | 1.0.18 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 OR BSL-1.0 | |
 | [semver](https://github.com/dtolnay/semver) | 1.0.23 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 | |
 | [serde](https://github.com/serde-rs/serde) | 1.0.214 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 | |
@@ -50,15 +48,11 @@
 | [stable_deref_trait](https://github.com/storyyeller/stable_deref_trait) | 1.2.0 | [Robert Grosse](mailto:n210241048576@gmail.com) | MIT OR Apache-2.0 | |
 | [syn](https://github.com/dtolnay/syn) | 2.0.87 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 | |
 | [synstructure](https://github.com/mystor/synstructure) | 0.13.1 | [Nika Layzell](mailto:nika@thelayzells.com) | MIT | |
-| [tempfile](https://github.com/Stebalien/tempfile) | 3.13.0 | [Steven Allen](mailto:steven@stebalien.com), The Rust Project Developers, [Ashley Mannix](mailto:ashleymannix@live.com.au), and [Jason White](mailto:me@jasonwhite.io) | MIT OR Apache-2.0 | |
+| [tempfile](https://github.com/Stebalien/tempfile) | 3.14.0 | [Steven Allen](mailto:steven@stebalien.com), The Rust Project Developers, [Ashley Mannix](mailto:ashleymannix@live.com.au), and [Jason White](mailto:me@jasonwhite.io) | MIT OR Apache-2.0 | |
 | [tinystr](https://github.com/unicode-org/icu4x) | 0.7.6 | The ICU4X Project Developers | Unicode-3.0 | |
-| [tinyvec](https://github.com/Lokathor/tinyvec) | 1.8.0 | [Lokathor](mailto:zefria@gmail.com) | Zlib OR Apache-2.0 OR MIT | |
-| [tinyvec_macros](https://github.com/Soveu/tinyvec_macros) | 0.1.1 | [Soveu](mailto:marx.tomasz@gmail.com) | MIT OR Apache-2.0 OR Zlib | |
 | [trimothy](https://github.com/Blobfolio/trimothy) | 0.3.1 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL | |
-| [unicode-bidi](https://github.com/servo/unicode-bidi) | 0.3.17 | The Servo Project Developers | MIT OR Apache-2.0 | |
 | [unicode-ident](https://github.com/dtolnay/unicode-ident) | 1.0.13 | [David Tolnay](mailto:dtolnay@gmail.com) | (MIT OR Apache-2.0) AND Unicode-DFS-2016 | |
-| [unicode-normalization](https://github.com/unicode-rs/unicode-normalization) | 0.1.24 | [kwantam](mailto:kwantam@gmail.com) and [Manish Goregaokar](mailto:manishsmail@gmail.com) | MIT OR Apache-2.0 | |
-| [url](https://github.com/servo/rust-url) | 2.5.2 | The rust-url developers | MIT OR Apache-2.0 | |
+| [url](https://github.com/servo/rust-url) | 2.5.3 | The rust-url developers | MIT OR Apache-2.0 | |
 | [utc2k](https://github.com/Blobfolio/utc2k) | 0.11.0 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL | |
 | [utf16_iter](https://github.com/hsivonen/utf16_iter) | 1.0.5 | [Henri Sivonen](mailto:hsivonen@hsivonen.fi) | Apache-2.0 OR MIT | |
 | [utf8_iter](https://github.com/hsivonen/utf8_iter) | 1.0.4 | [Henri Sivonen](mailto:hsivonen@hsivonen.fi) | Apache-2.0 OR MIT | |
@@ -71,5 +65,5 @@
 | [zerofrom-derive](https://github.com/unicode-org/icu4x) | 0.1.4 | [Manish Goregaokar](mailto:manishsmail@gmail.com) | Unicode-3.0 | |
 | [zerovec](https://github.com/unicode-org/icu4x) | 0.10.4 | The ICU4X Project Developers | Unicode-3.0 | |
 | [zerovec-derive](https://github.com/unicode-org/icu4x) | 0.10.3 | [Manish Goregaokar](mailto:manishsmail@gmail.com) | Unicode-3.0 | |
-| [cc](https://github.com/rust-lang/cc-rs) | 1.1.34 | [Alex Crichton](mailto:alex@alexcrichton.com) | MIT OR Apache-2.0 | build |
+| [cc](https://github.com/rust-lang/cc-rs) | 1.1.36 | [Alex Crichton](mailto:alex@alexcrichton.com) | MIT OR Apache-2.0 | build |
 | [shlex](https://github.com/comex/rust-shlex) | 1.3.0 | [comex](mailto:comexk@gmail.com), [Fenhl](mailto:fenhl@fenhl.net), [Adrian Taylor](mailto:adetaylor@chromium.org), [Alex Touchet](mailto:alextouchet@outlook.com), [Daniel Parks](mailto:dp+git@oxidized.org), and [Garrett Berg](mailto:googberg@gmail.com) | MIT OR Apache-2.0 | build |
