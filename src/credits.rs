@@ -83,27 +83,28 @@ impl<'a> fmt::Display for CreditsWriter<'a> {
 		}
 
 		// There may not be any dependencies.
-		if self.dependencies.is_empty() {
+		let Some(last) = self.dependencies.last() else {
 			return f.write_str("This project has no dependencies.\n");
+		};
+
+		// Print a header and each dependency.
+		f.write_str("| Package | Version | Author(s) | License |\n| ---- | ---- | ---- | ---- |\n")?;
+		let mut build = false;
+		let mut children = false;
+		for dep in self.dependencies {
+			if dep.build() { build = true; }
+			if ! dep.direct() { children = true; }
+			writeln!(f, "{dep}")?;
 		}
 
-		// Some dependencies are context dependent; some work is required.
-		if self.dependencies.iter().any(Dependency::conditional) {
-			f.write_str("| Package | Version | Author(s) | License | Context |\n| ---- | ---- | ---- | ---- | ---- |\n")?;
-
-			// Required first.
-			for dep in self.dependencies {
-				if ! dep.conditional() { writeln!(f, "{dep} |")?; }
+		// If we have contexts, note them.
+		if build || children || last.conditional() {
+			f.write_str("\n### Legend\n\n")?;
+			if children {
+				f.write_str("* **Direct Dependency**\n* Child Dependency\n")?;
 			}
-			// Now the specific ones.
-			for dep in self.dependencies {
-				if dep.conditional() { writeln!(f, "{dep} {} |", dep.context())?; }
-			}
-		}
-		// Everything is needed all the time!
-		else {
-			f.write_str("| Package | Version | Author(s) | License |\n| ---- | ---- | ---- | ---- |\n")?;
-			for dep in self.dependencies { writeln!(f, "{dep}")?; }
+			if last.conditional() { f.write_str("* _Optional Dependency_\n")?; }
+			if build { f.write_str("* ⚒️ Build-Only\n")?; }
 		}
 
 		Ok(())
