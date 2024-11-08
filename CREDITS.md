@@ -2,7 +2,7 @@
     Package:   cargo-bashman
     Version:   0.6.6
     Target:    x86_64-unknown-linux-gnu
-    Generated: 2024-11-08 19:20:06 UTC
+    Generated: 2024-11-08 20:56:06 UTC
 
 | Package | Version | Author(s) | License |
 | ---- | ---- | ---- | ---- |
@@ -15,7 +15,7 @@
 | [displaydoc](https://github.com/yaahc/displaydoc) | 0.2.5 | [Jane Lusby](mailto:jlusby@yaah.dev) | MIT OR Apache-2.0 |
 | [fastrand](https://github.com/smol-rs/fastrand) | 2.2.0 | [Stjepan Glavina](mailto:stjepang@gmail.com) | Apache-2.0 OR MIT |
 | [form_urlencoded](https://github.com/servo/rust-url) | 1.2.1 | The rust-url developers | MIT OR Apache-2.0 |
-| [**fyi_msg**](https://github.com/Blobfolio/fyi) | 1.1.1 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
+| [**fyi_msg**](https://github.com/Blobfolio/fyi) | 1.2.0 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
 | [icu_collections](https://github.com/unicode-org/icu4x) | 1.5.0 | The ICU4X Project Developers | Unicode-3.0 |
 | [icu_locid](https://github.com/unicode-org/icu4x) | 1.5.0 | The ICU4X Project Developers | Unicode-3.0 |
 | [icu_locid_transform](https://github.com/unicode-org/icu4x) | 1.5.0 | The ICU4X Project Developers | Unicode-3.0 |
