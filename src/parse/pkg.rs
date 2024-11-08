@@ -143,6 +143,28 @@ impl Dependency {
 impl fmt::Display for Dependency {
 	/// # Write as Markdown.
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		#[expect(clippy::missing_docs_in_private_items, reason = "Self-Explanatory.")]
+		/// # Name Formatter.
+		///
+		/// This will linkify the name if needed.
+		struct FmtName<'a> {
+			name: &'a str,
+			open: &'a str,
+			close: &'a str,
+			url: Option<&'a str>,
+		}
+		impl<'a> fmt::Display for FmtName<'a> {
+			fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+				if let Some(url) = self.url {
+					write!(f, "[{}{}{}]({url})", self.open, self.name, self.close)
+				}
+				else {
+					write!(f, "{}{}{}", self.open, self.name, self.close)
+				}
+			}
+		}
+
+		// Contextual formatting tags.
 		let (open, close) = match (self.direct(), self.conditional()) {
 			(true, true) => ("**_", "_**"),
 			(true, false) => ("**", "**"),
@@ -150,30 +172,21 @@ impl fmt::Display for Dependency {
 			(false, false) => ("", ""),
 		};
 
-		// The name as a link.
-		if let Some(url) = self.url() {
-			write!(
-				f,
-				"| [{open}{}{close}]({url}){} | {} | {} | {} |",
-				self.name,
-				if self.build() { " ⚒️" } else { "" },
-				self.version,
-				OxfordJoinFmt::and(self.authors()),
-				self.license().unwrap_or(""),
-			)
-		}
-		// The name plain.
-		else {
-			write!(
-				f,
-				"| {open}{}{close}{} | {} | {} | {} |",
-				self.name,
-				if self.build() { " ⚒️" } else { "" },
-				self.version,
-				OxfordJoinFmt::and(self.authors()),
-				self.license().unwrap_or(""),
-			)
-		}
+		// Build "asterisk".
+		let asterisk = if self.build() { " ⚒️" } else { "" };
+
+		write!(
+			f,
+			"| {}{asterisk} | {} | {} | {} |",
+			FmtName {
+				name: self.name.as_str(),
+				open, close,
+				url: self.url(),
+			},
+			self.version,
+			OxfordJoinFmt::and(self.authors()),
+			self.license().unwrap_or(""),
+		)
 	}
 }
 
