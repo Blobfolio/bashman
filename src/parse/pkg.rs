@@ -280,6 +280,11 @@ impl TryFrom<String> for PackageName {
 	}
 }
 
+impl PackageName {
+	/// # As String Slice.
+	pub(super) fn as_str(&self) -> &str { self.name.as_str() }
+}
+
 
 
 /// # No Hyphens.

@@ -812,8 +812,8 @@
       "manifest_path": "/share/Cargo.toml",
       "metadata": {
         "bashman": {
-          "bash-dir": "./release/completions",
-          "man-dir": "./release/man",
+          "bash-dir": "./",
+          "man-dir": "./",
           "name": "Cargo BashMan",
           "options": [
             {

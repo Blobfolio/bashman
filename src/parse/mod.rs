@@ -89,6 +89,38 @@ impl Manifest {
 			dependencies: deps.into_iter().collect(),
 		})
 	}
+
+	#[cfg(test)]
+	/// # From Dummy.
+	///
+	/// Like `Manifest::from_file`, but uses a static dataset for testing
+	/// purposes.
+	pub(crate) fn from_test() -> Result<Self, BashManError> {
+		let (dir, src) = manifest_source("skel/metadata.json".as_ref())?;
+
+		let target = TargetTriple::try_from("x86_64-unknown-linux-gnu".to_owned()).ok();
+		assert!(target.is_some(), "Target failed.");
+
+		let (
+			cargo::RawMainPackage { dir_bash, dir_man, dir_credits, subcommands, credits },
+			mut deps,
+		) = cargo::fetch_test(target)?;
+
+		// Abosrb the extra credits into the real dependencies.
+		deps.extend(credits);
+
+		// Finally!
+		Ok(Self {
+			src,
+			dir_bash: dir_bash.map(|v| dir.join(v)),
+			dir_man: dir_man.map(|v| dir.join(v)),
+			dir_credits: dir_credits.map(|v| dir.join(v)),
+			dir,
+			subcommands,
+			target,
+			dependencies: deps.into_iter().collect(),
+		})
+	}
 }
 
 impl Manifest {

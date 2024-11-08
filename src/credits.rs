@@ -110,10 +110,10 @@ impl<'a> fmt::Display for CreditsWriter<'a> {
 	}
 }
 
-impl<'a> CreditsWriter<'a> {
-	/// # New Instance.
-	pub(super) fn new(man: &'a Manifest)
-	-> Result<Self, BashManError> {
+impl<'a> TryFrom<&'a Manifest> for CreditsWriter<'a> {
+	type Error = BashManError;
+
+	fn try_from(man: &'a Manifest) -> Result<Self, Self::Error> {
 		let src = man.src();
 		let dst = man.dir_credits()?.join("CREDITS.md");
 		let cmd = man.main_cmd().ok_or(BashManError::Credits)?;
@@ -129,7 +129,9 @@ impl<'a> CreditsWriter<'a> {
 			dependencies: man.dependencies(),
 		})
 	}
+}
 
+impl<'a> CreditsWriter<'a> {
 	/// # Write Credits!
 	///
 	/// This method is called by `main.rs` to generate and save the crate
@@ -150,5 +152,27 @@ impl<'a> CreditsWriter<'a> {
 		write_atomic::write_file(&self.dst, buf.as_bytes())
 			.map_err(|_| BashManError::Write(self.dst.to_string_lossy().into_owned()))
 			.map(|()| self.dst)
+	}
+}
+
+
+
+#[cfg(test)]
+mod test {
+	use super::*;
+
+	#[test]
+	fn t_creditswriter() {
+		let manifest = Manifest::from_test().expect("Manifest failed.");
+		let writer = CreditsWriter::try_from(&manifest).expect("CreditsWriter failed.");
+
+		// Test the credits generate as expected, save for the timestamp.
+		let expected = std::fs::read_to_string("skel/metadata.credits")
+			.expect("Missing skel/metadata.credits");
+		let mut out = writer.to_string();
+		let pos = out.find("    Generated: ").expect("Missing timestamp.");
+		out.replace_range(pos + 15..pos + 35, "");
+
+		assert_eq!(out, expected);
 	}
 }
