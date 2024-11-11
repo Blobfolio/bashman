@@ -71,7 +71,7 @@ argyle = "0.10.*"
 
 [dependencies]
 argyle = "0.10.*"
-adbyss_psl = "0.14.*"
+adbyss_psl = "0.15.*"
 dactyl = "0.7.4"
 fyi_msg = "1.2.*"
 oxford_join = "0.4.*"
