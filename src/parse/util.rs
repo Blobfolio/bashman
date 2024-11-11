@@ -178,15 +178,18 @@ where D: Deserializer<'de> {
 	Ok(
 		<String>::deserialize(deserializer).ok()
 			.and_then(|mut out| {
-				out.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '|'));
+				if out.chars().any(|c| c.is_ascii_alphabetic()) {
+					esc_markdown(&mut out);
 
-				// Slash separators are deprecated.
-				while let Some(pos) = out.find('/') { out.replace_range(pos..=pos, " OR "); }
+					// Slash separators are deprecated.
+					while let Some(pos) = out.find('/') { out.replace_range(pos..=pos, " OR "); }
 
-				// Normalize and return if non-empty.
-				normalize_string(&mut out);
-				if out.is_empty() { None }
-				else { Some(out) }
+					// Normalize and return if non-empty.
+					normalize_string(&mut out);
+					if out.is_empty() { None }
+					else { Some(out) }
+				}
+				else { None }
 			})
 	)
 }
@@ -285,6 +288,32 @@ fn cargo_cmd() -> Command {
 	}))
 }
 
+/// # Escape Entities.
+///
+/// This method HTML-encodes entities with (possible) markdown properties,
+/// namely for the benefit of the credits page.
+fn esc_markdown(raw: &mut String) {
+	// This kinda sucks. Haha.
+	let mut end = raw.len();
+	while let Some(pos) = raw[..end].rfind(['#', '*', '<', '>', '[', ']', '^', '_', '`', '|', '~']) {
+		let entity = match raw.as_bytes()[pos] {
+			b'#' => "&#35;",
+			b'*' => "&#42;",
+			b'<' => "&lt;",
+			b'>' => "&gt;",
+			b'[' => "&#91;",
+			b']' => "&#93;",
+			b'^' => "&#94;",
+			b'_' => "&#95;",
+			b'`' => "&#96;",
+			b'|' => "&#124;",
+			_ => "&#126;", // ~
+		};
+		raw.replace_range(pos..=pos, entity);
+		end = pos;
+	}
+}
+
 /// # Nice Author Line.
 ///
 /// Sanitize an author line, which should either look like "Name" or
@@ -310,6 +339,7 @@ fn nice_author(raw: &mut String) {
 				'=' => { out.push_str("&#61;"); },
 				'?' => { out.push_str("&#63;"); },
 				'^' => { out.push_str("&#94;"); },
+				'_' => { out.push_str("&#95;"); },
 				'`' => { out.push_str("&#96;"); },
 				'|' => { out.push_str("&#124;"); },
 				'~' => { out.push_str("&#126;"); },
@@ -339,7 +369,7 @@ fn nice_author(raw: &mut String) {
 
 			if let Some(email) = email {
 				// Pretty up the name part.
-				raw.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '|'));
+				esc_markdown(raw);
 				normalize_string(raw);
 
 				// We have an email but not a name.
@@ -361,8 +391,11 @@ fn nice_author(raw: &mut String) {
 	}
 
 	// It stands alone.
-	raw.retain(|c| ! matches!(c, '[' | ']' | '<' | '>' | '|'));
-	normalize_string(raw);
+	if raw.chars().any(|c| c.is_ascii_alphabetic()) {
+		esc_markdown(raw);
+		normalize_string(raw);
+	}
+	else { raw.truncate(0); }
 }
 
 
@@ -370,6 +403,24 @@ fn nice_author(raw: &mut String) {
 #[cfg(test)]
 mod test {
 	use super::*;
+
+	#[test]
+	fn t_esc_markdown() {
+		let mut buf = String::new();
+		for (raw, expected) in [
+			("I`m #1!", "I&#96;m &#35;1!"),
+			("### Headline", "&#35;&#35;&#35; Headline"),
+			("((<_>))", "((&lt;&#95;&gt;))"),
+			("#[On]* | *[Off]#", "&#35;&#91;On&#93;&#42; &#124; &#42;&#91;Off&#93;&#35;"),
+			("Up^", "Up&#94;"),
+			("Crook`d~~", "Crook&#96;d&#126;&#126;"),
+			("hello world", "hello world"),
+		] {
+			raw.clone_into(&mut buf);
+			esc_markdown(&mut buf);
+			assert_eq!(buf, expected);
+		}
+	}
 
 	#[test]
 	fn t_nice_author() {
