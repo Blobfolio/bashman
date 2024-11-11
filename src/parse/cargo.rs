@@ -59,11 +59,9 @@ pub(super) fn fetch(src: &Path, target: Option<TargetTriple>)
 
 	// Query without features first.
 	let raw1 = cargo.exec()?;
-	let Raw { packages, mut resolve } = serde_json::from_slice(&raw1)
-		.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?;
-
-	// Clean up unused nodes.
-	prune_resolve(&mut resolve, cargo.exec_tree(&packages).unwrap_or_default());
+	let (packages, resolve) = serde_json::from_slice::<Raw>(&raw1)
+		.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?
+		.finalize(Some(cargo));
 
 	// Build the dependency list (and find the main package).
 	let flags = resolve.flags(target.is_some());
@@ -93,10 +91,7 @@ pub(super) fn fetch(src: &Path, target: Option<TargetTriple>)
 	if features {
 		cargo = cargo.with_features(true);
 		if let Ok(raw2) = cargo.exec() {
-			if let Ok(Raw { packages, mut resolve }) = serde_json::from_slice(&raw2) {
-				// Clean up unused nodes.
-				prune_resolve(&mut resolve, cargo.exec_tree(&packages).unwrap_or_default());
-
+			if let Ok((packages, resolve)) = serde_json::from_slice::<Raw>(&raw2).map(|r| r.finalize(Some(cargo))) {
 				// Build the dependency list (and find the main package).
 				let flags = resolve.flags(target.is_some());
 				for p in packages {
@@ -127,9 +122,9 @@ pub(super) fn fetch_test(target: Option<TargetTriple>)
 	// Parse the static data.
 	let raw1 = std::fs::read("skel/metadata.json")
 		.map_err(|_| BashManError::Read("skel/metadata.json".to_owned()))?;
-	let Raw { packages, mut resolve } = serde_json::from_slice(&raw1)
-		.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?;
-	prune_resolve(&mut resolve, HashSet::new());
+	let (packages, resolve) = serde_json::from_slice::<Raw>(&raw1)
+		.map_err(|e| BashManError::ParseCargoMetadata(e.to_string()))?
+		.finalize(None);
 
 	// Build the dependency list (and find the main package).
 	let flags = resolve.flags(target.is_some());
@@ -303,8 +298,112 @@ struct Raw<'a> {
 	packages: Vec<RawPackage<'a>>,
 
 	#[serde(borrow)]
+	/// # Workspace Members.
+	workspace_members: HashSet<&'a str>,
+
+	#[serde(borrow)]
 	/// # Resolved Nodes.
 	resolve: RawResolve<'a>,
+}
+
+impl<'a> Raw<'a> {
+	/// # Finalize!
+	///
+	/// This takes care of a few big-picture tasks post-deserialization and
+	/// returns the packages and node lists.
+	fn finalize(self, cargo: Option<CargoMetadata<'_>>)
+	-> (Vec<RawPackage<'a>>, RawResolve<'a>) {
+		let Self { packages, workspace_members, mut resolve } = self;
+		let mut used = cargo.and_then(|c| c.exec_tree(&packages))
+			.unwrap_or_default();
+
+		// If cargo tree couldn't help us figure out which dependencies are
+		// actually used, let's take a guess by traversing the root
+		// dependencies, then each of their dependencies, and so on.
+		let mut queue = Vec::new();
+		if used.is_empty() || ! used.contains(resolve.root) {
+			used.clear();
+			queue.push(resolve.root);
+			while let Some(next) = queue.pop() {
+				// Only enqueue a given package's dependencies once to avoid infinite
+				// loops.
+				if used.insert(next) {
+					// Add its children, if any.
+					if let Some(next) = resolve.nodes.get(next) {
+						queue.extend(next.iter().map(|nd| nd.id));
+					}
+				}
+			}
+		}
+
+		// Remove unused node chains and dependencies.
+		resolve.nodes.retain(|k, _| used.contains(k));
+		for v in resolve.nodes.values_mut() {
+			v.retain(|nd| used.contains(nd.id));
+		}
+
+		// Now let's traverse what remains to find the "normal" dependencies so
+		// we can recurisvely propagate build flags to build-only
+		// sub-dependencies.
+		used.clear();
+		queue.push(resolve.root);
+		while let Some(next) = queue.pop() {
+			if used.insert(next) {
+				// Add its children, if any.
+				if let Some(next) = resolve.nodes.get(next) {
+					for nd in next {
+						if Dependency::FLAG_CTX_NORMAL == nd.dep_kinds & Dependency::FLAG_CTX_NORMAL {
+							queue.push(nd.id);
+						}
+					}
+				}
+			}
+		}
+		for (k, v) in &mut resolve.nodes {
+			if ! used.contains(k) {
+				for nd in v {
+					nd.dep_kinds = (nd.dep_kinds & ! Dependency::MASK_CTX) | Dependency::FLAG_CTX_BUILD;
+				}
+			}
+		}
+
+		// Same as above, but this time we're looking for untargeted
+		// dependencies so we can propagate conditionality where appropriate.
+		used.clear();
+		queue.push(resolve.root);
+		while let Some(next) = queue.pop() {
+			if used.insert(next) {
+				// Add its children, if any.
+				if let Some(next) = resolve.nodes.get(next) {
+					for nd in next {
+						if Dependency::FLAG_TARGET_ANY == nd.dep_kinds & Dependency::FLAG_TARGET_ANY {
+							queue.push(nd.id);
+						}
+					}
+				}
+			}
+		}
+		for (k, v) in &mut resolve.nodes {
+			if ! used.contains(k) {
+				for nd in v {
+					nd.dep_kinds = (nd.dep_kinds & ! Dependency::MASK_TARGET) | Dependency::FLAG_TARGET_CFG;
+				}
+			}
+		}
+
+		// Lastly, mark all direct dependencies of workspace members as being
+		// directly required.
+		for id in workspace_members {
+			if let Some(v) = resolve.nodes.get_mut(id) {
+				for nd in v {
+					nd.dep_kinds |= Dependency::FLAG_DIRECT;
+				}
+			}
+		}
+
+		// Done!
+		(packages, resolve)
+	}
 }
 
 
@@ -1084,94 +1183,6 @@ where D: Deserializer<'de> {
 		.ok_or_else(|| serde::de::Error::custom("value cannot be empty"))?;
 	if ! last.is_ascii_punctuation() { out.push(':'); }
 	Ok(out)
-}
-
-/// # Prune Resolve.
-///
-/// Remove dependencies that aren't being used, and clean up build/cfg flags
-/// for sub-dependencies.
-fn prune_resolve<'a>(resolve: &'a mut RawResolve, mut used: HashSet<&'a str>) {
-	let mut queue = Vec::new();
-
-	// If cargo tree couldn't help us, build up the "used" dependencies
-	// manually.
-	if used.is_empty() || ! used.contains(resolve.root) {
-		used.clear();
-		queue.push(resolve.root);
-		while let Some(next) = queue.pop() {
-			// Only enqueue a given package's dependencies once to avoid infinite
-			// loops.
-			if used.insert(next) {
-				// Add its children, if any.
-				if let Some(next) = resolve.nodes.get(next) {
-					queue.extend(next.iter().map(|nd| nd.id));
-				}
-			}
-		}
-	}
-
-	// And with that, let's remove all unused node chains entirely.
-	resolve.nodes.retain(|k, _| used.contains(k));
-	for v in resolve.nodes.values_mut() {
-		v.retain(|nd| used.contains(nd.id));
-	}
-
-	// Now let's do something similar, this time building up a list of "normal"
-	// runtime dependencies. We'll use this to mark the direct children of any
-	// non-normal node parents as build-only.
-	used.clear();
-	queue.push(resolve.root);
-	while let Some(next) = queue.pop() {
-		if used.insert(next) {
-			// Add its children, if any.
-			if let Some(next) = resolve.nodes.get(next) {
-				for nd in next {
-					if Dependency::FLAG_CTX_NORMAL == nd.dep_kinds & Dependency::FLAG_CTX_NORMAL {
-						queue.push(nd.id);
-					}
-				}
-			}
-		}
-	}
-	for (k, v) in &mut resolve.nodes {
-		if ! used.contains(k) {
-			for nd in v {
-				nd.dep_kinds = (nd.dep_kinds & ! Dependency::MASK_CTX) | Dependency::FLAG_CTX_BUILD;
-			}
-		}
-	}
-
-	// One more time around! Here, we're looking for "any" targets so that we
-	// can mark the direct children of non-any targets as being
-	// target-specific.
-	used.clear();
-	queue.push(resolve.root);
-	while let Some(next) = queue.pop() {
-		if used.insert(next) {
-			// Add its children, if any.
-			if let Some(next) = resolve.nodes.get(next) {
-				for nd in next {
-					if Dependency::FLAG_TARGET_ANY == nd.dep_kinds & Dependency::FLAG_TARGET_ANY {
-						queue.push(nd.id);
-					}
-				}
-			}
-		}
-	}
-	for (k, v) in &mut resolve.nodes {
-		if ! used.contains(k) {
-			for nd in v {
-				nd.dep_kinds = (nd.dep_kinds & ! Dependency::MASK_TARGET) | Dependency::FLAG_TARGET_CFG;
-			}
-		}
-	}
-
-	// Lastly, let's mark direct dependencies.
-	if let Some(v) = resolve.nodes.get_mut(resolve.root) {
-		for nd in v {
-			nd.dep_kinds |= Dependency::FLAG_DIRECT;
-		}
-	}
 }
 
 

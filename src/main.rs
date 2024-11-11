@@ -260,16 +260,14 @@ fn _main() -> Result<(), BashManError> {
 
 	// Print the skipped.
 	if skipped != 0 {
-		Msg::custom("Skipped", 11, &format!(
+		Msg::skipped(format!(
 			"{}; no corresponding bashman manifest sections found.",
 			match skipped {
 				SKIPPED_BASH => "Bash completions",
 				SKIPPED_MAN => "Man page(s)",
 				_ => "Bash completions and man page(s)",
 			}
-		))
-			.with_newline(true)
-			.eprint();
+		)).eprint();
 	}
 
 	#[expect(clippy::option_if_let_else, reason = "Too messy.")]
