@@ -1,12 +1,12 @@
 # Project Dependencies
     Package:   cargo-bashman
-    Version:   0.6.6
+    Version:   0.6.7
     Target:    x86_64-unknown-linux-gnu
-    Generated: 2024-11-08 20:56:06 UTC
+    Generated: 2024-11-11 20:33:44 UTC
 
 | Package | Version | Author(s) | License |
 | ---- | ---- | ---- | ---- |
-| [**adbyss_psl**](https://github.com/Blobfolio/adbyss) | 0.14.0 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
+| [**adbyss_psl**](https://github.com/Blobfolio/adbyss) | 0.15.0 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
 | [**argyle**](https://github.com/Blobfolio/argyle) | 0.10.0 | [Blobfolio, LLC.](mailto:hello@blobfolio.com) | WTFPL |
 | [bitflags](https://github.com/bitflags/bitflags) | 2.6.0 | The Rust Project Developers | MIT OR Apache-2.0 |
 | [cc](https://github.com/rust-lang/cc-rs) ⚒️ | 1.1.37 | [Alex Crichton](mailto:alex@alexcrichton.com) | MIT OR Apache-2.0 |
@@ -39,13 +39,13 @@
 | [percent-encoding](https://github.com/servo/rust-url/) | 2.3.1 | The rust-url developers | MIT OR Apache-2.0 |
 | [proc-macro2](https://github.com/dtolnay/proc-macro2) | 1.0.89 | [David Tolnay](mailto:dtolnay@gmail.com) and [Alex Crichton](mailto:alex@alexcrichton.com) | MIT OR Apache-2.0 |
 | [quote](https://github.com/dtolnay/quote) | 1.0.37 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
-| [rustix](https://github.com/bytecodealliance/rustix) | 0.38.39 | [Dan Gohman](mailto:dev@sunfishcode.online) and [Jakub Konka](mailto:kubkon@jakubkonka.com) | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT |
+| [rustix](https://github.com/bytecodealliance/rustix) | 0.38.40 | [Dan Gohman](mailto:dev@sunfishcode.online) and [Jakub Konka](mailto:kubkon@jakubkonka.com) | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT |
 | [ryu](https://github.com/dtolnay/ryu) | 1.0.18 | [David Tolnay](mailto:dtolnay@gmail.com) | Apache-2.0 OR BSL-1.0 |
 | [**semver**](https://github.com/dtolnay/semver) | 1.0.23 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
 | [**serde**](https://github.com/serde-rs/serde) | 1.0.214 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
 | [serde_derive](https://github.com/serde-rs/serde) | 1.0.214 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
 | [**serde_json**](https://github.com/serde-rs/json) | 1.0.132 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
-| [shlex](https://github.com/comex/rust-shlex) ⚒️ | 1.3.0 | [comex](mailto:comexk@gmail.com), [Fenhl](mailto:fenhl@fenhl.net), [Adrian Taylor](mailto:adetaylor@chromium.org), [Alex Touchet](mailto:alextouchet@outlook.com), [Daniel Parks](mailto:dp+git@oxidized.org), and [Garrett Berg](mailto:googberg@gmail.com) | MIT OR Apache-2.0 |
+| [shlex](https://github.com/comex/rust-shlex) ⚒️ | 1.3.0 | [comex](mailto:comexk@gmail.com), [Fenhl](mailto:fenhl@fenhl.net), [Adrian Taylor](mailto:adetaylor@chromium.org), [Alex Touchet](mailto:alextouchet@outlook.com), [Daniel Parks](mailto:dp&#43;git@oxidized.org), and [Garrett Berg](mailto:googberg@gmail.com) | MIT OR Apache-2.0 |
 | [smallvec](https://github.com/servo/rust-smallvec) | 1.13.2 | The Servo Project Developers | MIT OR Apache-2.0 |
 | [stable_deref_trait](https://github.com/storyyeller/stable_deref_trait) | 1.2.0 | [Robert Grosse](mailto:n210241048576@gmail.com) | MIT OR Apache-2.0 |
 | [syn](https://github.com/dtolnay/syn) | 2.0.87 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
