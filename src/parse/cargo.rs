@@ -43,7 +43,6 @@ use super::{
 		CargoMetadata,
 	},
 };
-use trimothy::NormalizeWhitespace;
 use url::Url;
 
 
@@ -1174,14 +1173,33 @@ where D: Deserializer<'de> {
 /// This will return an error if a string is present but empty.
 fn deserialize_section_name<'de, D>(deserializer: D) -> Result<String, D::Error>
 where D: Deserializer<'de> {
-	let tmp = <String>::deserialize(deserializer)?;
-	let mut out: String = tmp.normalized_control_and_whitespace()
-		.flat_map(char::to_uppercase)
-		.collect();
+	use trimothy::TrimNormal;
 
+	let mut out = <String>::deserialize(deserializer)?;
+	out.retain(|c| c.is_ascii_whitespace() || ! c.is_control());
+	out.make_ascii_uppercase();
+	out = out.trim_and_normalize();
+
+	// Add a trailing colon to unpunctuated names.
 	let last = out.chars().last()
 		.ok_or_else(|| serde::de::Error::custom("value cannot be empty"))?;
 	if ! last.is_ascii_punctuation() { out.push(':'); }
+
+	// Lowercase unicode requires char-by-char replacement, but if we work
+	// backwards we can avoid retreading the same ground.
+	let mut end = out.len();
+	let mut found = '?';
+	while let Some(pos) = out[..end].rfind(|c: char|
+		if c.is_lowercase() {
+			found = c;
+			true
+		}
+		else { false }
+	) {
+		out.replace_range(pos..pos + found.len_utf8(), &found.to_uppercase().to_string());
+		end = pos;
+	}
+
 	Ok(out)
 }
 
@@ -1289,5 +1307,19 @@ mod test {
 
 		let raw = RawValue::from_string(r#"{"default": ["foo"], "bar": null}"#.to_owned()).unwrap();
 		assert!(deserialize_features(&raw));
+	}
+
+	#[test]
+	fn t_deserialize_section_name() {
+		for (raw, expected) in [
+			(" hello  world   ", Some("HELLO WORLD:")),
+			("\t\thello\t\nworld. ", Some("HELLO WORLD.")),
+			("\t\tBjörk\u{3000}\t\nTime:", Some("BJÖRK TIME:")),
+			("\t\t", None),
+		] {
+			let raw = serde_json::to_string(raw).unwrap();
+			let raw = RawValue::from_string(raw).unwrap();
+			assert_eq!(deserialize_section_name(&*raw).ok().as_deref(), expected);
+		}
 	}
 }

@@ -25,7 +25,7 @@ use std::{
 	sync::OnceLock,
 };
 use trimothy::{
-	NormalizeWhitespace,
+	TrimNormal,
 	TrimMut,
 };
 
@@ -238,36 +238,13 @@ where D: Deserializer<'de> {
 	)
 }
 
+#[inline]
 /// # Normalize String.
 ///
 /// Compact whitespace and strip control characters.
-///
-/// This proceeds under the assumption that most normalization can be achieved
-/// "inline" via `retain`, but if substitution is required it will rebuild the
-/// string char-by-char.
 pub(super) fn normalize_string(raw: &mut String) {
-	let mut ws = true;
-	let mut rebuild = false;
-	raw.retain(|c: char|
-		if c.is_whitespace() {
-			if ws { false }
-			else {
-				ws = true;
-				if c != ' ' { rebuild = true; }
-				true
-			}
-		}
-		else if c.is_control() { false }
-		else {
-			ws = false;
-			true
-		}
-	);
-
-	// We encountered something requiring more than a strip; rebuild!
-	if rebuild { *raw = raw.normalized_whitespace().collect(); }
-	// Just trim the end and we're good to go!
-	else { raw.trim_end_mut(); }
+	raw.retain(|c: char| c.is_ascii_whitespace() || ! c.is_control());
+	raw.trim_and_normalize();
 }
 
 

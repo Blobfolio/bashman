@@ -75,7 +75,7 @@ adbyss_psl = "0.15.*"
 dactyl = "0.7.4"
 fyi_msg = "1.2.*"
 oxford_join = "0.4.*"
-trimothy = "0.3.*"
+trimothy = "0.5.*"
 utc2k = "0.11.*"
 write_atomic = "0.5.*"
 
