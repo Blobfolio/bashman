@@ -47,7 +47,7 @@ pub(super) struct CreditsWriter<'a> {
 	dependencies: &'a [Dependency],
 }
 
-impl<'a> fmt::Display for CreditsWriter<'a> {
+impl fmt::Display for CreditsWriter<'_> {
 	/// # Write Credits!
 	///
 	/// This method writes a markdown table entry for the dependency.
@@ -132,7 +132,7 @@ impl<'a> TryFrom<&'a Manifest> for CreditsWriter<'a> {
 	}
 }
 
-impl<'a> CreditsWriter<'a> {
+impl CreditsWriter<'_> {
 	/// # Write Credits!
 	///
 	/// This method is called by `main.rs` to generate and save the crate

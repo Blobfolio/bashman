@@ -88,7 +88,7 @@ impl<'a> TryFrom<&'a Manifest> for ManWriter<'a> {
 	}
 }
 
-impl<'a> ManWriter<'a> {
+impl ManWriter<'_> {
 	/// # Write to File.
 	///
 	/// This method is called by `main.rs` to generate and save the manual
@@ -171,7 +171,7 @@ struct Man<'a> {
 	sections: Vec<Section<'a>>,
 }
 
-impl<'a> fmt::Display for Man<'a> {
+impl fmt::Display for Man<'_> {
 	/// # Write Section.
 	///
 	/// This generates appropriate man code for the section.
@@ -228,7 +228,7 @@ impl<'a> fmt::Display for Man<'a> {
 	}
 }
 
-impl<'a> Man<'a> {
+impl Man<'_> {
 	/// # Has Flags?
 	const HAS_FLAGS: u8 =       0b0001;
 
@@ -366,7 +366,7 @@ struct Section<'a> {
 	data: Vec<SectionData<'a>>,
 }
 
-impl<'a> fmt::Display for Section<'a> {
+impl fmt::Display for Section<'_> {
 	/// # Write Section.
 	///
 	/// This generates appropriate man code for the section.
@@ -404,7 +404,7 @@ struct SectionData<'a> {
 	indent: bool,
 }
 
-impl<'a> fmt::Display for SectionData<'a> {
+impl fmt::Display for SectionData<'_> {
 	/// # Write Entry.
 	///
 	/// This generates appropriate man code for a given data based on the
@@ -529,7 +529,7 @@ impl<'a> From<&'a TrailingArg> for SectionData<'a> {
 /// # Escape Hyphens.
 struct EscapeHyphens<'a>(&'a str);
 
-impl<'a> fmt::Display for EscapeHyphens<'a> {
+impl fmt::Display for EscapeHyphens<'_> {
 	/// # Write Escaped.
 	///
 	/// MAN pages don't seem to like hyphens; this will escape any as they're

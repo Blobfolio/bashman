@@ -82,7 +82,7 @@ pub(super) fn fetch(src: &Path, target: Option<TargetTriple>)
 		"unable to determine root package".to_owned()
 	))?;
 	let main = RawMainPackage::try_from_parts(name, &version, description, metadata)?;
-	let features = features.map_or(false, deserialize_features);
+	let features = features.is_some_and(deserialize_features);
 
 	// If this crate has features, repeat the process to figure out if
 	// there are any additional optional dependencies. If this fails for
@@ -147,7 +147,7 @@ pub(super) fn fetch_test(target: Option<TargetTriple>)
 	let main = RawMainPackage::try_from_parts(name, &version, description, metadata)?;
 
 	// We don't have features.
-	assert!(! features.map_or(false, deserialize_features), "No features expected!");
+	assert!(! features.is_some_and(deserialize_features), "No features expected!");
 
 	// Finish deserializing the main package.
 	Ok((main, deps))
@@ -455,7 +455,7 @@ pub(super) struct RawPackage<'a> {
 	metadata: Option<&'a RawValue>,
 }
 
-impl<'a> RawPackage<'a> {
+impl RawPackage<'_> {
 	/// # Try Into Dependency.
 	fn try_into_dependency(self, context: u8) -> Result<Dependency, BashManError> {
 		// Deserialize deferred fields.
@@ -786,7 +786,7 @@ struct RawResolve<'a> {
 	root: &'a str,
 }
 
-impl<'a> RawResolve<'a> {
+impl RawResolve<'_> {
 	/// # Cumulative Context Flags.
 	///
 	/// Flags are calculated per parent/child during deserialization; this
@@ -1084,8 +1084,7 @@ where D: Deserializer<'de> {
 ///
 /// We just want to know if there _are_ features; the details are irrelevant.
 fn deserialize_features<'a>(raw: &'a RawValue) -> bool {
-	<HashMap<Cow<'a, str>, &'a RawValue>>::deserialize(raw).map_or(
-		false,
+	<HashMap<Cow<'a, str>, &'a RawValue>>::deserialize(raw).is_ok_and(
 		|map| match 1_usize.cmp(&map.len()) {
 			// 2+ features is always a YES.
 			Ordering::Less => true,

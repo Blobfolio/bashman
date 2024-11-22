@@ -146,7 +146,7 @@ impl Manifest {
 	pub(crate) fn dir_bash(&self) -> Result<PathBuf, BashManError> {
 		let has_data =
 			1 < self.subcommands.len() ||
-			self.subcommands.first().map_or(false, |s| {
+			self.subcommands.first().is_some_and(|s| {
 				! s.data.flags.is_empty() ||
 				! s.data.options.is_empty() ||
 				s.data.args.is_some()
@@ -185,7 +185,7 @@ impl Manifest {
 	pub(crate) fn dir_man(&self) -> Result<PathBuf, BashManError> {
 		let has_data =
 			1 < self.subcommands.len() ||
-			self.subcommands.first().map_or(false, |s| {
+			self.subcommands.first().is_some_and(|s| {
 				! s.data.flags.is_empty() ||
 				! s.data.options.is_empty() ||
 				s.data.args.is_some() ||

@@ -33,7 +33,7 @@ pub(super) struct BashWriter<'a> {
 	subcommands: Vec<Subcommand<'a>>,
 }
 
-impl<'a> fmt::Display for BashWriter<'a> {
+impl fmt::Display for BashWriter<'_> {
 	/// # Write Completions!
 	///
 	/// This method outputs the _entire_ contents of the completions file. It
@@ -135,7 +135,7 @@ impl<'a> TryFrom<&'a Manifest> for BashWriter<'a> {
 	}
 }
 
-impl<'a> BashWriter<'a> {
+impl BashWriter<'_> {
 	/// # Main Command.
 	///
 	/// We store the primary and subcommands together because they mostly work
@@ -196,7 +196,7 @@ impl<'a> BashWriter<'a> {
 /// a single `write!` pattern.
 struct ChooserCase<'a>(&'a str, &'a str);
 
-impl<'a> fmt::Display for ChooserCase<'a> {
+impl fmt::Display for ChooserCase<'_> {
 	/// # Write the Case.
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		writeln!(f, "\
@@ -226,7 +226,7 @@ impl<'a> From<&'a Subcommand<'a>> for ChooserCase<'a> {
 /// `write!` pattern.
 struct SubcmdCase<'a>(&'a str);
 
-impl<'a> fmt::Display for SubcmdCase<'a> {
+impl fmt::Display for SubcmdCase<'_> {
 	/// # Write Case.
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		writeln!(f, "\
@@ -263,7 +263,7 @@ struct Key<'a> {
 	flags: u8,
 }
 
-impl<'a> fmt::Display for Key<'a> {
+impl fmt::Display for Key<'_> {
 	/// # Write Conditions.
 	///
 	/// This generates code to add the key(s) to the completion matcher for a
@@ -329,7 +329,7 @@ impl<'a> From<&'a OptionFlag> for Key<'a> {
 	}
 }
 
-impl<'a> Key<'a> {
+impl Key<'_> {
 	/// # Flag: Allow Duplicates?
 	const FLAG_DUPLICATE: u8 = 0b0001;
 
@@ -366,7 +366,7 @@ struct Subcommand<'a> {
 	fname: String,
 }
 
-impl<'a> fmt::Display for Subcommand<'a> {
+impl fmt::Display for Subcommand<'_> {
 	#[inline]
 	/// # Write Completion Method.
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -413,19 +413,19 @@ impl<'a> From<&'a crate::Subcommand> for Subcommand<'a> {
 	}
 }
 
-impl<'a> Eq for Subcommand<'a> {}
+impl Eq for Subcommand<'_> {}
 
-impl<'a> Ord for Subcommand<'a> {
+impl Ord for Subcommand<'_> {
 	#[inline]
 	fn cmp(&self, other: &Self) -> Ordering { self.fname.cmp(&other.fname) }
 }
 
-impl<'a> PartialEq for Subcommand<'a> {
+impl PartialEq for Subcommand<'_> {
 	#[inline]
 	fn eq(&self, other: &Self) -> bool { self.fname == other.fname }
 }
 
-impl<'a> PartialOrd for Subcommand<'a> {
+impl PartialOrd for Subcommand<'_> {
 	#[inline]
 	fn partial_cmp(&self, other: &Self) -> Option<Ordering> { Some(self.cmp(other)) }
 }
