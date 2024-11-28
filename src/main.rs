@@ -125,7 +125,7 @@ static CWD: LazyLock<Option<PathBuf>> = LazyLock::new(||
 
 /// # Main.
 fn main() {
-	match _main() {
+	match main__() {
 		Ok(()) => {},
 		Err(BashManError::Target) => {
 			Msg::error("Target must be one of the following:")
@@ -145,7 +145,7 @@ fn main() {
 
 #[inline]
 /// # Actual main.
-fn _main() -> Result<(), BashManError> {
+fn main__() -> Result<(), BashManError> {
 	/// # Skipped Bash.
 	const SKIPPED_BASH: u8 = 0b0001;
 
@@ -292,7 +292,7 @@ impl<'a> From<&'a Path> for RelativePath<'a> {
 	fn from(src: &'a Path) -> Self { Self(src.to_string_lossy()) }
 }
 
-impl<'a> fmt::Display for RelativePath<'a> {
+impl fmt::Display for RelativePath<'_> {
 	#[inline]
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		/// # Strip Prefix.

@@ -43,7 +43,6 @@ use super::{
 		CargoMetadata,
 	},
 };
-use trimothy::NormalizeWhitespace;
 use url::Url;
 
 
@@ -83,7 +82,7 @@ pub(super) fn fetch(src: &Path, target: Option<TargetTriple>)
 		"unable to determine root package".to_owned()
 	))?;
 	let main = RawMainPackage::try_from_parts(name, &version, description, metadata)?;
-	let features = features.map_or(false, deserialize_features);
+	let features = features.is_some_and(deserialize_features);
 
 	// If this crate has features, repeat the process to figure out if
 	// there are any additional optional dependencies. If this fails for
@@ -148,7 +147,7 @@ pub(super) fn fetch_test(target: Option<TargetTriple>)
 	let main = RawMainPackage::try_from_parts(name, &version, description, metadata)?;
 
 	// We don't have features.
-	assert!(! features.map_or(false, deserialize_features), "No features expected!");
+	assert!(! features.is_some_and(deserialize_features), "No features expected!");
 
 	// Finish deserializing the main package.
 	Ok((main, deps))
@@ -456,7 +455,7 @@ pub(super) struct RawPackage<'a> {
 	metadata: Option<&'a RawValue>,
 }
 
-impl<'a> RawPackage<'a> {
+impl RawPackage<'_> {
 	/// # Try Into Dependency.
 	fn try_into_dependency(self, context: u8) -> Result<Dependency, BashManError> {
 		// Deserialize deferred fields.
@@ -787,7 +786,7 @@ struct RawResolve<'a> {
 	root: &'a str,
 }
 
-impl<'a> RawResolve<'a> {
+impl RawResolve<'_> {
 	/// # Cumulative Context Flags.
 	///
 	/// Flags are calculated per parent/child during deserialization; this
@@ -1085,8 +1084,7 @@ where D: Deserializer<'de> {
 ///
 /// We just want to know if there _are_ features; the details are irrelevant.
 fn deserialize_features<'a>(raw: &'a RawValue) -> bool {
-	<HashMap<Cow<'a, str>, &'a RawValue>>::deserialize(raw).map_or(
-		false,
+	<HashMap<Cow<'a, str>, &'a RawValue>>::deserialize(raw).is_ok_and(
 		|map| match 1_usize.cmp(&map.len()) {
 			// 2+ features is always a YES.
 			Ordering::Less => true,
@@ -1174,14 +1172,33 @@ where D: Deserializer<'de> {
 /// This will return an error if a string is present but empty.
 fn deserialize_section_name<'de, D>(deserializer: D) -> Result<String, D::Error>
 where D: Deserializer<'de> {
-	let tmp = <String>::deserialize(deserializer)?;
-	let mut out: String = tmp.normalized_control_and_whitespace()
-		.flat_map(char::to_uppercase)
-		.collect();
+	use trimothy::TrimNormal;
 
+	let mut out = <String>::deserialize(deserializer)?;
+	out.retain(|c| c.is_ascii_whitespace() || ! c.is_control());
+	out.make_ascii_uppercase();
+	out = out.trim_and_normalize();
+
+	// Add a trailing colon to unpunctuated names.
 	let last = out.chars().last()
 		.ok_or_else(|| serde::de::Error::custom("value cannot be empty"))?;
 	if ! last.is_ascii_punctuation() { out.push(':'); }
+
+	// Lowercase unicode requires char-by-char replacement, but if we work
+	// backwards we can avoid retreading the same ground.
+	let mut end = out.len();
+	let mut found = '?';
+	while let Some(pos) = out[..end].rfind(|c: char|
+		if c.is_lowercase() {
+			found = c;
+			true
+		}
+		else { false }
+	) {
+		out.replace_range(pos..pos + found.len_utf8(), &found.to_uppercase().to_string());
+		end = pos;
+	}
+
 	Ok(out)
 }
 
@@ -1289,5 +1306,19 @@ mod test {
 
 		let raw = RawValue::from_string(r#"{"default": ["foo"], "bar": null}"#.to_owned()).unwrap();
 		assert!(deserialize_features(&raw));
+	}
+
+	#[test]
+	fn t_deserialize_section_name() {
+		for (raw, expected) in [
+			(" hello  world   ", Some("HELLO WORLD:")),
+			("\t\thello\t\nworld. ", Some("HELLO WORLD.")),
+			("\t\tBjörk\u{3000}\t\nTime:", Some("BJÖRK TIME:")),
+			("\t\t", None),
+		] {
+			let raw = serde_json::to_string(raw).unwrap();
+			let raw = RawValue::from_string(raw).unwrap();
+			assert_eq!(deserialize_section_name(&*raw).ok().as_deref(), expected);
+		}
 	}
 }

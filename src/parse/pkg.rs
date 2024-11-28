@@ -153,7 +153,7 @@ impl fmt::Display for Dependency {
 			close: &'a str,
 			url: Option<&'a str>,
 		}
-		impl<'a> fmt::Display for FmtName<'a> {
+		impl fmt::Display for FmtName<'_> {
 			fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 				if let Some(url) = self.url {
 					write!(f, "[{}{}{}]({url})", self.open, self.name, self.close)
