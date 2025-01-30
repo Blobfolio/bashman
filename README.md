@@ -19,24 +19,14 @@ MAN pages are saved in both plain ("app.1") and GZipped ("app.1.gz") states. Lin
 
 As might be expected, `cargo bashman` requires [`cargo`](https://github.com/rust-lang/cargo). If you don't already have that installed, check out [rustup](https://rustup.rs/) before continuing.
 
-Debian and Ubuntu users can just grab the pre-built `.deb` package from the [latest release](https://github.com/Blobfolio/bashman/releases/latest).
-
-To build from source:
+Debian and Ubuntu users can just grab the pre-built `.deb` package from the [latest release](https://github.com/Blobfolio/bashman/releases/latest), otherwise it can be built/installed from source the usual way:
 
 ```bash
-# Clone the source.
-git clone https://github.com/Blobfolio/bashman.git
-
-# Go to it.
-cd bashman
-
-# Build as usual. Specify additional flags as desired.
-cargo build \
-    --bin cargo-bashman \
-    --release
+# See "cargo install --help" for more options.
+cargo install \
+    --git https://github.com/Blobfolio/bashman.git \
+    --bin cargo-bashman
 ```
-
-(This should work under other 64-bit Unix environments too, like MacOS.)
 
 
 
