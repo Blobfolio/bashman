@@ -98,9 +98,8 @@ pub(super) fn fetch(src: &Path, target: Option<TargetTriple>)
 						let context = flags.get(p.id)
 							.copied()
 							.unwrap_or(0) | Dependency::FLAG_OPTIONAL;
-						if let Ok(d) = p.try_into_dependency(context) {
-							deps.insert(d);
-						}
+						let Ok(d) = p.try_into_dependency(context) else { continue; };
+						deps.insert(d);
 					}
 				}
 			}
