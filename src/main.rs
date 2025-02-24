@@ -95,6 +95,7 @@ use std::{
 		Path,
 		PathBuf,
 	},
+	process::ExitCode,
 	sync::LazyLock,
 	time::Instant,
 };
@@ -124,22 +125,27 @@ static CWD: LazyLock<Option<PathBuf>> = LazyLock::new(||
 
 
 /// # Main.
-fn main() {
+fn main() -> ExitCode {
 	match main__() {
-		Ok(()) => {},
-		Err(BashManError::Target) => {
-			Msg::error("Target must be one of the following:")
-				.eprint();
-			eprintln!("\x1b[2m-----\x1b[0m");
-			println!("{}", BashManError::Target);
-			std::process::exit(1);
-		}
+		Ok(()) => ExitCode::SUCCESS,
 		Err(e @ (
 			BashManError::PrintHelp |
 			BashManError::PrintTargets |
 			BashManError::PrintVersion
-		)) => { println!("{e}"); },
-		Err(e) => { Msg::error(e.to_string()).die(1); },
+		)) => {
+			println!("{e}");
+			ExitCode::SUCCESS
+		},
+		Err(BashManError::Target) => {
+			Msg::error("Target must be one of the following:").eprint();
+			eprintln!("\x1b[2m-----\x1b[0m");
+			println!("{}", BashManError::Target);
+			ExitCode::FAILURE
+		}
+		Err(e) => {
+			Msg::error(e.to_string()).eprint();
+			ExitCode::FAILURE
+		},
 	}
 }
 
