@@ -1,9 +1,9 @@
 [package]
 name = "cargo-bashman"
-version = "0.6.10"
+version = "0.7.0"
 license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
-edition = "2021"
+edition = "2024"
 description = "A Cargo plugin to generate bash completions, man pages, and/or crate credits."
 repository = "https://github.com/Blobfolio/bashman"
 publish = false
@@ -67,17 +67,17 @@ description = "Limit CREDITS.md to dependencies used by the target <TRIPLE>, e.g
 label = "<TRIPLE>"
 
 [build-dependencies]
-argyle = "0.10.*"
+argyle = "0.11.*"
 
 [dependencies]
-argyle = "0.10.*"
-adbyss_psl = "0.15.*"
-dactyl = "0.9.*"
-fyi_msg = "1.6.*"
-oxford_join = "0.4.*"
-trimothy = "0.6.*"
-utc2k = "0.11.*"
-write_atomic = "0.5.*"
+argyle = "0.11.*"
+adbyss_psl = "0.16.*"
+dactyl = "0.10.*"
+fyi_msg = "1.7.*"
+oxford_join = "0.5.*"
+trimothy = "0.7.*"
+utc2k = "0.12.*"
+write_atomic = "0.6.*"
 
 [dependencies.libdeflater]
 version = "=1.23.0"
