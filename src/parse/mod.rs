@@ -136,6 +136,7 @@ impl Manifest {
 }
 
 impl Manifest {
+	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Dependencies.
 	pub(crate) fn dependencies(&self) -> &[Dependency] { &self.dependencies }
 
@@ -208,6 +209,7 @@ impl Manifest {
 		self.subcommands.iter().find(|s| s.parent.is_none())
 	}
 
+	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Cargo File.
 	pub(crate) fn src(&self) -> &Path { &self.src }
 
@@ -248,6 +250,7 @@ impl ManifestData {
 	/// # Option Flags.
 	pub(crate) const fn options(&self) -> &BTreeSet<OptionFlag> { &self.options }
 
+	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Sections.
 	pub(crate) fn sections(&self) -> &[Section] { &self.sections }
 }
@@ -283,6 +286,7 @@ impl Subcommand {
 	/// # Data.
 	pub(crate) const fn data(&self) -> &ManifestData { &self.data }
 
+	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Description.
 	pub(crate) fn description(&self) -> &str { &self.description }
 
@@ -365,6 +369,7 @@ impl Flag {
 }
 
 impl Flag {
+	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Description.
 	pub(crate) fn description(&self) -> &str { &self.description }
 
@@ -417,6 +422,7 @@ impl OptionFlag {
 	/// # Description.
 	pub(crate) fn description(&self) -> &str { self.flag.description() }
 
+	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Label.
 	pub(crate) fn label(&self) -> &str { &self.label }
 
@@ -460,9 +466,11 @@ impl PartialOrd for TrailingArg {
 }
 
 impl TrailingArg {
+	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Description.
 	pub(super) fn description(&self) -> &str { &self.description }
 
+	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Label.
 	pub(super) fn label(&self) -> &str { &self.label }
 }
@@ -501,6 +509,7 @@ impl Section {
 		else { Some(self.lines.as_str()) }
 	}
 
+	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Name.
 	pub(super) fn name(&self) -> &str { &self.name }
 }
