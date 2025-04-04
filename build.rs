@@ -132,7 +132,7 @@ impl TryFrom<String> for TargetTriple {
 impl fmt::Display for TargetTriple {
 	#[inline]
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		f.pad(self.as_str())
+		<str as fmt::Display>::fmt(self.as_str(), f)
 	}
 }
 

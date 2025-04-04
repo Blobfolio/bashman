@@ -223,7 +223,9 @@ impl Eq for PackageName {}
 
 impl fmt::Display for PackageName {
 	#[inline]
-	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.pad(&self.name) }
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		<str as fmt::Display>::fmt(self.name.as_str(), f)
+	}
 }
 
 impl From<PackageName> for KeyWord {

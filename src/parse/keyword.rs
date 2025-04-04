@@ -34,7 +34,9 @@ impl<'de> de::Deserialize<'de> for KeyWord {
 
 impl fmt::Display for KeyWord {
 	#[inline]
-	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.pad(self.as_str()) }
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		<str as fmt::Display>::fmt(self.as_str(), f)
+	}
 }
 
 impl TryFrom<&str> for KeyWord {
