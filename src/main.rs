@@ -69,6 +69,7 @@ use bash::BashWriter;
 use credits::CreditsWriter;
 use dactyl::NiceElapsed;
 use err::BashManError;
+use fyi_ansi::dim;
 use fyi_msg::Msg;
 use man::ManWriter;
 use oxford_join::{
@@ -138,7 +139,7 @@ fn main() -> ExitCode {
 		},
 		Err(BashManError::Target) => {
 			Msg::error("Target must be one of the following:").eprint();
-			eprintln!("\x1b[2m-----\x1b[0m");
+			eprintln!(dim!("-----"));
 			println!("{}", BashManError::Target);
 			ExitCode::FAILURE
 		}
@@ -254,7 +255,7 @@ fn main__() -> Result<(), BashManError> {
 	if ! good.is_empty() {
 		files.sort_unstable();
 		Msg::success(format!(
-			"Generated {} in {}.\n  \x1b[2m{}\x1b[0m",
+			concat!("Generated {} in {}.\n  ", dim!("{}")),
 			OxfordJoinFmt::and(good.as_slice()),
 			NiceElapsed::from(now),
 			JoinFmt::new(
