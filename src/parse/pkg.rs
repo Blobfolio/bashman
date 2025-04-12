@@ -97,7 +97,7 @@ impl Dependency {
 impl Dependency {
 	/*
 	/// # Name.
-	pub(crate) fn name(&self) -> &str { &self.name }
+	pub(crate) fn name(&self) -> &str { self.name.as_str() }
 
 	/// # Version.
 	pub(super) const fn version(&self) -> &Version { &self.version }
