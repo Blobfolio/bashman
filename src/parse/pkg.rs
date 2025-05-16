@@ -97,7 +97,7 @@ impl Dependency {
 impl Dependency {
 	/*
 	/// # Name.
-	pub(crate) fn name(&self) -> &str { &self.name }
+	pub(crate) fn name(&self) -> &str { self.name.as_str() }
 
 	/// # Version.
 	pub(super) const fn version(&self) -> &Version { &self.version }
@@ -107,7 +107,7 @@ impl Dependency {
 	pub(super) fn license(&self) -> Option<&str> { self.license.as_deref() }
 
 	/// # Author(s).
-	pub(super) fn authors(&self) -> &[String] { self.authors.as_slice() }
+	pub(super) const fn authors(&self) -> &[String] { self.authors.as_slice() }
 
 	/// # Repository URL.
 	pub(super) fn url(&self) -> Option<&str> { self.url.as_deref() }
@@ -223,7 +223,9 @@ impl Eq for PackageName {}
 
 impl fmt::Display for PackageName {
 	#[inline]
-	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.pad(&self.name) }
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		<str as fmt::Display>::fmt(self.name.as_str(), f)
+	}
 }
 
 impl From<PackageName> for KeyWord {
@@ -295,7 +297,7 @@ impl TryFrom<String> for PackageName {
 
 impl PackageName {
 	/// # As String Slice.
-	pub(super) fn as_str(&self) -> &str { self.name.as_str() }
+	pub(super) const fn as_str(&self) -> &str { self.name.as_str() }
 }
 
 

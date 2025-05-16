@@ -136,9 +136,10 @@ impl Manifest {
 }
 
 impl Manifest {
-	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Dependencies.
-	pub(crate) fn dependencies(&self) -> &[Dependency] { &self.dependencies }
+	pub(crate) const fn dependencies(&self) -> &[Dependency] {
+		self.dependencies.as_slice()
+	}
 
 	/// # Bash Directory.
 	///
@@ -209,12 +210,11 @@ impl Manifest {
 		self.subcommands.iter().find(|s| s.parent.is_none())
 	}
 
-	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Cargo File.
-	pub(crate) fn src(&self) -> &Path { &self.src }
+	pub(crate) fn src(&self) -> &Path { self.src.as_path() }
 
 	/// # (Sub)commands.
-	pub(crate) fn subcommands(&self) -> &[Subcommand] { self.subcommands.as_slice() }
+	pub(crate) const fn subcommands(&self) -> &[Subcommand] { self.subcommands.as_slice() }
 
 	/// # Target?
 	pub(crate) const fn target(&self) -> Option<TargetTriple> { self.target }
@@ -250,9 +250,8 @@ impl ManifestData {
 	/// # Option Flags.
 	pub(crate) const fn options(&self) -> &BTreeSet<OptionFlag> { &self.options }
 
-	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Sections.
-	pub(crate) fn sections(&self) -> &[Section] { &self.sections }
+	pub(crate) const fn sections(&self) -> &[Section] { self.sections.as_slice() }
 }
 
 
@@ -281,14 +280,13 @@ pub(crate) struct Subcommand {
 
 impl Subcommand {
 	/// # Bin.
-	pub(crate) fn bin(&self) -> &str { self.name.as_str() }
+	pub(crate) const fn bin(&self) -> &str { self.name.as_str() }
 
 	/// # Data.
 	pub(crate) const fn data(&self) -> &ManifestData { &self.data }
 
-	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Description.
-	pub(crate) fn description(&self) -> &str { &self.description }
+	pub(crate) const fn description(&self) -> &str { self.description.as_str() }
 
 	/// # Is Main?
 	pub(crate) const fn is_main(&self) -> bool { self.parent.is_none() }
@@ -309,7 +307,7 @@ impl Subcommand {
 	}
 
 	/// # Version.
-	pub(crate) fn version(&self) -> &str { self.version.as_str() }
+	pub(crate) const fn version(&self) -> &str { self.version.as_str() }
 }
 
 
@@ -369,9 +367,8 @@ impl Flag {
 }
 
 impl Flag {
-	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Description.
-	pub(crate) fn description(&self) -> &str { &self.description }
+	pub(crate) const fn description(&self) -> &str { self.description.as_str() }
 
 	/// # Duplicate?
 	pub(crate) const fn duplicate(&self) -> bool { self.duplicate }
@@ -420,11 +417,10 @@ impl OptionFlag {
 	pub(crate) const fn duplicate(&self) -> bool { self.flag.duplicate() }
 
 	/// # Description.
-	pub(crate) fn description(&self) -> &str { self.flag.description() }
+	pub(crate) const fn description(&self) -> &str { self.flag.description() }
 
-	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Label.
-	pub(crate) fn label(&self) -> &str { &self.label }
+	pub(crate) const fn label(&self) -> &str { self.label.as_str() }
 
 	/// # Long Key.
 	pub(crate) fn long(&self) -> Option<&str> { self.flag.long() }
@@ -466,13 +462,11 @@ impl PartialOrd for TrailingArg {
 }
 
 impl TrailingArg {
-	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Description.
-	pub(super) fn description(&self) -> &str { &self.description }
+	pub(super) const fn description(&self) -> &str { self.description.as_str() }
 
-	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Label.
-	pub(super) fn label(&self) -> &str { &self.label }
+	pub(super) const fn label(&self) -> &str { self.label.as_str() }
 }
 
 
@@ -498,20 +492,19 @@ impl Section {
 	pub(super) const fn inside(&self) -> bool { self.inside }
 
 	/// # Items?
-	pub(super) fn items(&self) -> Option<&[[String; 2]]> {
+	pub(super) const fn items(&self) -> Option<&[[String; 2]]> {
 		if self.items.is_empty() { None }
 		else { Some(self.items.as_slice()) }
 	}
 
 	/// # Lines?
-	pub(super) fn lines(&self) -> Option<&str> {
+	pub(super) const fn lines(&self) -> Option<&str> {
 		if self.lines.is_empty() { None }
 		else { Some(self.lines.as_str()) }
 	}
 
-	#[expect(clippy::missing_const_for_fn, reason = "False positive.")]
 	/// # Name.
-	pub(super) fn name(&self) -> &str { &self.name }
+	pub(super) const fn name(&self) -> &str { self.name.as_str() }
 }
 
 

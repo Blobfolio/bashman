@@ -6,6 +6,11 @@ use crate::{
 	KeyWord,
 	TargetTriple,
 };
+use fyi_ansi::{
+	ansi,
+	csi,
+	dim,
+};
 use std::fmt;
 
 
@@ -20,7 +25,7 @@ const HELP: &str = concat!(r"
     |\  \_/||\_/  /|
     \ '.   \/   .' /
     / ^ `'~  ~'`   \
-   /  _-^_~ -^_ ~-  |    ", "\x1b[38;5;199mCargo BashMan\x1b[0;38;5;69m v", env!("CARGO_PKG_VERSION"), "\x1b[0m", r"
+   /  _-^_~ -^_ ~-  |    ", csi!(199), "Cargo BashMan", ansi!((cornflower_blue) " v", env!("CARGO_PKG_VERSION")), r"
    | / ^_ -^_- ~_^\ |    A BASH completion script and MAN
    | |~_ ^- _-^_ -| |    page generator for Rust projects.
    | \  ^-~_ ~-_^ / |
@@ -115,7 +120,11 @@ impl fmt::Display for BashManError {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		let s = match self {
 			Self::Bash => "Unable to generate bash completions.",
-			Self::Cargo => "Unable to execute \x1b[2mcargo metadata\x1b[0m.",
+			Self::Cargo => concat!(
+				"Unable to execute ",
+				dim!("cargo metadata"),
+				".",
+			),
 			Self::Credits => "Unable to generate crate credits.",
 			Self::Dir(k, v) => return write!(f, "Invalid {k} directory: {v}"),
 			Self::DuplicateKeyWord(k) => return write!(

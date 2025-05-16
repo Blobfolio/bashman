@@ -8,10 +8,7 @@ use std::{
 	collections::BTreeSet,
 	ffi::OsStr,
 	fs::File,
-	io::{
-		Error,
-		ErrorKind,
-	},
+	io::Error,
 	path::PathBuf,
 	process::{
 		Command,
@@ -74,11 +71,10 @@ fn build_targets() {
 		.output()
 		.and_then(|o|
 			if o.status.success() {
-				String::from_utf8(o.stdout)
-					.map_err(|e| Error::new(ErrorKind::Other, e))
+				String::from_utf8(o.stdout).map_err(Error::other)
 			}
 			else {
-				Err(Error::new(ErrorKind::Other, String::from_utf8_lossy(&o.stderr)))
+				Err(Error::other(String::from_utf8_lossy(&o.stderr)))
 			}
 		);
 
@@ -132,7 +128,7 @@ impl TryFrom<String> for TargetTriple {
 impl fmt::Display for TargetTriple {
 	#[inline]
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		f.pad(self.as_str())
+		<str as fmt::Display>::fmt(self.as_str(), f)
 	}
 }
 

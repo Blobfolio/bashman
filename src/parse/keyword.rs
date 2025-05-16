@@ -34,7 +34,9 @@ impl<'de> de::Deserialize<'de> for KeyWord {
 
 impl fmt::Display for KeyWord {
 	#[inline]
-	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.pad(self.as_str()) }
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		<str as fmt::Display>::fmt(self.as_str(), f)
+	}
 }
 
 impl TryFrom<&str> for KeyWord {
@@ -97,7 +99,7 @@ impl KeyWord {
 	}
 
 	/// # As String Slice.
-	pub(crate) fn as_str(&self) -> &str {
+	pub(crate) const fn as_str(&self) -> &str {
 		match self { Self::Command(s) | Self::Key(s) => s.as_str() }
 	}
 }
