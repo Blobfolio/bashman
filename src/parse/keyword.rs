@@ -99,7 +99,7 @@ impl KeyWord {
 	}
 
 	/// # As String Slice.
-	pub(crate) fn as_str(&self) -> &str {
+	pub(crate) const fn as_str(&self) -> &str {
 		match self { Self::Command(s) | Self::Key(s) => s.as_str() }
 	}
 }

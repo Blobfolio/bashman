@@ -107,7 +107,7 @@ impl Dependency {
 	pub(super) fn license(&self) -> Option<&str> { self.license.as_deref() }
 
 	/// # Author(s).
-	pub(super) fn authors(&self) -> &[String] { self.authors.as_slice() }
+	pub(super) const fn authors(&self) -> &[String] { self.authors.as_slice() }
 
 	/// # Repository URL.
 	pub(super) fn url(&self) -> Option<&str> { self.url.as_deref() }
@@ -297,7 +297,7 @@ impl TryFrom<String> for PackageName {
 
 impl PackageName {
 	/// # As String Slice.
-	pub(super) fn as_str(&self) -> &str { self.name.as_str() }
+	pub(super) const fn as_str(&self) -> &str { self.name.as_str() }
 }
 
 
