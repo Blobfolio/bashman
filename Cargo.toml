@@ -71,7 +71,7 @@ argyle = "0.12.*"
 
 [dependencies]
 argyle = "0.12.*"
-adbyss_psl = "0.16.*"
+adbyss_psl = "0.17.*"
 dactyl = "0.10.*"
 fyi_ansi = "2.1.*"
 fyi_msg = "2.1.*"
