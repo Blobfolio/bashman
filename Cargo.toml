@@ -77,8 +77,7 @@ fyi_ansi = "2.1.*"
 fyi_msg = "2.1.*"
 oxford_join = "0.5.*"
 trimothy = "0.7.*"
-utc2k = "0.13.*"
-write_atomic = "0.6.*"
+utc2k = "0.14.*"
 write_atomic = "0.7.*"
 
 [dependencies.libdeflater]
