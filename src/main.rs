@@ -69,8 +69,10 @@ use bash::BashWriter;
 use credits::CreditsWriter;
 use dactyl::NiceElapsed;
 use err::BashManError;
-use fyi_ansi::dim;
-use fyi_msg::Msg;
+use fyi_msg::{
+	fyi_ansi::dim,
+	Msg,
+};
 use man::ManWriter;
 use oxford_join::{
 	JoinFmt,

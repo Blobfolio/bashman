@@ -6,7 +6,7 @@ use crate::{
 	KeyWord,
 	TargetTriple,
 };
-use fyi_ansi::{
+use fyi_msg::fyi_ansi::{
 	ansi,
 	csi,
 	dim,
