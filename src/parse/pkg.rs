@@ -12,6 +12,7 @@ use semver::Version;
 use std::{
 	cmp::Ordering,
 	fmt,
+	iter::FusedIterator,
 };
 use trimothy::TrimMut;
 
@@ -306,9 +307,9 @@ impl PackageName {
 ///
 /// This wraps a byte iterator for the sole purpose of replacing hyphens with
 /// underscores.
-struct NormalizeHyphens<I: ExactSizeIterator<Item=u8>>(I);
+struct NormalizeHyphens<I: ExactSizeIterator<Item=u8> + FusedIterator>(I);
 
-impl<I: ExactSizeIterator<Item=u8>> Iterator for NormalizeHyphens<I> {
+impl<I: ExactSizeIterator<Item=u8> + FusedIterator> Iterator for NormalizeHyphens<I> {
 	type Item = u8;
 
 	#[inline]
@@ -327,7 +328,9 @@ impl<I: ExactSizeIterator<Item=u8>> Iterator for NormalizeHyphens<I> {
 	}
 }
 
-impl<I: ExactSizeIterator<Item=u8>> ExactSizeIterator for NormalizeHyphens<I> {
+impl<I: ExactSizeIterator<Item=u8> + FusedIterator> ExactSizeIterator for NormalizeHyphens<I> {
 	#[inline]
 	fn len(&self) -> usize { self.0.len() }
 }
+
+impl<I: ExactSizeIterator<Item=u8> + FusedIterator> FusedIterator for NormalizeHyphens<I> {}
