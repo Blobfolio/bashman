@@ -67,10 +67,10 @@ description = "Limit CREDITS.md to dependencies used by the target <TRIPLE>, e.g
 label = "<TRIPLE>"
 
 [build-dependencies]
-argyle = "0.12.*"
+argyle = "0.13.*"
 
 [dependencies]
-argyle = "0.12.*"
+argyle = "0.13.*"
 adbyss_psl = "0.19.*"
 dactyl = "0.12.*"
 fyi_msg = "2.2.*"
