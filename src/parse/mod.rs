@@ -156,26 +156,31 @@ impl Manifest {
 
 		if ! has_data { Err(BashManError::Noop) }
 		else if let Some(dir) = self.dir_bash.as_ref() {
-			if let Ok(dir) = std::fs::canonicalize(dir) {
-				if dir.is_dir() { return Ok(dir); }
+			if let Ok(dir) = std::fs::canonicalize(dir) && dir.is_dir() { Ok(dir) }
+			else {
+				Err(BashManError::Dir(
+					"bash completions",
+					dir.to_string_lossy().into_owned(),
+				))
 			}
-
-			Err(BashManError::Dir("bash completions", dir.to_string_lossy().into_owned()))
 		}
 		else { Ok(self.dir.clone()) }
 	}
 
+	#[expect(clippy::option_if_let_else, reason = "No.")]
 	/// # Credits Directory.
 	///
 	/// Return the directory the crate credits should be written to, or an
 	/// error if it doesn't exist or is not a directory.
 	pub(crate) fn dir_credits(&self) -> Result<PathBuf, BashManError> {
 		if let Some(dir) = self.dir_credits.as_ref() {
-			if let Ok(dir) = std::fs::canonicalize(dir) {
-				if dir.is_dir() { return Ok(dir); }
+			if let Ok(dir) = std::fs::canonicalize(dir) && dir.is_dir() { Ok(dir) }
+			else {
+				Err(BashManError::Dir(
+					"credits",
+					dir.to_string_lossy().into_owned(),
+				))
 			}
-
-			Err(BashManError::Dir("credits", dir.to_string_lossy().into_owned()))
 		}
 		else { Ok(self.dir.clone()) }
 	}
@@ -196,11 +201,13 @@ impl Manifest {
 
 		if ! has_data { Err(BashManError::Noop) }
 		else if let Some(dir) = self.dir_man.as_ref() {
-			if let Ok(dir) = std::fs::canonicalize(dir) {
-				if dir.is_dir() { return Ok(dir); }
+			if let Ok(dir) = std::fs::canonicalize(dir) && dir.is_dir() { Ok(dir) }
+			else {
+				Err(BashManError::Dir(
+					"MAN page",
+					dir.to_string_lossy().into_owned(),
+				))
 			}
-
-			Err(BashManError::Dir("MAN page", dir.to_string_lossy().into_owned()))
 		}
 		else { Ok(self.dir.clone()) }
 	}

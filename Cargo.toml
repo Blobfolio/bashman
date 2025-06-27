@@ -1,6 +1,6 @@
 [package]
 name = "cargo-bashman"
-version = "0.7.3"
+version = "0.8.0"
 license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
 edition = "2024"
@@ -67,16 +67,16 @@ description = "Limit CREDITS.md to dependencies used by the target <TRIPLE>, e.g
 label = "<TRIPLE>"
 
 [build-dependencies]
-argyle = "0.12.*"
+argyle = "0.13.*"
 
 [dependencies]
-argyle = "0.12.*"
-adbyss_psl = "0.18.*"
-dactyl = "0.12.*"
-fyi_msg = "2.2.*"
-oxford_join = "0.6.*"
-trimothy = "0.8.*"
-utc2k = "0.14.*"
+argyle = "0.13.*"
+adbyss_psl = "0.19.*"
+dactyl = "0.13.*"
+fyi_msg = "2.3.*"
+oxford_join = "0.7.*"
+trimothy = "0.9.*"
+utc2k = "0.15.*"
 write_atomic = "0.7.*"
 
 [dependencies.libdeflater]

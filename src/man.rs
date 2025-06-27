@@ -191,7 +191,7 @@ impl fmt::Display for Man<'_> {
 			f,
 			r#".TH "{}" "1" "{} {}" "{} v{}" "User Commands""#,
 			EscapeHyphens(full_name.as_ref()),
-			now.month_name(),
+			now.month(),
 			now.year(),
 			EscapeHyphens(full_cmd.as_ref()),
 			self.version,
@@ -597,7 +597,7 @@ mod test {
 		let now = Utc2k::now();
 		let pos = expected.find("MONTHNAME").expect("Missing MONTHNAME");
 		expected.replace_range(pos + 10..pos + 14, &now.year().to_string());
-		expected.replace_range(pos..pos + 9, now.month_name());
+		expected.replace_range(pos..pos + 9, now.month().as_str());
 
 		// Test!
 		assert_eq!(writer.men[0].to_string(), expected);

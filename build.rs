@@ -187,7 +187,9 @@ impl Iterator for TargetTripleIter {
 impl ExactSizeIterator for TargetTripleIter {{
 	#[inline]
 	fn len(&self) -> usize {{ usize::from({len}_u16.saturating_sub(self.0)) }}
-}}"
+}}
+
+impl std::iter::FusedIterator for TargetTripleIter {{ }}"
 	).unwrap();
 
 	// Save it!
