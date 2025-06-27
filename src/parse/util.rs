@@ -336,34 +336,32 @@ fn nice_author(raw: &mut String) {
 	raw.trim_mut();
 
 	// Check for an email address.
-	if let Some((start, end)) = raw.find('<').zip(raw.rfind('>')) {
-		if start < end {
-			// Pull out the email.
-			raw.truncate(end);
-			let email = Domain::email_parts(&raw[start + 1..])
-				.map(|(local, host)| esc_email(&local, &host));
-			raw.truncate(start);
+	if let Some((start, end)) = raw.find('<').zip(raw.rfind('>')) && start < end {
+		// Pull out the email.
+		raw.truncate(end);
+		let email = Domain::email_parts(&raw[start + 1..])
+			.map(|(local, host)| esc_email(&local, &host));
+		raw.truncate(start);
 
-			if let Some(email) = email {
-				// Pretty up the name part.
-				esc_markdown(raw);
-				normalize_string(raw);
+		if let Some(email) = email {
+			// Pretty up the name part.
+			esc_markdown(raw);
+			normalize_string(raw);
 
-				// We have an email but not a name.
-				if raw.is_empty() {
-					raw.push('<');
-					raw.push_str(&email);
-					raw.push('>');
-					return;
-				}
-
-				// Add the email back.
-				raw.insert(0, '[');
-				raw.push_str("](mailto:");
+			// We have an email but not a name.
+			if raw.is_empty() {
+				raw.push('<');
 				raw.push_str(&email);
-				raw.push(')');
+				raw.push('>');
 				return;
 			}
+
+			// Add the email back.
+			raw.insert(0, '[');
+			raw.push_str("](mailto:");
+			raw.push_str(&email);
+			raw.push(')');
+			return;
 		}
 	}
 

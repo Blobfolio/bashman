@@ -89,18 +89,19 @@ pub(super) fn fetch(src: &Path, target: Option<TargetTriple>)
 	// whatever reason, we'll stick with what we have.
 	if features {
 		cargo = cargo.with_features(true);
-		if let Ok(raw2) = cargo.exec() {
-			if let Ok((packages, resolve)) = serde_json::from_slice::<Raw>(&raw2).map(|r| r.finalize(Some(cargo))) {
-				// Build the dependency list (and find the main package).
-				let flags = resolve.flags(target.is_some());
-				for p in packages {
-					if p.id != id && resolve.nodes.contains_key(p.id) {
-						let context = flags.get(p.id)
-							.copied()
-							.unwrap_or(0) | Dependency::FLAG_OPTIONAL;
-						let Ok(d) = p.try_into_dependency(context) else { continue; };
-						deps.insert(d);
-					}
+		if
+			let Ok(raw2) = cargo.exec() &&
+			let Ok((packages, resolve)) = serde_json::from_slice::<Raw>(&raw2).map(|r| r.finalize(Some(cargo)))
+		{
+			// Build the dependency list (and find the main package).
+			let flags = resolve.flags(target.is_some());
+			for p in packages {
+				if p.id != id && resolve.nodes.contains_key(p.id) {
+					let context = flags.get(p.id)
+						.copied()
+						.unwrap_or(0) | Dependency::FLAG_OPTIONAL;
+					let Ok(d) = p.try_into_dependency(context) else { continue; };
+					deps.insert(d);
 				}
 			}
 		}
@@ -325,11 +326,8 @@ impl<'a> Raw<'a> {
 			while let Some(next) = queue.pop() {
 				// Only enqueue a given package's dependencies once to avoid infinite
 				// loops.
-				if used.insert(next) {
-					// Add its children, if any.
-					if let Some(next) = resolve.nodes.get(next) {
-						queue.extend(next.iter().map(|nd| nd.id));
-					}
+				if used.insert(next) && let Some(next) = resolve.nodes.get(next) {
+					queue.extend(next.iter().map(|nd| nd.id));
 				}
 			}
 		}
