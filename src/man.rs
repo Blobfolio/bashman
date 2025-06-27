@@ -191,7 +191,7 @@ impl fmt::Display for Man<'_> {
 			f,
 			r#".TH "{}" "1" "{} {}" "{} v{}" "User Commands""#,
 			EscapeHyphens(full_name.as_ref()),
-			now.month_name(),
+			now.month(),
 			now.year(),
 			EscapeHyphens(full_cmd.as_ref()),
 			self.version,
