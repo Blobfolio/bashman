@@ -65,20 +65,21 @@ impl<'a> TryFrom<&'a Manifest> for ManWriter<'a> {
 
 			// Populate or remove the subcommand section if this is the main
 			// command.
-			if sub.is_main() {
-				if let Some(pos) = entry.sections.iter().position(|s| s.label == LABEL_SUBCOMMANDS) {
-					entry.sections[pos].data.extend(
-						subcommands.iter().filter_map(|s|
-							if s.is_main() { None }
-							else { Some(SectionData::from(s)) }
-						)
-					);
+			if
+				sub.is_main() &&
+				let Some(pos) = entry.sections.iter().position(|s| s.label == LABEL_SUBCOMMANDS)
+			{
+				entry.sections[pos].data.extend(
+					subcommands.iter().filter_map(|s|
+						if s.is_main() { None }
+						else { Some(SectionData::from(s)) }
+					)
+				);
 
-					// Remove it.
-					if entry.sections[pos].data.is_empty() { entry.sections.remove(pos); }
-					// Keep it!
-					else { entry.toc |= Man::HAS_SUBCOMMANDS; }
-				}
+				// Remove it.
+				if entry.sections[pos].data.is_empty() { entry.sections.remove(pos); }
+				// Keep it!
+				else { entry.toc |= Man::HAS_SUBCOMMANDS; }
 			}
 
 			men.push(entry);
@@ -244,7 +245,7 @@ impl Man<'_> {
 	/// # Arg Label.
 	///
 	/// Return the value label used for trailing arguments, if any.
-	fn arg_label(&self) -> Option<EscapeHyphens> {
+	fn arg_label(&self) -> Option<EscapeHyphens<'_>> {
 		if Self::HAS_ARGS == self.toc & Self::HAS_ARGS {
 			self.sections.iter().find_map(|s|
 				if s.label == LABEL_ARGS {
