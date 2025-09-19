@@ -1,6 +1,6 @@
 [package]
 name = "cargo-bashman"
-version = "0.9.0"
+version = "0.9.1"
 license = "WTFPL"
 authors = ["Josh Stoik <josh@blobfolio.com>"]
 edition = "2024"
@@ -71,9 +71,9 @@ argyle = "0.13.*"
 
 [dependencies]
 argyle = "0.13.*"
-adbyss_psl = "0.20.*"
+adbyss_psl = "0.21.*"
 dactyl = "0.13.*"
-fyi_msg = "2.3.*"
+fyi_msg = "2.4.*"
 oxford_join = "0.7.*"
 trimothy = "0.9.*"
 utc2k = "0.17.*"
