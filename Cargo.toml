@@ -66,11 +66,8 @@ long = "--target"
 description = "Limit CREDITS.md to dependencies used by the target <TRIPLE>, e.g. x86_64-unknown-linux-gnu. See --print-targets for the supported values."
 label = "<TRIPLE>"
 
-[build-dependencies]
-argyle = "0.13.*"
-
 [dependencies]
-argyle = "0.13.*"
+argyle = "0.14.*"
 adbyss_psl = "0.21.*"
 dactyl = "0.13.*"
 fyi_msg = "2.4.*"
