@@ -198,7 +198,9 @@ fn main__() -> Result<(), BashManError> {
 			},
 
 			// Nothing else is expected.
-			Argument::Other(s) =>   return Err(BashManError::InvalidCli(s)),
+			Argument::Other(s) => if s != "bashman" {
+				return Err(BashManError::InvalidCli(s))
+			},
 			Argument::OtherOs(s) => return Err(BashManError::InvalidCli(s.to_string_lossy().into_owned())),
 		}
 	}
