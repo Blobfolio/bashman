@@ -24,6 +24,7 @@
 	clippy::format_push_string,
 	clippy::get_unwrap,
 	clippy::impl_trait_in_params,
+	clippy::implicit_clone,
 	clippy::lossy_float_literal,
 	clippy::missing_assert_message,
 	clippy::missing_docs_in_private_items,
@@ -33,7 +34,6 @@
 	clippy::rest_pat_in_fully_bound_structs,
 	clippy::semicolon_inside_block,
 	clippy::str_to_string,
-	clippy::string_to_string,
 	clippy::todo,
 	clippy::undocumented_unsafe_blocks,
 	clippy::unneeded_field_pattern,
@@ -64,7 +64,6 @@ mod parse;
 
 
 
-use argyle::Argument;
 use bash::BashWriter;
 use credits::CreditsWriter;
 use dactyl::NiceElapsed;
@@ -125,6 +124,19 @@ static CWD: LazyLock<Option<PathBuf>> = LazyLock::new(||
 		.filter(|p| p.is_dir())
 );
 
+// Set up CLI arguments.
+argyle::argue! {
+	Help         "-h" "--help",
+	NoBash            "--no-bash",
+	NoCredits         "--no-credits",
+	NoMan             "--no-man",
+	PrintTargets      "--print-targets",
+	Version      "-V" "--version",
+	@options
+	Manifest     "-m" "--manifest-path",
+	Target       "-t" "--target",
+}
+
 
 
 /// # Main.
@@ -165,35 +177,29 @@ fn main__() -> Result<(), BashManError> {
 	let now = Instant::now();
 
 	// Parse CLI arguments.
-	let args = argyle::args()
-		.with_keywords(include!(concat!(env!("OUT_DIR"), "/argyle.rs")));
-
 	let mut flags: u8 = FLAG_ALL;
 	let mut manifest = None;
 	let mut target = None;
-	for arg in args {
+	for arg in Argument::args_os() {
 		match arg {
-			Argument::Key("--no-bash") => { flags &= ! FLAG_BASH; },
-			Argument::Key("--no-credits") => { flags &= ! FLAG_CREDITS; },
-			Argument::Key("--no-man") => { flags &= ! FLAG_MAN; },
+			Argument::NoBash => { flags &= ! FLAG_BASH; },
+			Argument::NoCredits => { flags &= ! FLAG_CREDITS; },
+			Argument::NoMan => { flags &= ! FLAG_MAN; },
 
-			Argument::Key("-h" | "--help") => return Err(BashManError::PrintHelp),
-			Argument::Key("--print-targets") => return Err(BashManError::PrintTargets),
-			Argument::Key("-V" | "--version") => return Err(BashManError::PrintVersion),
+			Argument::Help => return Err(BashManError::PrintHelp),
+			Argument::PrintTargets => return Err(BashManError::PrintTargets),
+			Argument::Version => return Err(BashManError::PrintVersion),
 
-			Argument::KeyWithValue("-m" | "--manifest-path", s) => {
+			Argument::Manifest(s) => {
 				manifest.replace(PathBuf::from(s));
 			},
-			Argument::KeyWithValue("-t" | "--target", s) => {
+			Argument::Target(s) => {
 				target.replace(TargetTriple::try_from(s)?);
 			},
 
 			// Nothing else is expected.
-			Argument::Other(s) => if s.starts_with('-') {
-				return Err(BashManError::InvalidCli(s))
-			},
-			Argument::InvalidUtf8(s) => return Err(BashManError::InvalidCli(s.to_string_lossy().into_owned())),
-			_ => {},
+			Argument::Other(s) =>   return Err(BashManError::InvalidCli(s)),
+			Argument::OtherOs(s) => return Err(BashManError::InvalidCli(s.to_string_lossy().into_owned())),
 		}
 	}
 

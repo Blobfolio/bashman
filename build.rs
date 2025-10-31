@@ -2,7 +2,6 @@
 # Cargo Bashman: Build
 */
 
-use argyle::KeyWordsBuilder;
 use std::{
 	borrow::Cow,
 	collections::BTreeSet,
@@ -22,26 +21,7 @@ use std::{
 fn main() {
 	println!("cargo:rerun-if-env-changed=CARGO_PKG_VERSION");
 
-	build_cli();
 	build_targets();
-}
-
-/// # Build CLI Arguments.
-fn build_cli() {
-	let mut builder = KeyWordsBuilder::default();
-	builder.push_keys([
-		"-h", "--help",
-		"--no-bash",
-		"--no-credits",
-		"--no-man",
-		"--print-targets",
-		"-V", "--version",
-	]);
-	builder.push_keys_with_values([
-		"-m", "--manifest-path",
-		"-t", "--target",
-	]);
-	builder.save(out_path("argyle.rs"));
 }
 
 /// # Build Targets.
