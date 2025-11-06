@@ -77,7 +77,7 @@ utc2k = "0.18.*"
 write_atomic = "0.7.*"
 
 [dependencies.libdeflater]
-version = "=1.24.0"
+version = "=1.25.0"
 features = [ "freestanding" ]
 
 [dependencies.semver]
