@@ -67,7 +67,7 @@ description = "Limit CREDITS.md to dependencies used by the target <TRIPLE>, e.g
 label = "<TRIPLE>"
 
 [dependencies]
-argyle = "0.14.*"
+argyle = "0.15.*"
 adbyss_psl = "0.23.*"
 dactyl = "0.13.*"
 fyi_msg = "2.4.*"
