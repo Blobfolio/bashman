@@ -144,7 +144,6 @@ impl Dependency {
 impl fmt::Display for Dependency {
 	/// # Write as Markdown.
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		#[expect(clippy::missing_docs_in_private_items, reason = "Self-Explanatory.")]
 		/// # Name Formatter.
 		///
 		/// This will linkify the name if needed.
