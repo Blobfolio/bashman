@@ -1143,7 +1143,7 @@ where D: Deserializer<'de> {
 	});
 
 	// Remove trailing empty lines.
-	while out.last().filter(|v| v.is_empty()).is_some() {
+	while out.last().as_ref().is_some_and(|v| v.is_empty()) {
 		out.truncate(out.len() - 1);
 	}
 
