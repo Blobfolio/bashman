@@ -1204,6 +1204,7 @@ where D: Deserializer<'de> {
 #[cfg(test)]
 mod test {
 	use super::*;
+	use std::assert_matches;
 
 	#[test]
 	fn t_deserialize_raw() {
@@ -1243,50 +1244,50 @@ mod test {
 		// No values.
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": null, "target": null}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
-		assert!(matches!(kind.kind, NodeDepKind::Normal));
-		assert!(matches!(kind.target, NodeDepTarget::Any));
+		assert_matches!(kind.kind, NodeDepKind::Normal);
+		assert_matches!(kind.target, NodeDepTarget::Any);
 		assert_eq!(kind.as_flag(), Dependency::FLAG_CTX_NORMAL | Dependency::FLAG_TARGET_ANY);
 
 		// Build.
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": "build", "target": null}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
-		assert!(matches!(kind.kind, NodeDepKind::Build));
-		assert!(matches!(kind.target, NodeDepTarget::Any));
+		assert_matches!(kind.kind, NodeDepKind::Build);
+		assert_matches!(kind.target, NodeDepTarget::Any);
 		assert_eq!(kind.as_flag(), Dependency::FLAG_CTX_BUILD | Dependency::FLAG_TARGET_ANY);
 
 		// Build and Target.
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": "build", "target": "cfg(unix)"}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
-		assert!(matches!(kind.kind, NodeDepKind::Build));
-		assert!(matches!(kind.target, NodeDepTarget::Cfg));
+		assert_matches!(kind.kind, NodeDepKind::Build);
+		assert_matches!(kind.target, NodeDepTarget::Cfg);
 		assert_eq!(kind.as_flag(), Dependency::FLAG_CTX_BUILD | Dependency::FLAG_TARGET_CFG);
 
 		// Target.
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": null, "target": "cfg(target_os = \"hermit\")"}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
-		assert!(matches!(kind.kind, NodeDepKind::Normal));
-		assert!(matches!(kind.target, NodeDepTarget::Cfg));
+		assert_matches!(kind.kind, NodeDepKind::Normal);
+		assert_matches!(kind.target, NodeDepTarget::Cfg);
 		assert_eq!(kind.as_flag(), Dependency::FLAG_CTX_NORMAL | Dependency::FLAG_TARGET_CFG);
 
 		// Bullshit target (should be treated as dev).
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": null, "target": "cfg(any())"}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
-		assert!(matches!(kind.kind, NodeDepKind::Normal));
-		assert!(matches!(kind.target, NodeDepTarget::None));
+		assert_matches!(kind.kind, NodeDepKind::Normal);
+		assert_matches!(kind.target, NodeDepTarget::None);
 		assert_eq!(kind.as_flag(), 0);
 
 		// Dev.
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": "dev", "target": null}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
-		assert!(matches!(kind.kind, NodeDepKind::Dev));
-		assert!(matches!(kind.target, NodeDepTarget::Any));
+		assert_matches!(kind.kind, NodeDepKind::Dev);
+		assert_matches!(kind.target, NodeDepTarget::Any);
 		assert_eq!(kind.as_flag(), 0);
 
 		// Dev and target (should be treated as dev).
 		let kind: RawNodeDepKind = serde_json::from_str(r#"{"kind": "dev", "target": "cfg(target_os = \"wasi\")"}"#)
 			.expect("Failed to deserialize RawNodeDepKind");
-		assert!(matches!(kind.kind, NodeDepKind::Dev));
-		assert!(matches!(kind.target, NodeDepTarget::Cfg));
+		assert_matches!(kind.kind, NodeDepKind::Dev);
+		assert_matches!(kind.target, NodeDepTarget::Cfg);
 		assert_eq!(kind.as_flag(), 0);
 	}
 
