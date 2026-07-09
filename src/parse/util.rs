@@ -370,7 +370,7 @@ fn nice_author(raw: &mut String) {
 		esc_markdown(raw);
 		normalize_string(raw);
 	}
-	else { raw.truncate(0); }
+	else { raw.clear(); }
 }
 
 
