@@ -110,7 +110,7 @@ impl ManWriter<'_> {
 		let Self { dir, men } = self;
 		for man in men {
 			// Generate and gzip.
-			buf.truncate(0);
+			buf.clear();
 			write!(buf, "{man}").map_err(|_| BashManError::Man)?;
 			gzip(buf.as_bytes(), &mut gz)?;
 

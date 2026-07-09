@@ -147,7 +147,7 @@ impl CreditsWriter<'_> {
 		use std::fmt::Write;
 
 		// Reset the buffer and write our completions into it.
-		buf.truncate(0);
+		buf.clear();
 		write!(buf, "{self}").map_err(|_| BashManError::Credits)?;
 
 		write_atomic::write_file(&self.dst, buf.as_bytes())

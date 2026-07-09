@@ -171,7 +171,7 @@ impl BashWriter<'_> {
 		bname.push_str(".bash");
 
 		// Reset the buffer and write our completions into it.
-		buf.truncate(0);
+		buf.clear();
 		write!(buf, "{self}").map_err(|_| BashManError::Bash)?;
 
 		// Strip double linebreaks before saving to a file. (Waste not, want
