@@ -2,7 +2,6 @@
 **.deb
 **.gz
 **/target/
-/Cargo.lock
 /doc/
 /ref-bin*
 /release/man1/*.gz
