@@ -69,7 +69,7 @@ label = "<TRIPLE>"
 [dependencies]
 argyle = "0.16.*"
 adbyss_psl = "0.24.*"
-dactyl = "0.13.*"
+dactyl = "0.14.*"
 fyi_msg = "2.7.*"
 oxford_join = "0.7.*"
 trimothy = "0.9.*"
