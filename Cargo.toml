@@ -74,8 +74,7 @@ fyi_msg = "2.7.*"
 oxford_join = "0.7.*"
 trimothy = "0.9.*"
 utc2k = "0.21.*"
-utc2k = "0.20.*"
-write_atomic = "0.7.*"
+write_atomic = "0.9.*"
 
 [dependencies.libdeflater]
 version = "=1.26.0"
