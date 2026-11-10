@@ -5,7 +5,7 @@
 #![expect(clippy::too_many_lines, reason = "Rust has a lot of targets!")]
 
 use crate::BashManError;
-use oxford_join::JoinFmt;
+use oxford_join::join;
 use std::{
 	borrow::Cow,
 	collections::BTreeSet,
@@ -50,7 +50,7 @@ impl TargetTriple {
 		}
 
 		// Print them!
-		write!(f, "{}", JoinFmt::new(all.into_iter(), "\n"))
+		write!(f, "{}", join!('\n', all.iter()))
 	}
 }
 
