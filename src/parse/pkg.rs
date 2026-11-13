@@ -6,7 +6,7 @@ use crate::{
 	BashManError,
 	KeyWord,
 };
-use oxford_join::OxfordJoinFmt;
+use oxford_join::oxford_join;
 use serde::de;
 use semver::Version;
 use std::{
@@ -184,7 +184,7 @@ impl fmt::Display for Dependency {
 				url: self.url(),
 			},
 			self.version,
-			OxfordJoinFmt::and(self.authors()),
+			oxford_join!(self.authors().iter()),
 			self.license().unwrap_or(""),
 		)
 	}

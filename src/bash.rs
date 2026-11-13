@@ -8,7 +8,7 @@ use crate::{
 	Manifest,
 	OptionFlag,
 };
-use oxford_join::JoinFmt;
+use oxford_join::join;
 use std::{
 	cmp::Ordering,
 	fmt,
@@ -109,8 +109,8 @@ chooser_{fname}() {{
 }}
 
 complete -F chooser_{fname} -o bashdefault -o default {bname}"#,
-			JoinFmt::new(self.subcommands.iter().map(SubcmdCase::from), ""),
-			JoinFmt::new(self.subcommands.iter().map(ChooserCase::from), ""),
+			join!(self.subcommands.iter().map(SubcmdCase::from)),
+			join!(self.subcommands.iter().map(ChooserCase::from)),
 		)
 	}
 }
@@ -192,7 +192,7 @@ impl BashWriter<'_> {
 /// # chooser_XXX Case.
 ///
 /// This is used to help format the case entries in the `chooser_XXX` bash
-/// method, enabling us to leverage a `JoinFmt` to keep the damage confined to
+/// method, enabling us to leverage a `join!` to keep the damage confined to
 /// a single `write!` pattern.
 struct ChooserCase<'a>(&'a str, &'a str);
 
@@ -222,7 +222,7 @@ impl<'a> From<&'a Subcommand<'a>> for ChooserCase<'a> {
 /// # subcmd_XXX Case.
 ///
 /// This is used to help format the case entries in the subcmd_XXX bash method,
-/// enabling us to leverage a `JoinFmt` to keep the damage confined to a single
+/// enabling us to leverage a `join!` to keep the damage confined to a single
 /// `write!` pattern.
 struct SubcmdCase<'a>(&'a str);
 
@@ -490,7 +490,7 @@ impl<'a> Subcommand<'a> {
 			COMPREPLY=()
 			;;
 	esac"#,
-				JoinFmt::new(path_keys.iter(), "|"),
+				join!('|', path_keys.iter()),
 			)?;
 		}
 

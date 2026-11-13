@@ -74,8 +74,8 @@ use fyi_msg::{
 };
 use man::ManWriter;
 use oxford_join::{
-	JoinFmt,
-	OxfordJoinFmt,
+	join,
+	oxford_join,
 };
 use parse::{
 	Flag,
@@ -266,11 +266,11 @@ fn main__() -> Result<(), BashManError> {
 		files.sort_unstable();
 		Msg::success(format!(
 			concat!("Generated {} in {}.\n  ", dim!("{}")),
-			OxfordJoinFmt::and(good.as_slice()),
+			oxford_join!(good.iter()),
 			NiceElapsed::from(now),
-			JoinFmt::new(
-				files.iter().map(|x| RelativePath::from(x.as_path())),
+			join!(
 				"\n  ",
+				files.iter().map(|x| RelativePath::from(x.as_path())),
 			),
 		)).eprint();
 	}
