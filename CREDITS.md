@@ -1,73 +1,74 @@
 # Project Dependencies
     Package:   cargo-bashman
-    Version:   0.10.2
+    Version:   0.10.3
     Target:    x86_64-unknown-linux-gnu
-    Generated: 2026-10-02 02:47:12 UTC
+    Generated: 2026-11-13 01:51:01 UTC
 
 | Package | Version | Author(s) | License |
 | ---- | ---- | ---- | ---- |
-| [**adbyss_psl**](https://github.com/Blobfolio/adbyss) | 0.24.5 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
+| [**adbyss_psl**](https://github.com/Blobfolio/adbyss) | 0.24.8 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
 | [**argyle**](https://github.com/Blobfolio/argyle) | 0.16.0 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
 | [bitflags](https://github.com/bitflags/bitflags) | 2.13.2 | The Rust Project Developers | MIT OR Apache-2.0 |
-| [cc](https://github.com/rust-lang/cc-rs) ⚒️ | 1.5.1 |  | MIT OR Apache-2.0 |
+| [cc](https://github.com/rust-lang/cc-rs) ⚒️ | 1.11.1 |  | MIT OR Apache-2.0 |
 | [cfg-if](https://github.com/rust-lang/cfg-if) | 1.0.5 | [Alex Crichton](mailto:alex@alexcrichton.com) | MIT OR Apache-2.0 |
 | [**dactyl**](https://github.com/Blobfolio/dactyl) | 0.14.1 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
 | [displaydoc](https://github.com/yaahc/displaydoc) | 0.2.7 | [Jane Lusby](mailto:jlusby@yaah.dev) | MIT OR Apache-2.0 |
 | [fastrand](https://github.com/smol-rs/fastrand) | 2.5.0 | [Stjepan Glavina](mailto:stjepang@gmail.com) | Apache-2.0 OR MIT |
-| [find-msvc-tools](https://github.com/rust-lang/cc-rs) ⚒️ | 0.1.14 |  | MIT OR Apache-2.0 |
+| [find-msvc-tools](https://github.com/rust-lang/cc-rs) ⚒️ | 0.1.15 |  | MIT OR Apache-2.0 |
 | [form_urlencoded](https://github.com/servo/rust-url) | 1.2.2 | The rust-url developers | MIT OR Apache-2.0 |
-| [fyi_ansi](https://github.com/Blobfolio/fyi) | 2.7.1 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
-| [**fyi_msg**](https://github.com/Blobfolio/fyi) | 2.7.1 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
+| [fyi_ansi](https://github.com/Blobfolio/fyi) | 2.7.2 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
+| [**fyi_msg**](https://github.com/Blobfolio/fyi) | 2.7.2 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
 | [getrandom](https://github.com/rust-random/getrandom) | 0.4.3 | The Rand Project Developers | MIT OR Apache-2.0 |
-| [icu_collections](https://github.com/unicode-org/icu4x) | 2.3.0 | The ICU4X Project Developers | Unicode-3.0 |
-| [icu_locale_core](https://github.com/unicode-org/icu4x) | 2.3.0 | The ICU4X Project Developers | Unicode-3.0 |
-| [icu_normalizer](https://github.com/unicode-org/icu4x) | 2.3.0 | The ICU4X Project Developers | Unicode-3.0 |
-| [icu_normalizer_data](https://github.com/unicode-org/icu4x) | 2.3.0 | The ICU4X Project Developers | Unicode-3.0 |
-| [icu_properties](https://github.com/unicode-org/icu4x) | 2.3.0 | The ICU4X Project Developers | Unicode-3.0 |
-| [icu_properties_data](https://github.com/unicode-org/icu4x) | 2.3.0 | The ICU4X Project Developers | Unicode-3.0 |
-| [icu_provider](https://github.com/unicode-org/icu4x) | 2.3.1 | The ICU4X Project Developers | Unicode-3.0 |
+| [icu_collections](https://github.com/unicode-org/icu4x) | 2.4.0 | The ICU4X Project Developers | Unicode-3.0 |
+| [icu_locale_core](https://github.com/unicode-org/icu4x) | 2.4.0 | The ICU4X Project Developers | Unicode-3.0 |
+| [icu_normalizer](https://github.com/unicode-org/icu4x) | 2.4.0 | The ICU4X Project Developers | Unicode-3.0 |
+| [icu_normalizer_data](https://github.com/unicode-org/icu4x) | 2.4.0 | The ICU4X Project Developers | Unicode-3.0 |
+| [icu_properties](https://github.com/unicode-org/icu4x) | 2.4.0 | The ICU4X Project Developers | Unicode-3.0 |
+| [icu_properties_data](https://github.com/unicode-org/icu4x) | 2.4.0 | The ICU4X Project Developers | Unicode-3.0 |
+| [icu_provider](https://github.com/unicode-org/icu4x) | 2.4.0 | The ICU4X Project Developers | Unicode-3.0 |
 | [idna](https://github.com/servo/rust-url/) | 1.1.0 | The rust-url developers | MIT OR Apache-2.0 |
 | [idna_adapter](https://github.com/hsivonen/idna_adapter) | 1.2.2 | The rust-url developers | Apache-2.0 OR MIT |
-| [itoa](https://github.com/dtolnay/itoa) | 1.0.18 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
-| [libc](https://github.com/rust-lang/libc) | 0.2.189 |  | MIT OR Apache-2.0 |
+| [itoa](https://github.com/dtolnay/itoa) | 1.0.19 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
+| [libc](https://github.com/rust-lang/libc) | 0.2.191 |  | MIT OR Apache-2.0 |
 | [libdeflate-sys](https://github.com/libdeflater/libdeflater) | 1.26.1 | [Adam Kewley](mailto:contact@adamkewley.com) | Apache-2.0 |
 | [**libdeflater**](https://github.com/libdeflater/libdeflater) | 1.26.1 | [Adam Kewley](mailto:contact@adamkewley.com) | Apache-2.0 |
 | [linux-raw-sys](https://github.com/sunfishcode/linux-raw-sys) | 0.12.1 | [Dan Gohman](mailto:dev@sunfishcode.online) | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT |
 | [litemap](https://github.com/unicode-org/icu4x) | 0.8.3 | The ICU4X Project Developers | Unicode-3.0 |
 | [memchr](https://github.com/BurntSushi/memchr) | 2.8.3 | [Andrew Gallant](mailto:jamslam@gmail.com) and bluss | Unlicense OR MIT |
 | [once_cell](https://github.com/matklad/once_cell) | 1.21.4 | [Aleksey Kladov](mailto:aleksey.kladov@gmail.com) | MIT OR Apache-2.0 |
-| [**oxford_join**](https://github.com/Blobfolio/oxford_join) | 0.8.0 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
+| [**oxford_join**](https://github.com/Blobfolio/oxford_join) | 0.9.1 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
 | [percent-encoding](https://github.com/servo/rust-url/) | 2.3.2 | The rust-url developers | MIT OR Apache-2.0 |
 | [potential_utf](https://github.com/unicode-org/icu4x) | 0.1.6 | The ICU4X Project Developers | Unicode-3.0 |
 | [proc-macro2](https://github.com/dtolnay/proc-macro2) | 1.0.107 | [David Tolnay](mailto:dtolnay@gmail.com) and [Alex Crichton](mailto:alex@alexcrichton.com) | MIT OR Apache-2.0 |
 | [quote](https://github.com/dtolnay/quote) | 1.0.47 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
-| [rustix](https://github.com/bytecodealliance/rustix) | 1.1.5 | [Dan Gohman](mailto:dev@sunfishcode.online) and [Jakub Konka](mailto:kubkon@jakubkonka.com) | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT |
+| [rustix](https://github.com/bytecodealliance/rustix) | 1.1.6 | [Dan Gohman](mailto:dev@sunfishcode.online) and [Jakub Konka](mailto:kubkon@jakubkonka.com) | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT |
 | [**semver**](https://github.com/dtolnay/semver) | 1.0.28 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
 | [**serde**](https://github.com/serde-rs/serde) | 1.0.229 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
 | [serde_core](https://github.com/serde-rs/serde) | 1.0.229 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
 | [serde_derive](https://github.com/serde-rs/serde) | 1.0.229 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
-| [**serde_json**](https://github.com/serde-rs/json) | 1.0.151 | [Erick Tryzelaar](mailto:erick.tryzelaar@gmail.com) and [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
+| [**serde_json**](https://github.com/serde-rs/json) | 1.0.154 |  | MIT OR Apache-2.0 |
 | [shlex](https://github.com/comex/rust-shlex) ⚒️ | 2.0.1 | [comex](mailto:comexk@gmail.com), [Fenhl](mailto:fenhl@fenhl.net), [Adrian Taylor](mailto:adetaylor@chromium.org), [Alex Touchet](mailto:alextouchet@outlook.com), [Daniel Parks](mailto:dp&#43;git@oxidized.org), and [Garrett Berg](mailto:googberg@gmail.com) | MIT OR Apache-2.0 |
-| [smallvec](https://github.com/servo/rust-smallvec) | 1.16.2 | The Servo Project Developers | MIT OR Apache-2.0 |
+| [smallvec](https://github.com/servo/rust-smallvec) | 1.16.5 | The Servo Project Developers | MIT OR Apache-2.0 |
 | [stable_deref_trait](https://github.com/storyyeller/stable_deref_trait) | 1.2.1 | [Robert Grosse](mailto:n210241048576@gmail.com) | MIT OR Apache-2.0 |
-| [syn](https://github.com/dtolnay/syn) | 3.0.6 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
+| [syn](https://github.com/dtolnay/syn) | 3.0.10 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT OR Apache-2.0 |
 | [synstructure](https://github.com/mystor/synstructure) | 0.14.0 | [Nika Layzell](mailto:nika@thelayzells.com) | MIT |
 | [tempfile](https://github.com/Stebalien/tempfile) | 3.27.0 | [Steven Allen](mailto:steven@stebalien.com), The Rust Project Developers, [Ashley Mannix](mailto:ashleymannix@live.com.au), and [Jason White](mailto:me@jasonwhite.io) | MIT OR Apache-2.0 |
-| [tinystr](https://github.com/unicode-org/icu4x) | 0.8.4 | The ICU4X Project Developers | Unicode-3.0 |
+| [tinystr](https://github.com/unicode-org/icu4x) | 0.8.5 | The ICU4X Project Developers | Unicode-3.0 |
 | [**trimothy**](https://github.com/Blobfolio/trimothy) | 0.10.0 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
-| [unicode-ident](https://github.com/dtolnay/unicode-ident) | 1.0.26 | [David Tolnay](mailto:dtolnay@gmail.com) | (MIT OR Apache-2.0) AND Unicode-3.0 |
+| [unicode-ident](https://github.com/dtolnay/unicode-ident) | 1.0.27 | [David Tolnay](mailto:dtolnay@gmail.com) | (MIT OR Apache-2.0) AND Unicode-3.0 |
 | [**url**](https://github.com/servo/rust-url) | 2.5.8 | The rust-url developers | MIT OR Apache-2.0 |
 | [**utc2k**](https://github.com/Blobfolio/utc2k) | 0.21.1 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
-| [utf8_iter](https://github.com/hsivonen/utf8_iter) | 1.0.4 | [Henri Sivonen](mailto:hsivonen@hsivonen.fi) | Apache-2.0 OR MIT |
+| [utf8_iter](https://github.com/hsivonen/utf8_iter) | 1.1.0 | [Henri Sivonen](mailto:hsivonen@hsivonen.fi) | Apache-2.0 OR MIT |
+| [utf_types](https://github.com/hsivonen/utf_types) | 1.0.0 | [Henri Sivonen](mailto:hsivonen@hsivonen.fi) | Apache-2.0 OR MIT |
 | [**write_atomic**](https://github.com/Blobfolio/write_atomic) | 0.9.0 | [Josh Stoik](mailto:josh@blobfolio.com) | WTFPL |
 | [writeable](https://github.com/unicode-org/icu4x) | 0.6.4 | The ICU4X Project Developers | Unicode-3.0 |
-| [yoke](https://github.com/unicode-org/icu4x) | 0.8.3 | [Manish Goregaokar](mailto:manishsmail@gmail.com) | Unicode-3.0 |
+| [yoke](https://github.com/unicode-org/icu4x) | 0.8.4 | [Manish Goregaokar](mailto:manishsmail@gmail.com) | Unicode-3.0 |
 | [yoke-derive](https://github.com/unicode-org/icu4x) | 0.8.4 | [Manish Goregaokar](mailto:manishsmail@gmail.com) | Unicode-3.0 |
 | [zerofrom](https://github.com/unicode-org/icu4x) | 0.1.8 | The ICU4X Project Developers | Unicode-3.0 |
 | [zerofrom-derive](https://github.com/unicode-org/icu4x) | 0.1.8 | [Manish Goregaokar](mailto:manishsmail@gmail.com) | Unicode-3.0 |
 | [zerotrie](https://github.com/unicode-org/icu4x) | 0.2.5 | The ICU4X Project Developers | Unicode-3.0 |
-| [zerovec](https://github.com/unicode-org/icu4x) | 0.11.8 | The ICU4X Project Developers | Unicode-3.0 |
-| [zerovec-derive](https://github.com/unicode-org/icu4x) | 0.11.6 | [Manish Goregaokar](mailto:manishsmail@gmail.com) | Unicode-3.0 |
+| [zerovec](https://github.com/unicode-org/icu4x) | 0.11.9 | The ICU4X Project Developers | Unicode-3.0 |
+| [zerovec-derive](https://github.com/unicode-org/icu4x) | 0.11.7 | [Manish Goregaokar](mailto:manishsmail@gmail.com) | Unicode-3.0 |
 | [zmij](https://github.com/dtolnay/zmij) | 1.0.23 | [David Tolnay](mailto:dtolnay@gmail.com) | MIT |
 
 ### Legend
