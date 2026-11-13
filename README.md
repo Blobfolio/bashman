@@ -28,6 +28,27 @@ cargo install \
     --bin cargo-bashman
 ```
 
+### Offline/Vendored Builds
+
+If your build environment lacks networking support, pre-download the `Source code (tar.gz)` and `vendored-sources.tar.zst` assets attached to the [release](https://github.com/Blobfolio/bashman/releases/latest), then:
+
+```bash
+# Extract the source code.
+tar -xf bashman-VERSION.tar.gz
+
+# Move into the source root.
+cd bashman-VERSION
+
+# Extract the vendored sources (into the source root).
+tar -xf ../vendored-sources.tar.zst
+
+# Build! See `cargo build --help` for more options.
+cargo build \
+    --release \
+    --locked \
+    --offline
+```
+
 
 
 ## Usage
